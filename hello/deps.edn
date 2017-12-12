@@ -1,0 +1,5 @@
+{:deps
+    {time-lib
+        {:local/root 
+            "/home/fred/projects/immortals/cp2/time_lib"}
+     aql {:local/root "/home/fred/projects/ofql/target/fql-0.9-SNAPSHOT-maven-jar-with-dependencies.jar"}}}
