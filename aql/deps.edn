@@ -1,0 +1,6 @@
+{
+    :paths ["src"]
+    :deps {
+           aql {:local/root "/home/fred/projects/ofql/target/fql-0.9-SNAPSHOT-maven-jar-with-dependencies.jar"}}
+    :mvn/repos { "central" {:url "https://repo1.maven.org/maven2/"}
+                 "clojars" {:url "https://clojars.org/repo/"}}}

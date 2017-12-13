@@ -1,0 +1,43 @@
+
+
+schema S = literal : sql {
+	entities
+		Employee 
+		Department
+	foreign_keys
+		manager   : Employee -> Employee
+		worksIn   : Employee -> Department
+		secretary : Department -> Employee
+	path_equations 
+		manager.worksIn = worksIn
+  		secretary.worksIn = Department
+  		manager.manager = manager
+  	attributes
+  		first last	: Employee -> Varchar
+     	age			: Employee -> Integer
+     	name 		: Department -> Varchar
+ }
+
+query Q = literal : S -> S {
+	entity
+		Employee -> 
+		{from e:Employee d:Department
+		 where e.worksIn = d
+		 attributes first -> e.manager.first 
+		        last -> d.name 
+		        age -> e.age
+		        foreign_keys manager -> {e -> e.manager
+		            d -> e.manager.worksIn}
+		worksIn -> {d -> e.worksIn}
+		}
+		
+		entity Department -> {from d:Department 
+		               attributes name -> d.name
+		               foreign_keys secretary -> {e -> d.secretary 
+		              d -> d}}		
+}
+
+command export_Q = exec_js {
+	"Java.type(\"catdata.Util\").writeFile(Java.type(\"catdata.aql.AqlCmdLine\").schemaToSql(aql_env.defs.schs.get(\"S\")),\"/Users/ryan/Desktop/sch_test.sql\")"
+	"Java.type(\"catdata.Util\").writeFile(Java.type(\"catdata.aql.AqlCmdLine\").queryToSql(aql_env.defs.qs.get(\"Q\")),\"/Users/ryan/Desktop/q_test.sql\")"
+}
