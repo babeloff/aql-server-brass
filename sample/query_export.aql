@@ -38,6 +38,6 @@ query Q = literal : S -> S {
 }
 
 command export_Q = exec_js {
-	"Java.type(\"catdata.Util\").writeFile(Java.type(\"catdata.aql.AqlCmdLine\").schemaToSql(aql_env.defs.schs.get(\"S\")),\"/Users/ryan/Desktop/sch_test.sql\")"
-	"Java.type(\"catdata.Util\").writeFile(Java.type(\"catdata.aql.AqlCmdLine\").queryToSql(aql_env.defs.qs.get(\"Q\")),\"/Users/ryan/Desktop/q_test.sql\")"
+	"Java.type(\"catdata.Util\").writeFile(Java.type(\"catdata.aql.AqlCmdLine\").schemaToSql(aql_env.defs.schs.get(\"S\")),\"./sch_test.sql\")"
+	"Java.type(\"catdata.Util\").writeFile(Java.type(\"catdata.aql.AqlCmdLine\").queryToSql(aql_env.defs.qs.get(\"Q\")),\"./q_test.sql\")"
 }

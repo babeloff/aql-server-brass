@@ -17,53 +17,60 @@
 }")
 
 (def sc0 "schema S = literal : sql {
-	entities
-		Employee 
-		Department
-	foreign_keys
-		manager   : Employee -> Employee
-		worksIn   : Employee -> Department
-		secretary : Department -> Employee
-	path_equations 
-		manager.worksIn = worksIn
-  		secretary.worksIn = Department
-  		manager.manager = manager
-  	attributes
-  		first last	: Employee -> Varchar
-     	age			: Employee -> Integer
-     	name 		: Department -> Varchar
+    entities
+        Employee 
+        Department
+    foreign_keys
+        manager   : Employee -> Employee
+        worksIn   : Employee -> Department
+        secretary : Department -> Employee
+    path_equations 
+        manager.worksIn = worksIn
+          secretary.worksIn = Department
+          manager.manager = manager
+      attributes
+          first last    : Employee -> Varchar
+         age            : Employee -> Integer
+         name         : Department -> Varchar
  }")
 
 (def qu0 "query Q = literal : S -> S {
-	entity
-		Employee -> 
-		{from e:Employee d:Department
-		 where e.worksIn = d
-		 attributes first -> e.manager.first 
-		        last -> d.name 
-		        age -> e.age
-		        foreign_keys manager -> {e -> e.manager
-		            d -> e.manager.worksIn}
-		worksIn -> {d -> e.worksIn}
-		}
-		
-		entity Department -> {from d:Department 
-		               attributes name -> d.name
-		               foreign_keys secretary -> {e -> d.secretary 
-		              d -> d}}		
+    entity
+        Employee -> 
+        {
+            from e:Employee d:Department
+            where e.worksIn = d
+            attributes 
+                first -> e.manager.first 
+                last -> d.name 
+                age -> e.age
+            foreign_keys 
+                manager -> 
+                    {
+                        e -> e.manager
+                        d -> e.manager.worksIn
+                    }
+                worksIn -> 
+                    {d -> e.worksIn}
+        }   
+    entity Department -> 
+        {
+            from d:Department 
+            attributes name -> d.name
+            foreign_keys secretary -> 
+                {
+                    e -> d.secretary 
+                    d -> d
+                }
+        }        
 }")
 
 (def sql0 "command export_Q = exec_js {
-	\"Java.type(\\\"catdata.Util\\\").writeFile(Java.type(\\\"catdata.aql.AqlCmdLine\\\").schemaToSql(aql_env.defs.schs.get(\\\"S\\\")),\\\"/Users/ryan/Desktop/sch_test.sql\\\")\"
-	\"Java.type(\\\"catdata.Util\\\").writeFile(Java.type(\\\"catdata.aql.AqlCmdLine\\\").queryToSql(aql_env.defs.qs.get(\\\"Q\\\")),\\\"/Users/ryan/Desktop/q_test.sql\\\")\"
+    \"Java.type(\\\"catdata.Util\\\").writeFile(Java.type(\\\"catdata.aql.AqlCmdLine\\\").schemaToSql(aql_env.defs.schs.get(\\\"S\\\")),\\\"/home/fred/projects/immortals/cp2/sch_test.sql\\\")\"
+    \"Java.type(\\\"catdata.Util\\\").writeFile(Java.type(\\\"catdata.aql.AqlCmdLine\\\").queryToSql(aql_env.defs.qs.get(\\\"Q\\\")),\\\"/home/fred/projects/immortals/cp2/q_test.sql\\\")\"
 }")
 
-
-(def ts1 (AqlParser/parseProgram ts0))
-(def ts2 (AqlMultiDriver. ts1 (make-array String 1)  nil))
-
-
-(def cmd0 "command p3 = exec_cmdline { \"ls\" }")
+(def cmd0 (str ts0 " " sc0 " " qu0 " " sql0))
 (def cmd1 (AqlParser/parseProgram cmd0))
 (def cmd2 (AqlMultiDriver. cmd1 (make-array String 1)  nil))
 (.start cmd2)
