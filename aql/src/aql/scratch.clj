@@ -65,3 +65,11 @@
 (get (.map (.schs (.defs cmd3))) "S")
 (-> cmd2 .env .defs .schs .map (get "S"))
 
+(require '[aql.brass.data :as brass] :reload)
+(require '[clojure.string :as st])
+(def schema brass/sc0)
+(def cmd0 (brass/serial-aql-schema schema))
+(def cmd1 (AqlParser/parseProgram cmd0))
+(def cmd2 (AqlMultiDriver. cmd1 (make-array String 1)  nil))
+(.start cmd2)
+(-> cmd2 .env .defs .schs .map (get "S") str #(str "schema "))

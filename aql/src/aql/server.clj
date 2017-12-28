@@ -9,13 +9,15 @@
             [core :as http])
         (aql.brass [data :as brass])))
 
-(defn usage [req] 
+(defn usage [req]
+    (log/info "usage:" (keys req)) 
     (str "<body>
         <h1>usage</h1>
-        <p> AQL processing</p>
+        <p>AQL processing</p>
         </body>"))
 
 (defn async-handler [request] 
+    (log/info "async-handler:" (keys request)) 
     (svr/with-channel request channel 
         (svr/on-close channel 
             (fn [status]
@@ -34,9 +36,11 @@
                     (str "<h1>how to request AQL processing</h1>"))))))
                 
 (defn empty-handler [request]
+    (log/info "empty-handler:" (keys request)) 
     (str "<h1>default aql handler</h1>"))
  
 (defn aql-handler [request]
+    (log/info "aql-handler:" (keys request)) 
     (str "<body>
         <h1>AQL Handler</h1>
         <p>" 
@@ -45,16 +49,23 @@
             "aql not found")
         "</p>
         </body>"))
-        
-(defn aql-brass-p2c1 [request]
-    (let [act0 (get-in request [:params :permutation])
-          act1 (json/read-str act0)]
-        (str "<body>
-            <h1>BRASS P2 CP1 Handler</h1>
-            <p>" 
-            (str act1)
-            "</p>
-            </body>")))
+
+(defn brass-p2c1 [request]
+    (log/info "brass-handler:" (keys request)) 
+    (if-let [act0 (get-in request [:params :permutation] nil)]
+        (let  [act1 (json/read-str act0)
+               res (brass/html act1)]
+            (str "<body>
+                <h1>BRASS P2 CP1 Handler</h1>
+                <p>" 
+                (str act1)
+                res
+                "</p>
+                </body>"))
+        "<body>
+        <h1>brass p2c1 handler</h1>
+        <p>failure</p>
+        </body>"))
      
 ;; https://weavejester.github.io/compojure/compojure.core.html#var-routes
 (http/defroutes all-routes 
@@ -62,7 +73,7 @@
     (http/ANY "/ws" [] async-handler)
     (http/ANY "/aql" [] aql-handler)
     (http/context "/brass" []
-        (http/ANY "/p2/c1" [] aql-brass-p2c1))
+        (http/ANY "/p2/c1" [] brass-p2c1))
     ;; (route/files "/static/") 
     (route/not-found usage))
 

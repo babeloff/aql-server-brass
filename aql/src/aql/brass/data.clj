@@ -1,44 +1,74 @@
 ;;
-;; 
+;; Schema for demonstrating the BRASS approach
+;;
 
 (ns aql.brass.data
-    (:import (catdata.aql.exp 
-                AqlEnv
-                AqlParser 
-                AqlMultiDriver)))
+    (:require 
+        (clojure [pprint :as pp]
+                 [string :as st]))
+    (:import 
+        (catdata.aql.exp 
+            AqlEnv
+            AqlParser 
+            AqlMultiDriver)))
 
 ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
 ;;   database/server/baseline_schema_ddl.sql
 
-(def sc0 "schema S = literal : sql {
-    entities
-        source 
-        cot_event
-        cot_event_position
-    foreign_keys
-        source_id : cot_event -> source
-        cot_event_id : cot_event_position -> cot_event 
-    path_equations 
-        cot_event_position.cot_event_id = cot_event
-    attributes
-        name   : source -> Varchar
-        channel : source -> Integer
+(def sc0 
+    {:name "S"
+     :type :schema
+     :extend "sql"
+     :entities 
+        #{"source" "cot_event" "cot_event_position"}
+     :attributes 
+        {"name" ["source" "Varchar"]
+         "channel" ["source" "Varchar"]  
+         "cot_type"  ["cot_event" "Varchar"] 
+         "how"  ["cot_event" "Varchar"]
+         "detail"  ["cot_event" "Text"]
+         "servertime"  ["cot_event" "Integer"]
+         "cot_event_id" ["cot_event_position" "Integer"]
+         "point_hae" ["cot_event_position" "Integer"]
+         "point_ce" ["cot_event_position" "Integer"]
+         "point_le" ["cot_event_position" "Integer"]
+         "tileX" ["cot_event_position" "Integer"]
+         "tileY" ["cot_event_position" "Integer"]
+         "latitude" ["cot_event_position" "Real"]
+         "longitude" ["cot_event_position" "Real"]}
+     :references 
+        {"source_id" ["cot_event" "source"]
+         "cot_event_id" ["cot_event_position" "cot_event"]}
+     :path-equivs
+        [[["cot_event_position" "cot_event_id"] ["cot_event"]]]})
+ 
+(defn mapjoin [delimiter f col]
+    (st/join delimiter (map f col)))
 
-        source_id : cot_event -> Varchar
-        cot_type : cot_event -> Varchar
-        how : cot_event -> Varchar
-        detail : cot_event -> Text
-        servertime : cot_event -> Integer
-
-        cot_event_id : cot_event_position -> Integer
-        point_hae : cot_event_position -> Integer
-        point_ce : cot_event_position -> Integer
-        point_le : cot_event_position -> Integer
-        tileX : cot_event_position -> Integer
-        tileY : cot_event_position -> Integer
-        longitude : cot_event_position -> Real
-        latitude : cot_event_position -> Real
- }")
+(defn serial-aql-schema [schema]
+    (str "schema " (:name schema) " = literal : " (:extend schema) " {\n"
+            " entities " "\n"
+            (st/join " " (:entities schema)) 
+            "\n"
+            " foreign_keys " "\n"
+            (mapjoin " " 
+                (fn [[key [src dst]]] 
+                    (str key " : " src " -> " dst)) 
+                (:references schema)) 
+            "\n"                         
+          ; " path_equations " "\n"
+          ;  (mapjoin " " 
+          ;       (fn [[left right]] 
+          ;          (str (st/join "." left) " = " (st/join "." right)) 
+          ;      (:path-equivs schema)
+          ;  "\n"
+            " attributes " "\n"
+            (mapjoin " " 
+                (fn [[key [src type]]] 
+                    (str key " : " src " -> " type)) 
+                (:attributes schema))
+            "\n"    
+            " } "))  
 
 
  ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
@@ -91,4 +121,5 @@
             evn (make-env initial)
             middle (System/currentTimeMillis)]
         evn))
-  
+        
+
