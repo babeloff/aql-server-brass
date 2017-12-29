@@ -1,7 +1,4 @@
-(import '(catdata.aql.exp 
-                AqlEnv
-                AqlParser 
-                AqlMultiDriver))
+
 
 
 (def ts0 "typeside TypeSide = literal {
@@ -57,6 +54,8 @@
     \"Java.type(\\\"catdata.Util\\\").writeFile(Java.type(\\\"catdata.aql.AqlCmdLine\\\").queryToSql(aql_env.defs.qs.get(\\\"Q\\\")),\\\"./query_test.sql\\\")\"
 }")
 
+(import '(catdata.aql.exp) AqlEnv AqlParser AqlMultiDriver)
+    
 (def cmd0 (str ts0 " " sc0 " " qu0))
 (def cmd1 (AqlParser/parseProgram cmd0))
 (def cmd2 (AqlMultiDriver. cmd1 (make-array String 1)  nil))
@@ -72,4 +71,5 @@
 (def cmd1 (AqlParser/parseProgram cmd0))
 (def cmd2 (AqlMultiDriver. cmd1 (make-array String 1)  nil))
 (.start cmd2)
-(-> cmd2 .env .defs .schs .map (get "S") str #(str "schema "))
+(def cmd4 (-> cmd2 .env .defs .schs .map (get "S") str))
+(brass/wrap-schema schema cmd4)

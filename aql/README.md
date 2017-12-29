@@ -40,6 +40,19 @@ A sample provided by Ryan Wisnesky to demonstrate some interesting points.
 
 The data used for the BRASS demonstration.
 
+## Usage
+
+Start the server.
+
+clj -m aql.server
+
+Run the client demo from the command line.
+
+clj -m aql.client-demo
+
+This will submit a sample migration command from which the migrated queries will be extracted.
+
+
 ## References
 
 https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk

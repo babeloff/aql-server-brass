@@ -45,8 +45,15 @@
 (defn mapjoin [delimiter f col]
     (st/join delimiter (map f col)))
 
+
+(defn wrap-schema [schema literal]
+    (str "schema " (:name schema) 
+        " = literal : " (:extend schema) 
+        " {\n" literal "\n}\n"))
+            
 (defn serial-aql-schema [schema]
-    (str "schema " (:name schema) " = literal : " (:extend schema) " {\n"
+    (wrap-schema schema 
+        (str 
             " entities " "\n"
             (st/join " " (:entities schema)) 
             "\n"
@@ -66,9 +73,8 @@
             (mapjoin " " 
                 (fn [[key [src type]]] 
                     (str key " : " src " -> " type)) 
-                (:attributes schema))
-            "\n"    
-            " } "))  
+                (:attributes schema)))))
+              
 
 
  ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
