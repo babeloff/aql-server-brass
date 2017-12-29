@@ -4,7 +4,6 @@
                 AqlParser 
                 AqlMultiDriver)))
 
-
 (def ts0 "typeside TypeSide = literal {
     java_types
         Varchar = \"java.lang.String\"
@@ -16,23 +15,26 @@
         Matches : Varchar, Varchar -> Bool = \"return input[0].matches(input[1])\"
 }")
 
-(def sc0 "schema S = literal : sql {
-    entities
-        Employee 
-        Department
-    foreign_keys
-        manager   : Employee -> Employee
-        worksIn   : Employee -> Department
-        secretary : Department -> Employee
-    path_equations 
-        manager.worksIn = worksIn
-          secretary.worksIn = Department
-          manager.manager = manager
-      attributes
-          first last    : Employee -> Varchar
-         age            : Employee -> Integer
-         name         : Department -> Varchar
- }")
+(def sc0 
+    {:name "S"
+     :type :schema
+     :extend "sql"
+     :entities 
+        #{"Employee" "Department"}
+     :attributes 
+        {
+         "first" ["Employee" "Varchar"] 
+         "last" ["Employee" "Varchar"] 
+         "age"  ["Employee" "Integer"] 
+         "name"  ["Department" "Varchar"]}
+     :references 
+        {"manager" ["Employee" "Employee"]
+         "worksIn"   ["Employee" "Department"]
+         "secretary" ["Department" "Employee"]}
+     :equations 
+        [[["manager" "worksIn"] ["worksIn"]]
+         [["secretary" "worksIn"] ["Department"]]
+         [["manager" "manager"] ["manager"]]]})
 
 (def qu0 "query Q = literal : S -> S {
     entity

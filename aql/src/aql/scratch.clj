@@ -1,60 +1,7 @@
 
 
-
-(def ts0 "typeside TypeSide = literal {
-    java_types
-        Varchar = \"java.lang.String\"
-        Bool = \"java.lang.Boolean\"
-    java_constants
-        Varchar = \"return input[0]\"
-        Bool = \"return java.lang.Boolean.parseBoolean(input[0])\"
-    java_functions
-        Matches : Varchar, Varchar -> Bool = \"return input[0].matches(input[1])\"
-}")
-
-(def sc0 "schema S = literal : sql {
-    entities
-        Employee 
-        Department
-    foreign_keys
-        manager   : Employee -> Employee
-        worksIn   : Employee -> Department
-        secretary : Department -> Employee
-    path_equations 
-        manager.worksIn = worksIn
-          secretary.worksIn = Department
-          manager.manager = manager
-      attributes
-          first last    : Employee -> Varchar
-         age            : Employee -> Integer
-         name         : Department -> Varchar
- }")
-
-(def qu0 "query Q = literal : S -> S {
-    entity
-        Employee -> 
-        {from e:Employee d:Department
-         where e.worksIn = d
-         attributes first -> e.manager.first 
-                last -> d.name 
-                age -> e.age
-                foreign_keys manager -> {e -> e.manager
-                    d -> e.manager.worksIn}
-        worksIn -> {d -> e.worksIn}
-        }
-        
-        entity Department -> {from d:Department 
-                       attributes name -> d.name
-                       foreign_keys secretary -> {e -> d.secretary 
-                      d -> d}}        
-}")
-
-(def sql0 "command export_Q = exec_js {
-    \"Java.type(\\\"catdata.Util\\\").writeFile(Java.type(\\\"catdata.aql.AqlCmdLine\\\").schemaToSql(aql_env.defs.schs.get(\\\"S\\\")),\\\"./schema_test.sql\\\")\"
-    \"Java.type(\\\"catdata.Util\\\").writeFile(Java.type(\\\"catdata.aql.AqlCmdLine\\\").queryToSql(aql_env.defs.qs.get(\\\"Q\\\")),\\\"./query_test.sql\\\")\"
-}")
-
-(import '(catdata.aql.exp) AqlEnv AqlParser AqlMultiDriver)
+;; mucking around with Ryan's sample
+(import '(catdata.aql.exp AqlEnv AqlParser AqlMultiDriver))
     
 (def cmd0 (str ts0 " " sc0 " " qu0))
 (def cmd1 (AqlParser/parseProgram cmd0))
@@ -64,12 +11,16 @@
 (get (.map (.schs (.defs cmd3))) "S")
 (-> cmd2 .env .defs .schs .map (get "S"))
 
+;; working with the p2 cp1 brass demo
+(import '(catdata.aql.exp AqlEnv AqlParser AqlMultiDriver))
+
 (require '[aql.brass.data :as brass] :reload)
-(require '[clojure.string :as st])
+(require '[aql.util :as util] :reload)
+
 (def schema brass/sc0)
-(def cmd0 (brass/serial-aql-schema schema))
+(def cmd0 (util/serial-aql-schema schema))
 (def cmd1 (AqlParser/parseProgram cmd0))
 (def cmd2 (AqlMultiDriver. cmd1 (make-array String 1)  nil))
 (.start cmd2)
 (def cmd4 (-> cmd2 .env .defs .schs .map (get "S") str))
-(brass/wrap-schema schema cmd4)
+(util/wrap-schema schema cmd4)

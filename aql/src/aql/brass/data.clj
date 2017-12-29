@@ -5,12 +5,7 @@
 (ns aql.brass.data
     (:require 
         (clojure [pprint :as pp]
-                 [string :as st]))
-    (:import 
-        (catdata.aql.exp 
-            AqlEnv
-            AqlParser 
-            AqlMultiDriver)))
+                 [string :as st])))
 
 ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
 ;;   database/server/baseline_schema_ddl.sql
@@ -38,45 +33,8 @@
          "longitude" ["cot_event_position" "Real"]}
      :references 
         {"source_id" ["cot_event" "source"]
-         "cot_event_id" ["cot_event_position" "cot_event"]}
-     :path-equivs
-        [[["cot_event_position" "cot_event_id"] ["cot_event"]]]})
- 
-(defn mapjoin [delimiter f col]
-    (st/join delimiter (map f col)))
-
-
-(defn wrap-schema [schema literal]
-    (str "schema " (:name schema) 
-        " = literal : " (:extend schema) 
-        " {\n" literal "\n}\n"))
-            
-(defn serial-aql-schema [schema]
-    (wrap-schema schema 
-        (str 
-            " entities " "\n"
-            (st/join " " (:entities schema)) 
-            "\n"
-            " foreign_keys " "\n"
-            (mapjoin " " 
-                (fn [[key [src dst]]] 
-                    (str key " : " src " -> " dst)) 
-                (:references schema)) 
-            "\n"                         
-          ; " path_equations " "\n"
-          ;  (mapjoin " " 
-          ;       (fn [[left right]] 
-          ;          (str (st/join "." left) " = " (st/join "." right)) 
-          ;      (:path-equivs schema)
-          ;  "\n"
-            " attributes " "\n"
-            (mapjoin " " 
-                (fn [[key [src type]]] 
-                    (str key " : " src " -> " type)) 
-                (:attributes schema)))))
-              
-
-
+         "cot_event_id" ["cot_event_position" "cot_event"]}})
+         
  ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
  ;;  database/server/aql/src/aql/cp2_1_db.aql#L262
 
@@ -103,29 +61,4 @@
         }    
 }")
 
-;; It may be useful to pass in an array to update
-;; see src/catdata/aql/gui/AqlCodeEditor:: makeEnv
-(defn make-env 
-    [prog] 
-    (let [driver (AqlMultiDriver. prog (make-array String 1)  nil)]
-        (.start driver)
-        (let [last-env (.env driver)]
-            (cond 
-                (some? (.exn last-env)) last-env
-                (not (.isEmpty (.keySet (.defs last-env)) )) last-env
-                :else (throw (Exception. "my exception message"))))))
-                
-
-(defn permute 
-    "register permutation" 
-    [perm]
-    (let [  initial (try 
-                        (AqlParser/parseProgram perm)
-                        ;;(catch LocException ex (.printStackTrace ex))
-                        (catch Throwable ex (.printStackTrace ex)))
-            start (System/currentTimeMillis)
-            evn (make-env initial)
-            middle (System/currentTimeMillis)]
-        evn))
-        
 
