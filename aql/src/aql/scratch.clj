@@ -1,17 +1,7 @@
 
 
-;; mucking around with Ryan's sample
-(import '(catdata.aql.exp AqlEnv AqlParser AqlMultiDriver))
-    
-(def cmd0 (str ts0 " " sc0 " " qu0))
-(def cmd1 (AqlParser/parseProgram cmd0))
-(def cmd2 (AqlMultiDriver. cmd1 (make-array String 1)  nil))
-(.start cmd2)
-(def cmd3 (.env cmd2))
-(get (.map (.schs (.defs cmd3))) "S")
-(-> cmd2 .env .defs .schs .map (get "S"))
-
 ;; working with the p2 cp1 brass demo
+(import '(catdata.aql AqlCmdLine))
 (import '(catdata.aql.exp AqlEnv AqlParser AqlMultiDriver))
 
 (require '[aql.brass.data :as brass] :reload)
@@ -22,5 +12,12 @@
 (def cmd1 (AqlParser/parseProgram cmd0))
 (def cmd2 (AqlMultiDriver. cmd1 (make-array String 1)  nil))
 (.start cmd2)
-(def cmd4 (-> cmd2 .env .defs .schs .map (get "S") str))
-(util/wrap-schema schema cmd4)
+(def env (.env cmd2))
+
+(def schema1 (util/env->schema env "S"))
+(util/wrap-schema schema schema1)
+(util/schema->sql schema1)
+
+(def query1 (util/env->query env "Q"))
+;; (util/wrap-query query query1)
+(util/query->sql query1)

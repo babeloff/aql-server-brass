@@ -4,6 +4,8 @@
         (clojure [pprint :as pp]
                  [string :as st]))
     (:import 
+        (catdata.aql 
+            AqlCmdLine)
         (catdata.aql.exp 
             AqlEnv
             AqlParser 
@@ -19,6 +21,20 @@
     (str "schema " (:name schema) 
         " = literal : " (:extend schema) 
         " {\n" literal "\n}\n"))
+
+(defn schema->sql [schema]
+    (when schema
+        (AqlCmdLine/schemaToSql schema))
+
+(defn query->sql [query]
+    (when query
+        (AqlCmdLine/queryToSql query)))
+
+(defn env->schema [env name]
+    (-> env .defs .schs .map (get name))) 
+
+(defn env->query [env name]
+    (-> env .defs .qs .map (get name)))   
             
 (defn serial-aql-schema [schema]
     (wrap-schema schema 

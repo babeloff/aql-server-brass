@@ -1,4 +1,4 @@
-(ns aql.demo
+(ns aql.demo.data
     (:import (catdata.aql.exp 
                 AqlEnv
                 AqlParser 
@@ -55,7 +55,8 @@
                 worksIn -> 
                     {d -> e.worksIn}
         }   
-    entity Department -> 
+    entity 
+        Department -> 
         {
             from d:Department 
             attributes name -> d.name
@@ -72,20 +73,3 @@
     \"Java.type(\\\"catdata.Util\\\").writeFile(Java.type(\\\"catdata.aql.AqlCmdLine\\\").queryToSql(aql_env.defs.qs.get(\\\"Q\\\")),\\\"/home/fred/projects/immortals/cp2/q_test.sql\\\")\"
 }")
 
-(def cmd0 (str ts0 " " sc0 " " qu0 " " sql0))
-(def cmd1 (AqlParser/parseProgram cmd0))
-(def cmd2 (AqlMultiDriver. cmd1 (make-array String 1)  nil))
-(.start cmd2)
-(def cmd3 (.env cmd2))
-
-(defn try-parse [prog] 
-    (try 
-        (AqlParser/parseProgram prog)
-        (catch LocException ex (.printStackTrace ex))
-        (catch Throwable ex (.printStackTrace ex))))
-        
-(def init (try-parse prog0))
-  
-(def start (System/currentTimeMillis))
-(def evn (make-env prog0 init))
-(def middle (System/currentTimeMillis))
