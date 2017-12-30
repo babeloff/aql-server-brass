@@ -48,7 +48,7 @@ clj -m aql.server
 
 Run the client demo from the command line.
 
-clj -m aql.client-demo
+clj -m aql.brass.client-demo
 
 This will submit a sample migration command from which the migrated queries will be extracted.
 
