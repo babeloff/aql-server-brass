@@ -40,26 +40,29 @@
     (str "<h1>default aql handler</h1>"))
  
 (defn aql-handler [request]
-    (log/info "aql-handler:" (keys request)) 
-    (str "<body>
-        <h1>AQL Handler</h1>
-        <p>" 
-        (get-in request 
-            [:params]
-            "aql not found")
-        "</p>
-        </body>"))
+    (let [params (get request :query-params nil)
+          action-str (get params "action")
+          action (json/read-str action-str)
+          model (get action "model")
+          return (get action "return")]
+        (log/info "aql-handler:" action)
+        (str "<body>
+            <h1>AQL Handler</h1>
+            <h2>model</h2> <p>" 
+                model
+            "</p><h2>return</h2> <p>" 
+            return
+            "</p>
+            </body>")))
 
 (defn brass-p2c1 [request]
     (log/info "brass-handler:" (keys request)) 
     (if-let [act0 (get-in request [:params :permutation] nil)]
-        (let  [act1 (json/read-str act0)
-               res (brass/html act1)]
+        (let  [act1 (json/read-str act0)]
             (str "<body>
                 <h1>BRASS P2 CP1 Handler</h1>
                 <p>" 
                 (str act1)
-                res
                 "</p>
                 </body>"))
         "<body>

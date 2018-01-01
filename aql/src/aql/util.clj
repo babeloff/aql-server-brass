@@ -74,7 +74,10 @@
                 (let [nent (str ent "__" key)]
                     [nent [nent type]]))
             (:attributes schema))))
-                    
+
+(defn norm-refs->ents [schema])
+(defn norm-attr->refs [schema])
+(defn norm-refs->refs [schema])
 
 (defn norm-aql-schema [schema]
     "Expand each attribute into its own entity.
@@ -88,7 +91,7 @@
             (norm-attr->refs schema)
             (norm-refs->refs schema)
             " attributes "
-            (norm-attr->attrs schema))))
+            (norm-attr->attrs schema)))
             
 
         

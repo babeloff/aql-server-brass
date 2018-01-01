@@ -35,7 +35,7 @@
         {"source_id" ["cot_event" "source"]
          "cot_event_id" ["cot_event_position" "cot_event"]}})
 
-(def sc0 
+(def sc1 
     {:name "s0"
         :type :schema
         :extend "sql"
@@ -61,13 +61,13 @@
             "cot_event_id" ["cot_event_position" "cot_event"]}})
 
 (def sch->sch 
-"A mapping between schema"
-{:name "m1"
-    :type :mapping 
-    :objects ["s0" "sm01"]
-    :entity 
-    #{["ce1" "cot_event"]
-        ["cot_event_position" "cot_event"]})
+    "A mapping between schema"
+    {:name "m1"
+        :type :mapping 
+        :objects ["s0" "sm01"]
+        :entity 
+        #{["ce1" "cot_event"]
+          ["cot_event_position" "cot_event"]}})
         
 ;mapping m3 = literal : s3 -> s3 {
 ;    entity
