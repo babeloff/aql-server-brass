@@ -7,7 +7,11 @@
             [route :as route]
             [handler :as hdlr]
             [core :as http])
-        (aql.brass [data :as brass])))
+        (aql.brass 
+            [data :as brass]
+            [util :as brass-util])
+        (aql [util :as util])))
+            
 
 (defn usage [req]
     (log/info "usage:" (keys req)) 
@@ -44,16 +48,10 @@
           action-str (get params "action")
           action (json/read-str action-str)
           model (get action "model")
+          aql-env (util/make-env model)
           return (get action "return")]
-        (log/info "aql-handler:" action)
-        (str "<body>
-            <h1>AQL Handler</h1>
-            <h2>model</h2> <p>" 
-                model
-            "</p><h2>return</h2> <p>" 
-            return
-            "</p>
-            </body>")))
+        (log/info "aql-handler:" return)
+        (str (util/extract-result aql-env return))))       
 
 (defn brass-p2c1 [request]
     (log/info "brass-handler:" (keys request)) 
