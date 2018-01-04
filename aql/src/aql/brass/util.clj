@@ -5,8 +5,7 @@
                  [string :as st])
         (aql.brass [util :as brass])))
 
-(defn build-aql-attr [column])
-     
+(defn build-aql-attr [column]) 
 (defn build-aql [schema-mapping]
     (let [pert (get-in schema-mapping 
                     ["martiServerModel" 
