@@ -17,11 +17,6 @@
 (defn mapjoin [delimiter f col]
     (st/join delimiter (map f col)))
 
-(defn wrap-schema [schema literal]
-    (str "schema " (:name schema) 
-        " = literal : " (:extend schema) 
-        " {\n" literal "\n}\n"))
-
 (defn schema->sql [schema]
     (when schema
         (AqlCmdLine/schemaToSql schema)))
@@ -59,17 +54,35 @@
 (defn extract-result [aql-env req-s]
     (into {} (map #(extract-sql aql-env %) req-s)))
   
+(defmulti serialize-name 
+    (fn [name] 
+        (cond 
+            (string? name) ::string
+            (vector? name) ::vector 
+            :else ::default)))
 
-(defn serial-aql-schema [schema]
+(defmethod serialize-name ::string [name] name)
+(defmethod serialize-name ::vector [name] (st/join "__" name))
+(defmethod serialize-name ::default [name] "default")
+    
+
+(defn wrap-schema [schema literal]
+    (str "schema " (:name schema) 
+        " = literal : " (:extend schema) 
+        " {\n" literal "\n}\n"))
+
+(defn serialize-aql-schema [schema]
     (wrap-schema schema 
         (str 
             " entities " "\n"
-            (st/join "\n " (:entities schema)) 
+            (st/join "\n " (map serialize-name (:entities schema))) 
             "\n"
             " foreign_keys " "\n"
             (mapjoin "\n " 
                 (fn [[key [src dst]]] 
-                    (str key " : " src " -> " dst)) 
+                    (str key " : " 
+                        (serialize-name src) " -> " 
+                        (serialize-name dst))) 
                 (:references schema)) 
             "\n"                         
             " path_equations " "\n"
@@ -81,7 +94,8 @@
             " attributes " "\n"
             (mapjoin "\n " 
                 (fn [[key [src type]]] 
-                    (str key " : " src " -> " type)) 
+                    (str key " : " 
+                        (serialize-name src) " -> " type)) 
                 (:attributes schema)))))
 
 (defn norm-attr->ents [schema]
@@ -118,10 +132,54 @@
             (norm-attr->attrs schema)))
             
 (defn make-env [model]
-    (let [prog (AqlParser/parseProgram model)
+    (let [parser (AqlParser/getParser)
+          prog (.parseProgram parser model)
           drvr (AqlMultiDriver. prog (make-array String 1)  nil)]
         (.start drvr)
         (.env drvr)))
 
 
-        
+(defn wrap-mapping [mapping literal]
+    (str "mapping " (:name mapping) 
+        " = literal : " (st/join " -> " (:schemas mapping)) 
+        " {\n" literal "\n}\n"))
+
+(defn serialize-aql-mapping-reference 
+    "f -> N or f -> g"
+    [[src-ent dest-ent] [key [src dest]]]
+    (cond 
+        (nil? dest) 
+        (str src " -> " dest-ent)
+
+        :else 
+        (str src " -> " dest))) 
+
+(defn serialize-aql-mapping-attribute 
+    "f -> N or f -> g"
+    [[src-ent dest-ent] [key [src dest]]]
+    (str src " -> " dest))
+
+(defn serialize-aql-mapping-entity 
+    [[entity-key entity-value]]
+    (let [  [src dest] (map serialize-name entity-key)
+             fks (:references entity-value)
+             attrs (:attributes entity-value)] 
+        (str 
+            " entity " "\n"
+            (str src " -> " dest)
+            "\n"
+            " foreign_keys " "\n"
+            (mapjoin "\n " serialize-aql-mapping-reference [src dest] fks)
+            "\n"                         
+            " attributes " "\n"
+            (mapjoin "\n " serialize-aql-mapping-attribute [src dest] attrs))))        
+
+(defn serialize-aql-mapping 
+    [mapping] 
+    (->> 
+        (:entities mapping)
+        (map serialize-aql-mapping-entity)      
+        (st/join "\n")
+        (wrap-schema mapping)))
+                 
+

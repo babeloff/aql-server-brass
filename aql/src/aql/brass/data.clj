@@ -37,6 +37,39 @@
         {"source_has" ["cot_event" "source"]
          "cot_event_has" ["cot_position" "cot_event"]}})
  
+
+
+;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
+;;  docs/CP/Immortals-Phase2-cp1-SchemaMigration.md
+;;  "Sample SubmissionModel value"
+;; 
+;; Note that the original lost a reference [i.e. cot_event_id]
+;; The schema-mapping is supplied and the... 
+;;  scx, mapping-sx->s0, s1, and mapping-sx->s1 
+;; ...should be derived from it.
+;;
+(def schema-mapping
+    {   :perturbation 
+     {   :tables
+      [ 
+       {   :name "cot_action" 
+           :columns 
+           [   ["cot_action" "source_id"]
+               ["cot_action" "how"]
+               ["cot_action" "servertime"]
+               ["cot_position" "point_ce"]
+               ["cot_position" "point_le"]
+               ["cot_position" "tileX"]
+               ["cot_position" "longitude"]
+               ["cot_position" "latitude"]]}
+       {   :name "cot_detail"
+           :columns
+           [   ["cot_position" "point_hae"]
+               ["cot_action" "detail"]
+               ["cot_position" "tileY"]
+               ["cot_action" "cot_type"]]}]}})
+
+
 (def scx 
     {   :name "sx"
         :type :schema
@@ -84,9 +117,9 @@
 (def mapping-sx->s0 
     "A mapping between schema
     "
-    {:name "m_sx_s0"
+    {   :name "m_sx_s0"
         :type :mapping 
-        :schema ["sx" "s0"]
+        :schemas ["sx" "s0"]
         :entities
         {   [["cot_event" "cot_action"] ["cot_event"]]
             {   :references 
@@ -115,7 +148,7 @@
                 {   "cot_position_idx" nil}
                 :attributes
                 {   "tileY" "tileY"
-                    "point_hae" "point_hae"}}}})          
+                    "point_hae" "point_hae"}}}})    
                             
 (def sc1 
     {:name "s1"
@@ -143,70 +176,38 @@
 
 (def mapping-sx->s1 
    "A mapping between schema"
-   {:name "m_sx_s1"
-       :type :mapping 
-       :schema ["sx" "s1"]
-       :entities
-       {   [["cot_event" "cot_action"] ["cot_action"]]
-           {    :references 
-                {   "cot_event_idy" "cot_action_idy"}
+   {    :name "m_sx_s1"
+        :type :mapping 
+        :schemas ["sx" "s1"]
+        :entities
+        {   [["cot_event" "cot_action"] ["cot_action"]]
+            {    :references 
+                    {   "cot_event_idy" "cot_action_idy"}
+                    :attributes
+                    {   "how" "how"
+                        "servertime" "servertime"}}
+            [["cot_event" "cot_detail"] ["cot_detail"]]
+            {   :references 
+                {    "cot_event_idx" "cot_action_idx"}
                 :attributes
-                {   "how" "how"
-                    "servertime" "servertime"}}
-           [["cot_event" "cot_detail"] ["cot_detail"]]
-           {   :references 
-               {    "cot_event_idx" "cot_action_idx"}
-               :attributes
-                {   "detail" "detail"
-                    "cot_type" "cot_type"}
-           [["cot_position" "cot_action"] ["cot_action"]]
-           {   :references 
-               {    "cot_event_has" "cot_action_has"
-                    "cot_position_idy" "cot_action_idy"}
-               :attributes
-                {   "point_ce" "point_ce"
-                    "point_le" "point_le"
-                    "tileX" "tileX"
-                    "latitude" "latitude"
-                    "longitude" "longitude"}}
-           [["cot_position" "cot_detail"] ["cot_detail"]]
-           {   :references 
-            {   "cot_position_idx" "cot_action_idx"]]
-               :attributes
-               {"tileY" "tileY"
-                "point_hae" "point_hae"}}}})          
-    
-
- 
-
-;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
-;;  docs/CP/Immortals-Phase2-cp1-SchemaMigration.md
-;;  "Sample SubmissionModel value"
-;; 
-;; Note that the original lost a reference [i.e. cot_event_id]
-;;
-(def schema-mapping
-    {   :perturbation 
-     {   :tables
-      [ 
-       {   :name "cot_action" 
-           :columns 
-           [   ["cot_action" "source_id"]
-               ["cot_action" "how"]
-               ["cot_action" "servertime"]
-               ["cot_position" "point_ce"]
-               ["cot_position" "point_le"]
-               ["cot_position" "tileX"]
-               ["cot_position" "longitude"]
-               ["cot_position" "latitude"]]}
-       {   :name "cot_detail"
-           :columns
-           [   ["cot_position" "point_hae"]
-               ["cot_action" "detail"]
-               ["cot_position" "tileY"]
-               ["cot_action" "cot_type"]]}]}})
-
-
+                    {   "detail" "detail"
+                        "cot_type" "cot_type"}}
+            [["cot_position" "cot_action"] ["cot_action"]]
+            {   :references 
+                {    "cot_event_has" "cot_action_has"
+                        "cot_position_idy" "cot_action_idy"}
+                :attributes
+                    {   "point_ce" "point_ce"
+                        "point_le" "point_le"
+                        "tileX" "tileX"
+                        "latitude" "latitude"
+                        "longitude" "longitude"}}
+            [["cot_position" "cot_detail"] ["cot_detail"]]
+            {   :references 
+                {   "cot_position_idx" "cot_action_idx"]]}
+                :attributes
+                {"tileY" "tileY"
+                    "point_hae" "point_hae"}}}})         
         
 
  ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/

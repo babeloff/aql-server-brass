@@ -4,6 +4,7 @@
     :paths ["src"]
     :deps {
             http-kit {:mvn/version "2.2.0"}
+            javax.xml.bind/jaxb-api {:mvn/version "2.3.0"}
             aql {:local/root "/home/fred/projects/fql/target/fql-0.9-SNAPSHOT-maven-jar-with-dependencies.jar"}
             org.clojure/data.json {:mvn/version "0.2.6"}
             org.clojure/tools.logging {:mvn/version "0.2.3"}
