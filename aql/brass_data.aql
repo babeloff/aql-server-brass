@@ -1,0 +1,188 @@
+typeside sql1 = literal {
+        imports sql
+        java_functions 
+            EqualStr : String, String -> Bool = "return input[0].equals(input[1])"
+            EqualVc : Varchar, Varchar -> Bool = "return input[0].equals(input[1])"
+            EqualInt : Integer, Integer -> Bool = "return input[0].equals(input[1])"
+        }
+schema s0 = literal : sql {
+
+ entities 
+   cot_position
+   cot_event
+   source
+ foreign_keys 
+   has_source : cot_event -> source
+   has_cot_event : cot_position -> cot_event
+ path_equations 
+   
+ attributes 
+   tileY : cot_position -> Integer
+   point_ce : cot_position -> Integer
+   servertime : cot_event -> Bigint
+   longitude : cot_position -> Real
+   cot_type : cot_event -> Varchar
+   detail : cot_event -> Text
+   latitude : cot_position -> Real
+   name : source -> Varchar
+   tileX : cot_position -> Integer
+   point_le : cot_position -> Integer
+   how : cot_event -> Varchar
+   channel : source -> Varchar
+   point_hae : cot_position -> Integer
+}
+
+schema sx = literal : sql {
+
+ entities 
+   source__cot_action
+   cot_event__cot_detail
+   cot_position__cot_detail
+   cot_position__cot_action
+   cot_event__cot_action
+ foreign_keys 
+   has_source : cot_event__cot_action -> source__cot_action
+   cot_event_idx : cot_event__cot_detail -> cot_event__cot_action
+   cot_event_idy : cot_event__cot_action -> cot_event__cot_detail
+   has_cot_event : cot_position__cot_action -> cot_event__cot_detail
+   cot_position_idx : cot_position__cot_detail -> cot_position__cot_action
+   cot_position_idy : cot_position__cot_action -> cot_position__cot_detail
+ path_equations 
+   
+ attributes 
+   tileY : cot_position__cot_detail -> Integer
+   point_ce : cot_position__cot_action -> Integer
+   servertime : cot_event__cot_action -> Bigint
+   longitude : cot_position__cot_action -> Real
+   cot_type : cot_event__cot_detail -> Varchar
+   detail : cot_event__cot_detail -> Text
+   latitude : cot_position__cot_action -> Real
+   name : source__cot_action -> Varchar
+   tileX : cot_position__cot_action -> Integer
+   point_le : cot_position__cot_action -> Integer
+   how : cot_event__cot_action -> Varchar
+   channel : source__cot_action -> Varchar
+   point_hae : cot_position__cot_detail -> Integer
+}
+
+schema s1 = literal : sql {
+
+ entities 
+   cot_action
+   cot_detail
+ foreign_keys 
+   has_cot_action : cot_action -> cot_detail
+   cot_action_idx : cot_detail -> cot_action
+   cot_action_idy : cot_action -> cot_detail
+ path_equations 
+   
+ attributes 
+   tileY : cot_detail -> Integer
+   point_ce : cot_action -> Integer
+   servertime : cot_action -> Bigint
+   longitude : cot_action -> Real
+   cot_type : cot_detail -> Varchar
+   detail : cot_detail -> Text
+   latitude : cot_action -> Real
+   name : cot_action -> Varchar
+   tileX : cot_action -> Integer
+   point_le : cot_action -> Integer
+   how : cot_action -> Varchar
+   channel : cot_action -> Varchar
+   point_hae : cot_detail -> Integer
+}
+
+mapping m_sx_s0 = literal : sx -> s0 {
+ entity source__cot_action -> source
+ foreign_keys 
+   
+ attributes 
+   name -> name
+   channel -> channel
+ entity cot_event__cot_action -> cot_event
+ foreign_keys 
+   has_source -> has_source
+   cot_event_idy -> cot_event
+ attributes 
+   how -> how
+   servertime -> servertime
+ entity cot_event__cot_detail -> cot_event
+ foreign_keys 
+   cot_event_idx -> cot_event
+ attributes 
+   detail -> detail
+   cot_type -> cot_type
+ entity cot_position__cot_action -> cot_position
+ foreign_keys 
+   has_cot_event -> has_cot_event
+   cot_position_idy -> cot_position
+ attributes 
+   point_ce -> point_ce
+   point_le -> point_le
+   tileX -> tileX
+   latitude -> latitude
+   longitude -> longitude
+ entity cot_position__cot_detail -> cot_position
+ foreign_keys 
+   cot_position_idx -> cot_position
+ attributes 
+   tileY -> tileY
+   point_hae -> point_hae
+}
+
+mapping m_sx_s1 = literal : sx -> s1 {
+ entity source__cot_action -> cot_action
+ foreign_keys 
+   
+ attributes 
+   name -> name
+   channel -> channel
+ entity cot_event__cot_action -> cot_action
+ foreign_keys 
+   cot_event_idy -> cot_action_idy
+   has_source -> cot_action
+ attributes 
+   how -> how
+   servertime -> servertime
+ entity cot_event__cot_detail -> cot_detail
+ foreign_keys 
+   cot_event_idx -> cot_action_idx
+ attributes 
+   detail -> detail
+   cot_type -> cot_type
+ entity cot_position__cot_action -> cot_action
+ foreign_keys 
+   has_cot_event -> has_cot_action
+   cot_position_idy -> cot_action_idy
+ attributes 
+   point_ce -> point_ce
+   point_le -> point_le
+   tileX -> tileX
+   latitude -> latitude
+   longitude -> longitude
+ entity cot_position__cot_detail -> cot_detail
+ foreign_keys 
+   cot_position_idx -> cot_action_idx
+ attributes 
+   tileY -> tileY
+   point_hae -> point_hae
+}
+
+query q1x = toQuery m_sx_s1
+query qx0 = toCoQuery m_sx_s0
+query q1x0 = [ q1x ; qx0 ]
+query q01 = simple : s0  {
+    from ce:cot_event
+    where ce.cot_type = "a-n-A-C-F-m" 
+    attributes 
+        cot_type -> ce.cot_type 
+        }
+query q01t = [ q1x0 ; q01 ]
+query q02 = simple : s0  {
+    from ce:cot_event
+    where ce.servertime = "201705071635" 
+    attributes 
+        cot_type -> ce.cot_type
+        how -> ce.how 
+    }
+query q02t = [ q1x0 ; q02 ]

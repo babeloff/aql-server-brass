@@ -7,12 +7,11 @@
         (clojure [pprint :as pp]
                  [string :as st])))
 
-
 ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
 ;;   database/server/baseline_schema_ddl.sql
 
 (def sc0 
-    {:name "sc0"
+    {:name "s0"
      :type :schema
      :extend "sql"
      :entities 
@@ -24,7 +23,7 @@
          "cot_type"  ["cot_event" "Varchar"] 
          "how"  ["cot_event" "Varchar"]
          "detail"  ["cot_event" "Text"]
-         "servertime"  ["cot_event" "Integer"]
+         "servertime"  ["cot_event" "Bigint"]
 
          "point_hae" ["cot_position" "Integer"]
          "point_ce" ["cot_position" "Integer"]
@@ -34,8 +33,8 @@
          "latitude" ["cot_position" "Real"]
          "longitude" ["cot_position" "Real"]}
      :references 
-        {"source_has" ["cot_event" "source"]
-         "cot_event_has" ["cot_position" "cot_event"]}})
+        {"has_source" ["cot_event" "source"]
+         "has_cot_event" ["cot_position" "cot_event"]}})
  
 
 
@@ -75,13 +74,17 @@
         :type :schema
         :extend "sql"
         :entities 
-        #{  ["cot_event" "cot_event"] 
+        #{  ["source" "cot_action"] 
+            ["cot_event" "cot_action"]
             ["cot_event" "cot_detail"] 
-            ["cot_position" "cot_event"] 
+            ["cot_position" "cot_action"] 
             ["cot_position" "cot_detail"]}
         :attributes 
-        {   "how"  [["cot_event" "cot_action"] "Varchar"]
-            "servertime"  [["cot_event" "cot_action"] "Integer"]
+        {   "name" [["source" "cot_action"] "Varchar"]
+            "channel" [["source" "cot_action"] "Varchar"] 
+            
+            "how"  [["cot_event" "cot_action"] "Varchar"]
+            "servertime"  [["cot_event" "cot_action"] "Bigint"]
 
             "detail"  [["cot_event" "cot_detail"] "Text"]
             "cot_type"  [["cot_event" "cot_detail"] "Varchar"]
@@ -95,14 +98,18 @@
             "tileY" [["cot_position" "cot_detail"] "Integer"]
             "point_hae" [["cot_position" "cot_detail"] "Integer"]}
         :references 
-        {   "cot_event_idx" 
+        {   "has_source" 
+            [   ["cot_event" "cot_action"]
+                ["source" "cot_action"]]
+
+            "cot_event_idx"
             [   ["cot_event" "cot_detail"] 
                 ["cot_event" "cot_action"]]
             "cot_event_idy" 
             [   ["cot_event" "cot_action"] 
                 ["cot_event" "cot_detail"]]
       
-            "cot_event_has" 
+            "has_cot_event" 
             [   ["cot_position" "cot_action"] 
                 ["cot_event" "cot_detail"]]
             
@@ -121,9 +128,14 @@
         :type :mapping 
         :schemas ["sx" "s0"]
         :entities
-        {   [["cot_event" "cot_action"] ["cot_event"]]
+        {   [["source" "cot_action"] ["source"]] 
+            {   :attributes 
+                {   "name" "name" 
+                    "channel" "channel"}}
+            [["cot_event" "cot_action"] ["cot_event"]]
             {   :references 
-                {   "cot_event_idy" nil}
+                {   "has_source" "has_source"
+                    "cot_event_idy" nil}
                 :attributes
                 {   "how" "how"
                     "servertime" "servertime"}}
@@ -135,7 +147,7 @@
                     "cot_type" "cot_type"}}
             [["cot_position" "cot_action"] ["cot_position"]]
             {   :references 
-                {   "cot_event_has" "cot_event_has"
+                {   "has_cot_event" "has_cot_event"
                     "cot_position_idy" nil}
                 :attributes
                 {   "point_ce" "point_ce"
@@ -148,8 +160,11 @@
                 {   "cot_position_idx" nil}
                 :attributes
                 {   "tileY" "tileY"
-                    "point_hae" "point_hae"}}}})    
-                            
+                    "point_hae" "point_hae"}}}})
+                    
+
+(def qx0 "query qx0 = toCoQuery m_sx_s0")
+                                              
 (def sc1 
     {:name "s1"
      :type :schema
@@ -157,20 +172,22 @@
      :entities 
      #{"cot_action" "cot_detail"}
      :attributes 
-     {"how"  ["cot_action" "Varchar"]
-      "servertime"  ["cot_action" "Integer"]
-      "point_ce" ["cot_action" "Integer"]
-      "point_le" ["cot_action" "Integer"]
-      "tileX" ["cot_action" "Integer"]
-      "latitude" ["cot_action" "Real"]
-      "longitude" ["cot_action" "Real"]
+     {  "name"  ["cot_action" "Varchar"]
+        "channel"  ["cot_action" "Varchar"]
+        "how"  ["cot_action" "Varchar"]
+        "servertime"  ["cot_action" "Bigint"]
+        "point_ce" ["cot_action" "Integer"]
+        "point_le" ["cot_action" "Integer"]
+        "tileX" ["cot_action" "Integer"]
+        "latitude" ["cot_action" "Real"]
+        "longitude" ["cot_action" "Real"]
 
-      "detail"  ["cot_detail" "Text"]
-      "cot_type"  ["cot_detail" "Varchar"]
-      "tileY" ["cot_detail" "Integer"]
-      "point_hae" ["cot_detail" "Integer"]}
+        "detail"  ["cot_detail" "Text"]
+        "cot_type"  ["cot_detail" "Varchar"]
+        "tileY" ["cot_detail" "Integer"]
+        "point_hae" ["cot_detail" "Integer"]}
      :references 
-     {  "cot_action_has" ["cot_action" "cot_detail"]
+     {  "has_cot_action" ["cot_action" "cot_detail"]
         "cot_action_idx" ["cot_detail" "cot_action"]
         "cot_action_idy" ["cot_action" "cot_detail"]}})
 
@@ -180,60 +197,83 @@
         :type :mapping 
         :schemas ["sx" "s1"]
         :entities
-        {   [["cot_event" "cot_action"] ["cot_action"]]
-            {    :references 
-                    {   "cot_event_idy" "cot_action_idy"}
-                    :attributes
-                    {   "how" "how"
-                        "servertime" "servertime"}}
+        {   [["source" "cot_action"] ["cot_action"]]
+            {   :attributes
+                {   "name" "name" 
+                    "channel" "channel"}}
+            [["cot_event" "cot_action"] ["cot_action"]]
+            {   :references 
+                {   "cot_event_idy" "cot_action_idy"
+                    "has_source" nil}
+                :attributes
+                {   "how" "how"
+                    "servertime" "servertime"}}
             [["cot_event" "cot_detail"] ["cot_detail"]]
             {   :references 
                 {    "cot_event_idx" "cot_action_idx"}
                 :attributes
-                    {   "detail" "detail"
-                        "cot_type" "cot_type"}}
+                {   "detail" "detail"
+                    "cot_type" "cot_type"}}
             [["cot_position" "cot_action"] ["cot_action"]]
             {   :references 
-                {    "cot_event_has" "cot_action_has"
-                        "cot_position_idy" "cot_action_idy"}
+                {   "has_cot_event" "has_cot_action"
+                    "cot_position_idy" "cot_action_idy"}
                 :attributes
-                    {   "point_ce" "point_ce"
-                        "point_le" "point_le"
-                        "tileX" "tileX"
-                        "latitude" "latitude"
-                        "longitude" "longitude"}}
+                {   "point_ce" "point_ce"
+                    "point_le" "point_le"
+                    "tileX" "tileX"
+                    "latitude" "latitude"
+                    "longitude" "longitude"}}
             [["cot_position" "cot_detail"] ["cot_detail"]]
             {   :references 
-                {   "cot_position_idx" "cot_action_idx"]]}
+                {   "cot_position_idx" "cot_action_idx"}
                 :attributes
                 {"tileY" "tileY"
                     "point_hae" "point_hae"}}}})         
         
+(def q1x "query q1x = toQuery m_sx_s1")
+
+(def sql 
+    "typeside sql = literal {
+        imports sql
+        java_functions 
+            EqualStr : String, String -> Bool = \"return input[0].equals(input[1])\"
+            EqualVc : Varchar, Varchar -> Bool = \"return input[0].equals(input[1])\"
+            EqualInt : Integer, Integer -> Bool = \"return input[0].equals(input[1])\"
+        }")
+         
+
+(def q1x0 "query q1x0 = [ q1x ; qx0 ]")
 
  ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
  ;;  database/server/aql/src/aql/cp2_1_db.aql#L262
 
-(def q01 "query q01 = literal : s0 -> s0 {
-    entity
-        result -> 
-        {
-            from ce:cot_event
-            where ce.cot_type = 'a-n-A-C-F-m'
-            attributes 
-                cot_type -> ce.cot_type 
-        }    
-}")
+(def qs01 "query q01 = simple : s0  {
+    from ce:cot_event
+    where ce.cot_type = \"a-n-A-C-F-m\" 
+    attributes 
+        cot_type -> ce.cot_type 
+        }")
 
-(def q02 "query q02 = literal : s0 -> s0 {
-    entity
-        result -> 
-        {
-            from ce:cot_event
-            where ce.servertime = 201705071635
-            attributes 
-                cot_type -> ce.cot_type
-                how -> ce.how 
-        }    
-}")
+(def qs01t "query q01t = [ q1x0 ; q01 ]")
+
+(def qs01a "query q01a = simple : s0  {
+    from ce:cot_event
+    where EqualVc(ce.cot_type, \"a-n-A-C-F-m\") = true
+    attributes 
+        cot_type -> ce.cot_type 
+        }")
 
 
+(def qs02 
+    "query q02 = simple : s0  {
+    from ce:cot_event
+    where ce.servertime = \"201705071635\" 
+    attributes 
+        cot_type -> ce.cot_type
+        how -> ce.how 
+    }")
+    
+(def qs02t "query q02t = [ q1x0 ; q02 ]")
+    
+    

@@ -24,6 +24,8 @@
 (defn env->schema [env name]
     (-> env .defs .schs .map (get name)))
 
+(defn env->schema-names [env] (-> env .defs .schs .map keys))
+
 (defn env->schema->sql [aql-env name]
     (schema->sql (env->schema aql-env name)))
     
@@ -33,7 +35,23 @@
 
 (defn env->query [env name]
     (-> env .defs .qs .map (get name)))
- 
+
+(defn env->query-names [env] (-> env .defs .qs .map keys))
+
+(defn env->maps [env] 
+    (let [edefs (.defs env)]
+        {:instance (-> edefs .qs .map)
+         :mapping (-> edefs .maps .map)
+         :schema (-> edefs .schs .map)
+         :transform (-> edefs .trans .map)
+         :typeside (-> edefs .tys .map)
+         :query (-> edefs .qs .map)
+         :command (-> edefs .ps .map)
+         :graph (-> edefs .gs .map)
+         :comment (-> edefs .cs .map)
+         :schema-colimit (-> edefs .scs .map)
+         :constraint (-> edefs .eds .map)}))
+         
 (defn env->query->sql [aql-env name]
     (query->sql (env->query aql-env name)))
     
@@ -74,25 +92,26 @@
 (defn serialize-aql-schema [schema]
     (wrap-schema schema 
         (str 
-            " entities " "\n"
-            (st/join "\n " (map serialize-name (:entities schema))) 
             "\n"
-            " foreign_keys " "\n"
-            (mapjoin "\n " 
+            " entities " "\n   "
+            (st/join "\n   " (map serialize-name (:entities schema))) 
+            "\n"
+            " foreign_keys " "\n   "
+            (mapjoin "\n   " 
                 (fn [[key [src dst]]] 
                     (str key " : " 
                         (serialize-name src) " -> " 
                         (serialize-name dst))) 
                 (:references schema)) 
             "\n"                         
-            " path_equations " "\n"
-            (mapjoin "\n " 
+            " path_equations " "\n   "
+            (mapjoin "\n   " 
                 (fn [[left right]] 
                     (str (st/join "." left) " = " (st/join "." right))) 
                 (:equations schema))
             "\n"
-            " attributes " "\n"
-            (mapjoin "\n " 
+            " attributes " "\n   "
+            (mapjoin "\n   " 
                 (fn [[key [src type]]] 
                     (str key " : " 
                         (serialize-name src) " -> " type)) 
@@ -146,7 +165,7 @@
 
 (defn serialize-aql-mapping-reference 
     "f -> N or f -> g"
-    [[src-ent dest-ent] [key [src dest]]]
+    [[src-ent dest-ent] [src dest]]
     (cond 
         (nil? dest) 
         (str src " -> " dest-ent)
@@ -156,7 +175,7 @@
 
 (defn serialize-aql-mapping-attribute 
     "f -> N or f -> g"
-    [[src-ent dest-ent] [key [src dest]]]
+    [[src-ent dest-ent] [src dest]]
     (str src " -> " dest))
 
 (defn serialize-aql-mapping-entity 
@@ -165,14 +184,14 @@
              fks (:references entity-value)
              attrs (:attributes entity-value)] 
         (str 
-            " entity " "\n"
+            " entity "
             (str src " -> " dest)
             "\n"
-            " foreign_keys " "\n"
-            (mapjoin "\n " serialize-aql-mapping-reference [src dest] fks)
+            " foreign_keys " "\n   "
+            (mapjoin "\n   " #(serialize-aql-mapping-reference [src dest] %) fks)
             "\n"                         
-            " attributes " "\n"
-            (mapjoin "\n " serialize-aql-mapping-attribute [src dest] attrs))))        
+            " attributes " "\n   "
+            (mapjoin "\n   " #(serialize-aql-mapping-attribute [src dest] %) attrs))))        
 
 (defn serialize-aql-mapping 
     [mapping] 
@@ -180,6 +199,6 @@
         (:entities mapping)
         (map serialize-aql-mapping-entity)      
         (st/join "\n")
-        (wrap-schema mapping)))
+        (wrap-mapping mapping)))
                  
 
