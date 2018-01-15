@@ -3,10 +3,14 @@
         (org.httpkit [server :as svr])
         (clojure.data [json :as json])
         (clojure.tools [logging :as log])
+        (clojure [pprint :as pp])
+        (com.rpl [specter :as sr])
         (compojure 
             [route :as route]
             [handler :as hdlr]
             [core :as http])
+        (ring.middleware [json :as middleware])
+        (ring.util [response :refer [response]])
         (aql.brass 
             [data :as brass]
             [util :as brass-util])
@@ -44,16 +48,17 @@
     (str "<h1>default aql handler</h1>"))
  
 (defn aql-handler [request]
-    (let [params (get request :query-params nil)
-          action-str (get params "action")
-          action (json/read-str action-str)
-          model (get action "model")
-          aql-env (util/make-env model)
-          return (get action "return")]
-        (log/info "aql-handler:" return)
-        (str (util/extract-result aql-env return))))       
+    (log/info "aql-handler")
+    (let [action (sr/select-one [:body] request)]
+        (log/info action)
+        (let [  model (sr/select-one ["model"] action)
+                _ (log/info model)
+                aql-env (util/make-env (str model))
+                return (sr/select-one ["return"] action)]
+            (log/info "aql-handler:" return)
+            (json/write-str (util/extract-result aql-env return)))))       
 
-(defn brass-p2c1 [request]
+(defn brass-p2c1-handler [request]
     (log/info "brass-handler:" (keys request)) 
     (if-let [act0 (get-in request [:params :permutation] nil)]
         (let  [act1 (json/read-str act0)]
@@ -67,15 +72,26 @@
         <h1>brass p2c1 handler</h1>
         <p>failure</p>
         </body>"))
+
      
 ;; https://weavejester.github.io/compojure/compojure.core.html#var-routes
 (http/defroutes all-routes 
     (http/ANY "/" [] empty-handler)
     (http/ANY "/ws" [] async-handler)
-    (http/ANY "/aql" [] aql-handler)
+    (http/context "/aql" []
+        (http/ANY "/json" [] 
+            (-> aql-handler 
+                middleware/wrap-json-response
+                middleware/wrap-json-body)))
     (http/context "/brass" []
-        (http/ANY "/p2/c1" [] brass-p2c1))
-    ;; (route/files "/static/") 
+        (http/context "/p2" []
+            (http/context "/c1" [] 
+                (http/ANY "/html" [] 
+                    (-> brass-p2c1-handler))
+                (http/ANY "/json" [] 
+                    (-> brass-p2c1-handler 
+                        middleware/wrap-json-response
+                        middleware/wrap-json-body)))))
     (route/not-found usage))
 
 (def PORT 9090)

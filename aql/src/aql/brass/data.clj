@@ -11,9 +11,9 @@
 ;;   database/server/baseline_schema_ddl.sql
 
 (def sc0 
-    {:name "s0"
+    {:name "S"
      :type :schema
-     :extend "sql"
+     :extend "sql1"
      :entities 
         #{"source" "cot_event" "cot_position"}
      :attributes 
@@ -42,37 +42,36 @@
 ;;  docs/CP/Immortals-Phase2-cp1-SchemaMigration.md
 ;;  "Sample SubmissionModel value"
 ;; 
-;; Note that the original lost a reference [i.e. cot_event_id]
 ;; The schema-mapping is supplied and the... 
-;;  scx, mapping-sx->s0, s1, and mapping-sx->s1 
+;;  X, F, T, and G 
 ;; ...should be derived from it.
 ;;
-(def schema-mapping
-    {   :perturbation 
+(def schema-perturbation
      {   :tables
       [ 
        {   :name "cot_action" 
            :columns 
-           [   ["cot_action" "source_id"]
-               ["cot_action" "how"]
-               ["cot_action" "servertime"]
-               ["cot_position" "point_ce"]
-               ["cot_position" "point_le"]
-               ["cot_position" "tileX"]
-               ["cot_position" "longitude"]
-               ["cot_position" "latitude"]]}
+           [    ["source" "name"]
+                ["source" "channel"] 
+                ["cot_event" "how"]
+                ["cot_event" "servertime"]
+                ["cot_position" "point_ce"]
+                ["cot_position" "point_le"]
+                ["cot_position" "tileX"]
+                ["cot_position" "longitude"]
+                ["cot_position" "latitude"]]}
        {   :name "cot_detail"
            :columns
-           [   ["cot_position" "point_hae"]
-               ["cot_action" "detail"]
-               ["cot_position" "tileY"]
-               ["cot_action" "cot_type"]]}]}})
+            [   ["cot_position" "point_hae"]
+                ["cot_event" "detail"]
+                ["cot_position" "tileY"]
+                ["cot_event" "cot_type"]]}]})
 
 
 (def scx 
-    {   :name "sx"
+    {   :name "X"
         :type :schema
-        :extend "sql"
+        :extend "sql1"
         :entities 
         #{  ["source" "cot_action"] 
             ["cot_event" "cot_action"]
@@ -121,12 +120,12 @@
                 ["cot_position" "cot_detail"]]}})
             
 
-(def mapping-sx->s0 
+(def mapping-x->s 
     "A mapping between schema
     "
-    {   :name "m_sx_s0"
+    {   :name "F"
         :type :mapping 
-        :schemas ["sx" "s0"]
+        :schemas ["X" "S"]
         :entities
         {   [["source" "cot_action"] ["source"]] 
             {   :attributes 
@@ -162,13 +161,11 @@
                 {   "tileY" "tileY"
                     "point_hae" "point_hae"}}}})
                     
-
-(def qx0 "query qx0 = toCoQuery m_sx_s0")
-                                              
+                                         
 (def sc1 
-    {:name "s1"
+    {:name "T"
      :type :schema
-     :extend "sql"
+     :extend "sql1"
      :entities 
      #{"cot_action" "cot_detail"}
      :attributes 
@@ -187,15 +184,15 @@
         "tileY" ["cot_detail" "Integer"]
         "point_hae" ["cot_detail" "Integer"]}
      :references 
-     {  "has_cot_action" ["cot_action" "cot_detail"]
+     {  "has_cot_event" ["cot_action" "cot_detail"]
         "cot_action_idx" ["cot_detail" "cot_action"]
         "cot_action_idy" ["cot_action" "cot_detail"]}})
 
-(def mapping-sx->s1 
+(def mapping-x->t 
    "A mapping between schema"
-   {    :name "m_sx_s1"
+   {    :name "G"
         :type :mapping 
-        :schemas ["sx" "s1"]
+        :schemas ["X" "T"]
         :entities
         {   [["source" "cot_action"] ["cot_action"]]
             {   :attributes
@@ -216,7 +213,7 @@
                     "cot_type" "cot_type"}}
             [["cot_position" "cot_action"] ["cot_action"]]
             {   :references 
-                {   "has_cot_event" "has_cot_action"
+                {   "has_cot_event" "has_cot_event"
                     "cot_position_idy" "cot_action_idy"}
                 :attributes
                 {   "point_ce" "point_ce"
@@ -231,10 +228,8 @@
                 {"tileY" "tileY"
                     "point_hae" "point_hae"}}}})         
         
-(def q1x "query q1x = toQuery m_sx_s1")
-
-(def sql 
-    "typeside sql = literal {
+(def sql1 
+    "typeside sql1 = literal {
         imports sql
         java_functions 
             EqualStr : String, String -> Bool = \"return input[0].equals(input[1])\"
@@ -243,30 +238,22 @@
         }")
          
 
-(def q1x0 "query q1x0 = [ q1x ; qx0 ]")
+(def q1x0 "query Qx = [ toQuery G ; toCoQuery F ]")
 
  ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
  ;;  database/server/aql/src/aql/cp2_1_db.aql#L262
 
-(def qs01 "query q01 = simple : s0  {
+(def qs01 "query Qs_01 = simple : S  {
     from ce:cot_event
     where ce.cot_type = \"a-n-A-C-F-m\" 
     attributes 
         cot_type -> ce.cot_type 
         }")
 
-(def qs01t "query q01t = [ q1x0 ; q01 ]")
-
-(def qs01a "query q01a = simple : s0  {
-    from ce:cot_event
-    where EqualVc(ce.cot_type, \"a-n-A-C-F-m\") = true
-    attributes 
-        cot_type -> ce.cot_type 
-        }")
-
+(def qs01t "query Qt_01 = [ Qx ; Qs_01 ]")
 
 (def qs02 
-    "query q02 = simple : s0  {
+    "query Qs_02 = simple : S  {
     from ce:cot_event
     where ce.servertime = \"201705071635\" 
     attributes 
@@ -274,6 +261,6 @@
         how -> ce.how 
     }")
     
-(def qs02t "query q02t = [ q1x0 ; q02 ]")
+(def qs02t "query Qt_02 = [ Qx ; Qs_02 ]")
     
     

@@ -2,7 +2,8 @@
 (ns aql.util
     (:require 
         (clojure [pprint :as pp]
-                 [string :as st]))
+                 [string :as st])
+        (com.rpl [specter :as sr]))
     (:import 
         (catdata.aql 
             AqlCmdLine)
@@ -10,6 +11,8 @@
             AqlEnv
             AqlParser 
             AqlMultiDriver)))
+            
+
 
 ;; It may be useful to pass in an array to update
 ;; see src/catdata/aql/gui/AqlCodeEditor:: makeEnv
