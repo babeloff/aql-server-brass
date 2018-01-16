@@ -2,10 +2,7 @@
 ;; Schema for demonstrating the BRASS approach
 ;;
 
-(ns aql.brass.data
-  (:require
-   (clojure [pprint :as pp]
-            [string :as st])))
+(ns aql.brass.data)
 
 ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
 ;;   database/server/baseline_schema_ddl.sql
@@ -222,7 +219,7 @@
      {"tileY" "tileY"
       "point_hae" "point_hae"}}}})
 
-(def sql1
+(def ts-sql1
   "typeside sql1 = literal {
         imports sql
         java_functions
@@ -259,10 +256,8 @@
 (def query-demo
   "all the queries for the demo
     Includes all the initial queries as well as the targets"
-  (st/join "\n"
-           q1x0
-           qs01 qs01t
-           qs02 qs02t))
+  [qs01 qs01t
+   qs02 qs02t])
 
 (def query-demo-return
   "a list of the queries to return"

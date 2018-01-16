@@ -16,7 +16,7 @@
  (deftask build
    "Build and install the project locally."
    []
-   (comp (deps) (pom) (jar) ))
+   (comp (deps) (pom) (jar)))
 
  (deftask test
    "Runs tests"

@@ -1,6 +1,6 @@
 typeside sql1 = literal {
         imports sql
-        java_functions 
+        java_functions
             EqualStr : String, String -> Bool = "return input[0].equals(input[1])"
             EqualVc : Varchar, Varchar -> Bool = "return input[0].equals(input[1])"
             EqualInt : Integer, Integer -> Bool = "return input[0].equals(input[1])"
@@ -35,61 +35,51 @@ schema S = literal : sql1 {
 schema X = literal : sql1 {
 
  entities 
-   source__cot_action
-   cot_event__cot_detail
-   cot_position__cot_detail
-   cot_position__cot_action
-   cot_event__cot_action
+   
  foreign_keys 
-   has_source : cot_event__cot_action -> source__cot_action
-   cot_event_idx : cot_event__cot_detail -> cot_event__cot_action
-   cot_event_idy : cot_event__cot_action -> cot_event__cot_detail
-   has_cot_event : cot_position__cot_action -> cot_event__cot_detail
-   cot_position_idx : cot_position__cot_detail -> cot_position__cot_action
-   cot_position_idy : cot_position__cot_action -> cot_position__cot_detail
+   has_cot_event : default -> cot_event
+   has_source : default -> source
  path_equations 
    
  attributes 
-   tileY : cot_position__cot_detail -> Integer
-   point_ce : cot_position__cot_action -> Integer
-   servertime : cot_event__cot_action -> Bigint
-   longitude : cot_position__cot_action -> Real
-   cot_type : cot_event__cot_detail -> Varchar
-   detail : cot_event__cot_detail -> Text
-   latitude : cot_position__cot_action -> Real
-   name : source__cot_action -> Varchar
-   tileX : cot_position__cot_action -> Integer
-   point_le : cot_position__cot_action -> Integer
-   how : cot_event__cot_action -> Varchar
-   channel : source__cot_action -> Varchar
-   point_hae : cot_position__cot_detail -> Integer
+   tileY : default -> Integer
+   point_ce : default -> Integer
+   servertime : default -> Bigint
+   longitude : default -> Real
+   cot_type : default -> Varchar
+   detail : default -> Text
+   latitude : default -> Real
+   name : default -> Varchar
+   tileX : default -> Integer
+   point_le : default -> Integer
+   how : default -> Varchar
+   channel : default -> Varchar
+   point_hae : default -> Integer
 }
 
 schema T = literal : sql1 {
 
  entities 
-   cot_action
-   cot_detail
+   
  foreign_keys 
-   has_cot_event : cot_action -> cot_detail
-   cot_action_idx : cot_detail -> cot_action
-   cot_action_idy : cot_action -> cot_detail
+   has_cot_event : default -> cot_event
+   has_source : default -> source
  path_equations 
    
  attributes 
-   tileY : cot_detail -> Integer
-   point_ce : cot_action -> Integer
-   servertime : cot_action -> Bigint
-   longitude : cot_action -> Real
-   cot_type : cot_detail -> Varchar
-   detail : cot_detail -> Text
-   latitude : cot_action -> Real
-   name : cot_action -> Varchar
-   tileX : cot_action -> Integer
-   point_le : cot_action -> Integer
-   how : cot_action -> Varchar
-   channel : cot_action -> Varchar
-   point_hae : cot_detail -> Integer
+   tileY : default -> Integer
+   point_ce : default -> Integer
+   servertime : default -> Bigint
+   longitude : default -> Real
+   cot_type : default -> Varchar
+   detail : default -> Text
+   latitude : default -> Real
+   name : default -> Varchar
+   tileX : default -> Integer
+   point_le : default -> Integer
+   how : default -> Varchar
+   channel : default -> Varchar
+   point_hae : default -> Integer
 }
 
 mapping F = literal : X -> S {
@@ -171,16 +161,16 @@ mapping G = literal : X -> T {
 query Qx = [ toQuery G ; toCoQuery F ]
 query Qs_01 = simple : S  {
     from ce:cot_event
-    where ce.cot_type = "a-n-A-C-F-m" 
-    attributes 
-        cot_type -> ce.cot_type 
+    where ce.cot_type = "a-n-A-C-F-m"
+    attributes
+        cot_type -> ce.cot_type
         }
 query Qt_01 = [ Qx ; Qs_01 ]
 query Qs_02 = simple : S  {
     from ce:cot_event
-    where ce.servertime = "201705071635" 
-    attributes 
+    where ce.servertime = "201705071635"
+    attributes
         cot_type -> ce.cot_type
-        how -> ce.how 
+        how -> ce.how
     }
 query Qt_02 = [ Qx ; Qs_02 ]
