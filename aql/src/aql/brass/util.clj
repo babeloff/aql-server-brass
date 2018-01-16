@@ -12,7 +12,7 @@
             AqlParser 
             AqlMultiDriver)))
             
-(defn expand-perturbation 
+(defn- expand-perturbation 
     "construct an sequence of tuples [new-entity old-entity column]"
     [pert] 
     (->> pert
@@ -25,7 +25,7 @@
             
                     
 
-(defn schema-map-by-name
+(defn- schema-map-by-name
     [base]
     (->> base
         (sr/select 

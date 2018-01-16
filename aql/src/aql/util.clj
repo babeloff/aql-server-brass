@@ -72,7 +72,7 @@
         "schema"
         [key (extract-sql-schema aql-env req)]))
 
-(defn extract-result [aql-env req-s]
+(defn extract-result [req-s aql-env]
     (into {} (map #(extract-sql aql-env %) req-s)))
   
 (defmulti serialize-name 
