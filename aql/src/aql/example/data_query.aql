@@ -1,0 +1,112 @@
+
+schema S = literal : sql {
+ entities
+ a b
+ foreign_keys
+ has : b -> a
+ attributes
+ i : a -> Varchar
+ j : a -> Varchar
+ k : b -> Varchar
+ m : b -> Varchar
+}
+
+
+schema T = literal : sql {
+ entities
+ c d
+ foreign_keys
+ has_c : d -> c
+ has_d : c -> d
+ attributes
+ i : c -> Varchar
+ j : d -> Varchar
+ k : c -> Varchar
+ m : d -> Varchar
+}
+
+schema X = literal : sql {
+ entities
+ n
+ foreign_keys
+
+
+ attributes
+ i : n -> Varchar
+ j : n -> Varchar
+ k : n -> Varchar
+ m : n -> Varchar
+}
+
+
+mapping F = literal : S -> X {
+ entity a -> n
+ attributes
+ i -> i
+ j -> j
+ entity b -> n
+ foreign_keys has -> n
+ attributes
+ k -> k
+ m -> m
+}
+
+
+mapping G = literal : T -> X {
+ entity c -> n
+   foreign_keys has_d -> n
+   attributes
+     i -> i
+     k -> k
+ entity d -> n
+   foreign_keys has_c -> n
+   attributes
+     j -> j
+     m -> m
+}
+
+instance Js = literal : S {
+ generators
+ a1 a2 a3 a4 : a
+ b1 b2 : b
+ equations
+ a1.i = "a1i" a1.j = "a1j"
+ b1.has = a1 b1.k = "b1k" b1.m = "b1m"
+ a2.i = "a2i" a2.j = "a2j"
+
+
+ a3.i = "a3i" a3.j = "a3j"
+ b2.has = a3 b2.k = "b2k" b2.m = "b2m"
+ a4.i = "a4i" a4.j = "a4j"
+}
+
+
+instance JxPi = eval (toCoQuery F) Js
+instance JxSigma = sigma F Js
+
+
+instance Jt = delta G JxSigma
+
+
+query Q = literal : S -> T {
+ entity c -> {
+   from ca:a cb:b
+   attributes
+     i -> i(ca)
+     k -> k(cb)
+   foreign_keys
+     // has_d : c -> d
+     has_d -> {ca -> da   cb -> db}}
+ entity d -> {
+   from da:a db:b
+   attributes
+     j -> j(da)
+     m -> m(db)
+   foreign_keys
+     // has_c : d -> c
+     has_c -> {da -> ca   db -> cb}}
+}
+
+
+instance JtQuery = eval Q Js
+

@@ -56,11 +56,3 @@
 (def ent-x (->> arrows (sr/select [sr/MAP-VALS]) distinct))
 (brass/schema-map-by-name brass-data/sc0)
 (brass/make-central-schema brass-data/sc0 brass-data/schema-perturbation)
-
-(require '[aql.brass.data :as brass-data] :reload)
-(require '[aql.brass.util :as brass] :reload)
-(def af (brass/aql-factory brass-data/sc0 brass-data/schema-perturbation))
-(pp/pprint (:t af))
-(pp/pprint (:x af))
-(pp/pprint (:f af))
-(pp/pprint (:g af))
