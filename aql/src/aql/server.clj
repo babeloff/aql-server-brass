@@ -61,10 +61,10 @@
 (defn brass-p2c1-handler [request]
   (if-let [action (sr/select-one [:body] request)]
     (let [pm (get action :permutation)
-          base brass-data/sc0
+          base brass-data/sc-s
           factory (brass-util/aql-factory base pm)
           model [brass-data/ts-sql1
-                 (->> brass-data/sc0
+                 (->> brass-data/sc-s
                       aql-util/serialize-aql-schema)
                  (->> factory
                       (sr/select-one [:x])

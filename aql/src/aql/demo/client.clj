@@ -13,7 +13,7 @@
 (def schema-mapping
     {:model (st/join "\n"
                 [   data/ts0 
-                    (util/serialize-aql-schema data/sc0)
+                    (util/serialize-aql-schema data/sc-s)
                     data/qu0])                             
      :return {:query ["Q"]
               :schema ["S"]}})

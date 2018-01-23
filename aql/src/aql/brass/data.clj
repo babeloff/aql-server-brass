@@ -7,7 +7,7 @@
 ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
 ;;   database/server/baseline_schema_ddl.sql
 
-(def sc0
+(def sc-s
   {:name "S"
    :type :schema
    :extend "sql1"
@@ -61,7 +61,7 @@
       ["cot_position" "tileY"]
       ["cot_event" "cot_type"]]}]})
 
-(def scx
+(def sc-x
   {:name "X"
    :type :schema
    :extend "sql1"
@@ -153,6 +153,59 @@
      {"tileY" "tileY"
       "point_hae" "point_hae"}}}})
 
+(def sc-y
+  {:name "Y"
+   :type :schema
+   :extend "sql1"
+   :entities
+   #{"cot_cospan"}
+   :attributes
+   {"name" ["cot_cospan" "Varchar"]
+    "channel" ["cot_cospan" "Varchar"]
+
+    "cot_type"  ["cot_cospan" "Varchar"]
+    "how"  ["cot_cospan" "Varchar"]
+    "detail"  ["cot_cospan" "Text"]
+    "servertime"  ["cot_cospan" "Bigint"]
+
+    "point_hae" ["cot_cospan" "Integer"]
+    "point_ce" ["cot_cospan" "Integer"]
+    "point_le" ["cot_cospan" "Integer"]
+    "tileX" ["cot_cospan" "Integer"]
+    "tileY" ["cot_cospan" "Integer"]
+    "latitude" ["cot_cospan" "Real"]
+    "longitude" ["cot_cospan" "Real"]}})
+
+(def mapping-s->y
+  "A mapping between schema"
+  {:name "coF"
+   :type :mapping
+   :schemas ["S" "Y"]
+   :entities
+   {[["source"] ["cot_cospan"]]
+    {:attributes
+     {"name" "name"
+      "channel" "channel"}}
+
+    [["cot_event"] ["cot_cospan"]]
+    {:references {"has_source" nil}
+     :attributes
+     {"cot_type" "cot_type"
+      "how" "how"
+      "detail" "detail"
+      "servertime" "servertime"}}
+
+    [["cot_position"] ["cot_cospan"]]
+    {:references {"has_cot_event" nil}
+     :attributes
+     {"point_hae" "point_hae"
+      "point_ce" "point_ce"
+      "point_le" "point_le"
+      "tileX" "tileX"
+      "tileY" "tileY"
+      "latitude" "latitude"
+      "longitude" "longitude"}}}})
+
 (def sc1
   {:name "T"
    :type :schema
@@ -175,8 +228,7 @@
     "tileY" ["cot_detail" "Integer"]
     "point_hae" ["cot_detail" "Integer"]}
    :references
-   {"has_cot_event" ["cot_action" "cot_detail"]
-    "cot_action_idx" ["cot_detail" "cot_action"]
+   {"cot_action_idx" ["cot_detail" "cot_action"]
     "cot_action_idy" ["cot_action" "cot_detail"]}})
 
 (def mapping-x->t
@@ -218,6 +270,58 @@
      :attributes
      {"tileY" "tileY"
       "point_hae" "point_hae"}}}})
+
+(def mapping-t->y
+  "A mapping between schema"
+  {:name "coG"
+   :type :mapping
+   :schemas ["T" "Y"]
+   :entities
+   {[["cot_action"] ["cot_cospan"]]
+    {:references
+     {"cot_action_idx" nil}
+     :attributes
+     {"name" "name"
+      "channel" "channel"
+      "how" "how"
+      "servertime" "servertime"
+      "point_ce" "point_ce"
+      "point_le" "point_le"
+      "tileX" "tileX"
+      "longitude" "longitude"
+      "latitude" "latitude"}}
+    [["cot_detail"] ["cot_cospan"]]
+    {:references
+     {"cot_action_idy" nil}
+     :attributes
+     {"point_hae" "point_hae"
+      "detail" "detail"
+      "tileY" "tileY"
+      "cot_type" "cot_type"}}}})
+
+(def q-m "
+  query Q = literal : S -> T {
+     entity c -> {
+       from ca:a cb:b
+       attributes
+         i -> i(ca)
+         k -> k(cb)
+       foreign_keys
+         // has_d : c -> d
+         has_d -> {
+           ca -> da
+           cb -> db}}
+     entity d -> {
+       from da:a db:b
+       attributes
+         j -> j(da)
+         m -> m(db)
+       foreign_keys
+         // has_c : d -> c
+         has_c -> {
+           da -> ca
+           db -> cb}}")
+
 
 (def ts-sql1
   "typeside sql1 = literal {

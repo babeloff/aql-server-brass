@@ -7,7 +7,7 @@
 (require '[aql.demo.client :as client] :reload)
 
 
-;; (util/serialize-aql-schema demo/sc0)
+;; (util/serialize-aql-schema demo/sc-s)
 (def aql-env (util/make-env (:model client/schema-mapping)))
 (def return (json/read-str (json/write-str (:return client/schema-mapping))))
 

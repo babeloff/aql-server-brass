@@ -81,7 +81,7 @@ instance Js = literal : S {
 }
 
 
-instance JxPi = eval (toCoQuery F) Js
+instance JxPi = pi F Js
 instance JxSigma = sigma F Js
 
 
@@ -109,4 +109,3 @@ query Q = literal : S -> T {
 
 
 instance JtQuery = eval Q Js
-

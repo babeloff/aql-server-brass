@@ -14,8 +14,8 @@
 
 (def ts-0 brass-data/sql1)
 
-(def schema-0 (util/serialize-aql-schema brass-data/sc0))
-(def schema-x (util/serialize-aql-schema brass-data/scx))
+(def schema-0 (util/serialize-aql-schema brass-data/sc-s))
+(def schema-x (util/serialize-aql-schema brass-data/sc-x))
 (def schema-1 (util/serialize-aql-schema brass-data/sc1))
 
 (def map-x->0 (util/serialize-aql-mapping brass-data/mapping-x->s))
@@ -49,10 +49,10 @@
      util/query->sql
      print)
 
-(def ent-map (brass/schema-map-by-name brass-data/sc0))
+(def ent-map (brass/schema-map-by-name brass-data/sc-s))
 (def arrows (brass/expand-perturbation brass-data/schema-perturbation))
 (def col-map (merge-with #(conj %1 [:move %2]) ent-map arrows))
 (pp/pprint col-map)
 (def ent-x (->> arrows (sr/select [sr/MAP-VALS]) distinct))
-(brass/schema-map-by-name brass-data/sc0)
-(brass/make-central-schema brass-data/sc0 brass-data/schema-perturbation)
+(brass/schema-map-by-name brass-data/sc-s)
+(brass/make-central-schema brass-data/sc-s brass-data/schema-perturbation)

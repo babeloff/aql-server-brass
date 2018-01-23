@@ -6,20 +6,20 @@
 (require '[aql.brass.util :as brass-util] :reload)
 (require '[aql.util :as aql-util] :reload)
 
-(def factory (brass-util/aql-factory brass-data/sc0 brass-data/schema-perturbation))
+(def factory (brass-util/aql-factory brass-data/sc-s brass-data/schema-perturbation))
 
 (defn pp-identity
   ([val] (pp/pprint val) val)
   ([alt val] (do (pp/pprint [val alt])) alt))
 
-(->> brass-data/sc0
+(->> brass-data/sc-s
      pp-identity
      aql-util/serialize-aql-schema
      print)
 
 (->> factory
      (sr/select-one [:x])
-     (pp-identity brass-data/scx)
+     (pp-identity brass-data/sc-x)
      aql-util/serialize-aql-schema
      print)
 
