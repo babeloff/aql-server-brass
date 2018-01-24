@@ -74,3 +74,26 @@
     [["a" "d"] ["d"]] {:attributes {"j" "j"}}
     [["b" "c"] ["c"]] {:attributes {"k" "k"}}
     [["b" "d"] ["d"]] {:attributes {"m" "m"}}}})
+
+(def q-m "
+  query Q = literal : S -> T {
+     entity c -> {
+       from ca:a cb:b
+       attributes
+         i -> i(ca)
+         k -> k(cb)
+       foreign_keys
+         // has_d : c -> d
+         has_d -> {
+           ca -> da
+           cb -> db}}
+     entity d -> {
+       from da:a db:b
+       attributes
+         j -> j(da)
+         m -> m(db)
+       foreign_keys
+         // has_c : d -> c
+         has_c -> {
+           da -> ca
+           db -> cb}}")

@@ -206,7 +206,7 @@
       "latitude" "latitude"
       "longitude" "longitude"}}}})
 
-(def sc1
+(def sc-t
   {:name "T"
    :type :schema
    :extend "sql1"
@@ -299,37 +299,13 @@
       "tileY" "tileY"
       "cot_type" "cot_type"}}}})
 
-(def q-m "
-  query Q = literal : S -> T {
-     entity c -> {
-       from ca:a cb:b
-       attributes
-         i -> i(ca)
-         k -> k(cb)
-       foreign_keys
-         // has_d : c -> d
-         has_d -> {
-           ca -> da
-           cb -> db}}
-     entity d -> {
-       from da:a db:b
-       attributes
-         j -> j(da)
-         m -> m(db)
-       foreign_keys
-         // has_c : d -> c
-         has_c -> {
-           da -> ca
-           db -> cb}}")
-
-
 (def ts-sql1
   "typeside sql1 = literal {
         imports sql
         java_functions
-            EqualStr : String, String -> Bool = \"return input[0].equals(input[1])\"
-            EqualVc : Varchar, Varchar -> Bool = \"return input[0].equals(input[1])\"
-            EqualInt : Integer, Integer -> Bool = \"return input[0].equals(input[1])\"
+            EqualStr : String, String -> Bool = \"attributes input[0].equals(input[1])\"
+            EqualVc : Varchar, Varchar -> Bool = \"attributes input[0].equals(input[1])\"
+            EqualInt : Integer, Integer -> Bool = \"attributes input[0].equals(input[1])\"
         }")
 
 (def q1x0 "query Qx = [ toQuery G ; toCoQuery F ]")
@@ -337,16 +313,40 @@
  ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
  ;;  database/server/aql/src/aql/cp2_1_db.aql#L262
 
-(def qs01 "query Qs_01 = simple : S  {
+(def qs-01-doc "
+  ## Query 1 : cot_eventsForConstantCotType
+  Basic test against single table with a simple filter on a projected column.
+  In the original query the source_id was extracted by the query.
+  In AQL foreign-key values are meaningless so extracting them is meaningless.
+  If what is intended is some meaningful key indicating a row in the source entity;
+  then a uuid on the source entity is probably what is meant.
+
+  	select ce.id, ce.source_id, ce.cot_type
+  	from cot_event as ce
+  	where ce.cot_type = 'a-n-A-C-F-s'
+  ")
+(def qs-01
+  "query Qs_01 = simple : S  {
     from ce:cot_event
     where ce.cot_type = \"a-n-A-C-F-m\"
     attributes
         cot_type -> ce.cot_type
-        }")
+    }")
 
-(def qs01t "query Qt_01 = [ Qx ; Qs_01 ]")
+(def qt-01 "query Qt_01 = [ Qx ; Qs_01 ]")
+;; instance q1_inst = eval Qt_01 S_inst
 
-(def qs02
+(def qs-02-doc "
+## Query 2 : cot_eventsForConstantTimeInterval
+Like query 1 except filter on non-projected column.
+
+	select ce.id, ce.source_id, ce.cot_type, ce.how
+	from cot_event as ce
+	where ce.servertime = 201705071635
+
+")
+
+(def qs-02
   "query Qs_02 = simple : S  {
     from ce:cot_event
     where ce.servertime = \"201705071635\"
@@ -355,15 +355,405 @@
         how -> ce.how
     }")
 
-(def qs02t "query Qt_02 = [ Qx ; Qs_02 ]")
+(def qt-02 "query Qt_02 = [ Qx ; Qs_02 ]")
+;; instance q2_inst = eval Qt_02 S_inst
+
+(def qs-03-doc "
+## Query 3 : cot_eventsForConstantCompoundFilter
+Query with a simple compound filter
+
+	select ce.id, ce.source_id, ce.cot_type, ce.how
+	from cot_event as ce
+	where ce.servertime = 201705071635
+	and ce.cot_type = 'a-n-A-C-F-m'
+")
+
+(def qs-03
+  "query Qs_03 = simple : S {
+     from ce : cot_event
+     where
+       ce.server_time = \"201705071635\"
+       ce.cot_type = \"a-n-A-C-F-m\"
+     attributes
+       cot_type -> ce.cot_type
+       how -> ce.how
+     }")
+
+(def qt-03 "query Qt_03 = [ Qx ; Qs_03 ]")
+;; instance q3_inst = eval Qt_03 S_inst
+
+(def qs-04-doc  "
+## Query 4 : cot_eventsForConstantChannelJoin
+Simple join with filter
+
+	select s.name, ce.id, ce.cot_type, ce.servertime
+	from source as s
+	join cot_event as ce on s.id = ce.source_id
+	where s.channel = 7
+")
+
+(def qs-04
+  "query Qs_04 = simple : S {
+     from
+       ce : cot_event
+       s : source
+     where
+       s = ce.source_id
+       s.channel = \"7\"
+     attributes
+       name -> s.name
+       cot_type -> ce.cot_type
+       time -> ce.server_time
+  }")
+
+(def qt-04 "query Qt_04 = [ Qx ; Qs_04 ]")
+;; instance q4_inst = eval Qt_04 S_inst
+
+(def qs-05-doc "
+## Query 5 : cot_eventsForConstantChannelJoin2
+Same as query4 but no projection of column from joined table.
+
+	select s.name, ce.cot_type, ce.servertime
+	from source as s
+	join cot_event as ce on s.id = ce.source_id
+	where s.channel = 5 or ce.cot_type = 'a-n-A-C-F-s'
+")
+
+(def qs-05s
+  "query Qs_05s = simple : S {
+     from
+       ce : cot_event
+       s : source
+     where
+       s = ce.source_id
+       eqInt(s.channel,3) = true
+       //or(eqInt(s.channel,5), eqVc(ce.cot_type,\"a-n-A-C-F-m\")) = true
+     attributes
+       name -> s.name
+       cot_type -> ce.cot_type
+       time -> ce.server_time
+  }")
+
+(def qt-05s "query Qt_05s = [ Qx ; Qs_05s ]")
+;; instance q5s_inst = eval q5s S_inst
+
+(def sc-05
+  "schema S5 = literal : Ty {
+    entities
+          Q
+      attributes
+          name : Q -> VARCHAR
+          time : Q -> INTEGER
+          type : Q -> VARCHAR
+          channel : Q -> INTEGER
+  }")
+
+(def qs-05
+  "query Qs_05 = literal : S -> S5 {
+     entities Q -> {
+       from
+         ce : cot_event
+         s : source
+       where
+         s = ce.source_id
+       attributes
+         name -> s.name
+         type -> ce.cot_type
+         channel -> s.channel
+         time -> ce.server_time
+     }
+    }")
+
+(def qt-05 "query Qt_05 = [ Qx ; Qs_05 ]")
+;; instance s5_inst = eval q5c S_inst
+;; schema S5simple = dst q5c
+
+(def qs-05a
+  "query Qs_05a = literal : S5 -> S5 {
+    entities
+      Q -> {
+        from q: Q
+        where eqInt(q.channel,\"3\") = true
+        attributes
+          name -> q.name
+          type -> q.type
+          channel -> q.channel
+          time -> q.time
+     }
+  }")
+
+(def qt-05a "query Qt_05a = [ Qx ; Qs_05a ]")
+;; instance q5a_inst = eval q5a s5_inst
+
+(def qs-05b
+  "query Qs_05b = literal : S5 -> S5 {
+    entities
+      Q -> {
+        from q: Q
+        where
+          q.type = \"a-n-A-C-F-m\"
+          eqInt(q.channel,\"3\") = false
+        attributes
+          name -> q.name
+          type -> q.type
+          channel -> q.channel
+          time -> q.time
+        }
+      }")
+
+(def qt-05b "query Qt_05b = [ Qx ; Qs_05b ]")
+;; instance q5b_inst = eval q5b s5_inst
+;; instance q5c_inst = coproduct q5a_inst + q5b_inst : S5
+
+(def qs-06-doc  "
+## Query 6 : cot_eventsForConstantMixedJoin
+Same as query5 except join across tables.
+
+	select s.name, ce.cot_type, ce.servertime
+	from source as s
+	join cot_event as ce on s.id = ce.source_id
+	where  s.channel = 5
+		or ce.cot_type = 'a-n-A-C-F-m'
+
+")
+
+(def qs-06s
+  "query Qs_06s = simple : S {
+    from
+      ce : cot_event
+      s : source
+    where
+      s = ce.source_id
+      or(eqInt(s.channel,\"5\"), eqVc(ce.cot_type,\"a-n-A-C-F-m\") = true
+    attributes
+      name -> s.name
+      cot_type -> ce.cot_type
+      time -> ce.server_time
+  }")
+
+(def qt-06s "query Qt_06s = [ Qx ; Qs_06s ]")
+;; instance q6_inst = eval q6 S_inst
+
+(def qs-07-doc "
+## Query 7 : cot_eventsOnChannelInRegion
+More complex join and filter
+
+	select s.name, ce.id, ce.cot_type, ce.servertime
+	from source as s
+	join cot_event as ce on s.id = ce.source_id
+	join cot_event_position cep on ce.id = cep.cot_event_id
+	where  s.channel = 3 and cep.tilex = 18830 and cep.tiley = 25704
+
+")
+
+(def qs-07s
+  "query Qs_07s = simple : S {
+    from
+      ce : cot_event
+      cep : cot_event_position
+      s : source
+    where
+      s = ce.source_id
+      ce = cep.cot_event_id
+      s.channel = 3
+    attributes
+      name -> s.name
+      cot_type -> ce.cot_type
+      time -> ce.server_time
+    }")
+
+; query q7a = simple : S {}
+;  import q7
+;  where cep.tilex = 18830 cep.tiley = 25704)
+
+; query q7b = simple : S {}
+;  import q7
+;  where s.channel = 3)
+
+(def qt-07s "query Qt_07s = [ Qx ; Qs_07s ]")
+; instance q7_inst = eval q7 S_inst
+
+(def qs-08-doc "
+## Query 8 : cot_eventsForUidAndInterval
+Simple parameterized query.
+
+	select s.id, s.name, ce.servertime, cep.tilex, cep.tiley
+	from source as s
+	join cot_event as ce on s.id = ce.source_id
+	where s.name = ? and ce.server_time = ?
+")
+
+(def sc-08
+  "schema S8 = literal : Ty {
+     entities
+           Q
+       attributes
+           name : Q -> VARCHAR
+           time : Q -> INTEGER
+           tileX : Q -> GEO
+           tileY : Q -> GEO
+   }")
+
+(def qs-08
+  "query Qs_08 = literal : S -> S8 {
+    entities
+        Q -> {
+      from
+        s : source
+        ce : cot_event
+        cep : cot_event_position
+      where
+        s = ce.source_id
+        ce = cep.cot_event_id
+      attributes
+        name -> s.name
+        time -> ce.server_time
+        tileX -> cep.tile_x
+        tileY -> cep.tile_y
+      }
+  }")
+
+(def qt-08 "query Qt_08 = [ Qx ; Qs_08 ]")
+;; instance q8_inst = eval q8 S_inst
+
+(def qs-08s
+  "query Qs_08s = simple : S8 {
+    from q : Q
+    where
+      q.name = \"A6A7DC\"
+      q.time = \"201705071635\"
+    attributes
+        name -> q.name
+        time -> q.time
+        tileX -> q.tileX
+        tileY -> q.tileY
+      }")
+
+(def qt-08s "query Qt_08s = [ Qx ; Qs_08s ]")
+;; instance q8a_inst = eval q8a q8_inst
+
+(def parameterized-doc "
+
+Since this is a parameterized query, we reproduce the sampling
+that would be created with baseline application testing.
+For a subset of source name and servertime parameters,
+we take a representative sample of the query results for that value.
+If we just sample over the whole population of records, we
+might get just a few results for a set of parameters.
+
+	with sampleSizes as
+	(
+	select source_id, servertime, min(sample_size) as sample_size
+	from
+		(select s.id source_id, ce.servertime,
+		round((cast(count() over(partition by s.id, ce.servertime) as float) / cast( count() over() as float)) * 1000) as sample_size
+		from source s join cot_event ce on s.id = ce.source_id) as t1
+		group by t1.source_id, t1.servertime
+		),
+
+	samples as
+	(
+	select source_id, source_name, servertime, row_number() over(partition by source_id, servertime) as rownum, tilex, tiley
+	from
+		(select s.id as source_id, s.name as source_name, ce.servertime, cep.tilex, cep.tiley,
+		row_number() over(order by s.id, ce.servertime, random()) as rownum
+		from source s join cot_event ce on s.id = ce.source_id
+		join cot_event_position cep on ce.id = cep.cot_event_id
+		join (	select t1.id, t1.servertime
+				from (select distinct S.id, ce2.servertime
+				      from source S join cot_event ce2 on S.id = ce2.source_id
+				     ) t1
+				order by random()
+				limit 50) as t2 on s.id = t2.id and ce.servertime = t2.servertime
+		) as t3
+	)
+
+	select samples.source_id as id, samples.source_name as name, samples.servertime, samples.tilex, samples.tiley
+	from samples join sampleSizes on samples.source_id = sampleSizes.source_id and samples.servertime = sampleSizes.servertime
+	where samples.rownum <= sampleSizes.sample_size
+
+")
+
+(def qs-09-doc "
+## Query 9 : cot_eventsForUidAndIntervalBound
+Compare to query 8 except trained using bound parameters.
+Effectively treating it as a canned query but
+attributesing all results from sample parameter binding.
+
+	select s.id, s.name, ce.servertime, cep.tilex, cep.tiley
+	from source as s
+	join cot_event as ce on s.id = ce.source_id
+	join cot_event_position cep on ce.id = cep.cot_event_id
+	where s.name = ? and ce.server_time = ?
+
+Samples:
+
+	where s.name = 'ABD19E' and servertime = 201705071645
+
+")
+
+(def sc-09
+  "schema S9 = literal : Ty {
+     entities
+           Q
+       attributes
+           name : Q -> VARCHAR
+           time : Q -> INTEGER
+           tileX : Q -> GEO
+           tileY : Q -> GEO
+     }")
+
+(def qs-09
+  "query q9 = literal : S -> S9 {
+     entities
+       Q -> {
+         from
+           s : source
+           ce : cot_event
+           cep : cot_event_position
+         where
+           s = ce.source_id
+           ce = cep.cot_event_id
+         attributes
+           name -> s.name
+           time -> ce.server_time
+           tileX -> cep.tile_x
+           tileY -> cep.tile_y
+         }
+     }")
+
+(def qt-09 "query Qt_09 = [ Qx ; Qs_09 ]")
+;; instance q9_inst = eval q9 S_inst
 
 (def query-demo
   "all the queries for the demo
     Includes all the initial queries as well as the targets"
-  [qs01 qs01t
-   qs02 qs02t])
+  [qs-01 qt-01
+   qs-02 qt-02
+   qs-03 qt-03
+   qs-04 qt-04
+   qs-05 qt-05
+   qs-05s qt-05s
+   qs-05a qt-05a
+   qs-05b qt-05b
+   qs-06s qt-06s
+   qs-07s qt-07s
+   qs-08 qt-08
+   qs-08s qt-08s
+   qs-09 qt-09])
 
-(def query-demo-return
-  "a list of the queries to return"
+(def query-demo-attributes
+  "a list of the queries to attributes"
   {:query ["Qt_01"
-           "Qt_02"]})
+           "Qt_02"
+           "Qt_03"
+           "Qt_04"
+           "Qt_05"
+           "Qt_05s"
+           "Qt_05a"
+           "Qt_05b"
+           "Qt_06s"
+           "Qt_07s"
+           "Qt_08"
+           "Qt_08s"
+           "Qt_09"]})
