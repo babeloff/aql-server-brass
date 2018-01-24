@@ -25,6 +25,8 @@ schema T = literal : sql {
    m : d -> Varchar
 }
 
+schema R = T
+
 schema X = literal : sql {
  entities
    n
@@ -79,19 +81,35 @@ instance Js = literal : S {
    a4.i = "a4i" a4.j = "a4j"
 }
 
-instance JxPi = pi F Js
-instance JxSigma = sigma F Js
-query Fqc = toCoQuery F
-instance JxCospan = eval Fqc Js
+instance Jx = sigma F Js
+instance Jt = delta G sigma F Js
+
+// the JtSigma is isomorphic with the target JtGoal
+instance JtGoal = literal : T {
+  generators
+    c1 c2 c3 c4 : c
+    d1 d2 d3 d4 : d
+  equations
+    c1.i = "a1i" c1.k = "b1k" c1.has_d = d1
+    c2.i = "a2i"              c2.has_d = d2
+    c3.i = "a3i" c3.k = "b2k" c3.has_d = d3
+    c4.i = "a4i"              c4.has_d = d4
+
+    d1.j = "a1j" d1.m = "b1m" d1.has_c = c1
+    d2.j = "a2j"              d2.has_c = c2
+    d3.j = "a3j" d3.m = "b2m" d3.has_c = c3
+    d4.j = "a4j"              d4.has_c = c4
+  }
+
+query QF = toQuery F
+query QG = toCoQuery G
+query Qx = [ QG ; QF ]
+
+instance JsRT = eval Qx JtGoal
+// JsRT should be isomorphic with Js
 
 
-instance JtPi = delta G JxPi
-instance JtSigma = delta G JxSigma
-query Gq = toQuery G
-instance JtCospan = eval Gq JxCospan
-
-query QSTComputed = [ Fqc ; Gq ]
-query QST = literal : S -> T {
+query Qs_a = literal : S -> R {
   entity c -> {
   	from B1: b
     attributes
@@ -116,9 +134,11 @@ query QST = literal : S -> T {
   }
 }
 
-instance JtResult = eval QST Js
+instance Ks_a = eval Qs_a Js
+query Qt_a = [ Qx ; Qs_a ]
+instance Kt_a = eval Qt_a JtGoal
 
-query Q = literal : S -> T {
+query Qs_b = literal : S -> R {
  entity c -> {
    from ca:a cb:b
    attributes
@@ -139,21 +159,6 @@ query Q = literal : S -> T {
  }
 }
 
-
-instance JtQuery = eval Q Js
-
-instance JtGoal = literal : T {
-  generators
-    c1 c2 c3 c4 : c
-    d1 d2 d3 d4 : d
-  equations
-    c1.i = "a1i" c1.k = "b1k" c1.has_d = d1
-    c2.i = "a2i"              c2.has_d = d2
-    c3.i = "a3i" c3.k = "b2k" c3.has_d = d3
-    c4.i = "a4i"              c4.has_d = d4
-
-    d1.j = "a1j" d1.m = "b1m" d1.has_c = c1
-    d2.j = "a2j"              d2.has_c = c2
-    d3.j = "a3j" d3.m = "b2m" d3.has_c = c3
-    d4.j = "a4j"              d4.has_c = c4
-  }
+instance Ks_b = eval Qs_b Js
+query Qt_b = [ Qx ; Qs_b ]
+instance Kt_b = eval Qt_b JtGoal
