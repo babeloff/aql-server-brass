@@ -69,20 +69,44 @@ mapping G = literal : T -> X {
 
 instance Js = literal : S {
  generators
-   a1 a2 a3 a4 : a
-   b1 b2 : b
+   a1 a2 a3 a4 a5 : a
+   b1 b2 b3 b4 b5a b5b : b
  equations
-   a1.i = "a1i" a1.j = "a1j"
-   b1.has = a1 b1.k = "b1k" b1.m = "b1m"
-   a2.i = "a2i" a2.j = "a2j"
+  a1.i = "a1i" a1.j = "a1j"
+  b1.has = a1 b1.k = "b1k" b1.m = "b1m"
+  a2.i = "a2i" a2.j = "a2j"
+  b2.has = a2 // b2.k = "b2k" b2.m = "b2m"
 
-   a3.i = "a3i" a3.j = "a3j"
-   b2.has = a3 b2.k = "b2k" b2.m = "b2m"
-   a4.i = "a4i" a4.j = "a4j"
+  a3.i = "a3i" a3.j = "a3j"
+  b3.has = a3 b3.k = "b3k" b3.m = "b3m"
+  a4.i = "a4i" a4.j = "a4j"
+  b4.has = a4 // b4.k = "b4k" b4.m = "b4m"
+
+  a5.i = "a5i" a5.j = "a5j"
+  b5a.has = a5 b5a.k = "b5ak" b5a.m = "b5am"
+  b5b.has = a5 b5b.k = "b5bk" b5b.m = "b5bm"
 }
 
-instance Jx = sigma F Js
-instance Jt = delta G sigma F Js
+instance Jx = pi F Js
+instance Jy = sigma F Js
+  { options require_consistency=false allow_java_eqs_unsafe=true }
+
+instance JxGoal = literal : X {
+  generators
+    x1 x2 x3 x4 x5a x5b : n
+  equations
+    x1.i = "a1i" x1.j = "a1j" x1.k = "b1k" x1.m = "b1m"
+    x2.i = "a2i" x2.j = "a2j"
+    x3.i = "a3i" x3.j = "a3j" x3.k = "b2k" x3.m = "b2m"
+    x4.i = "a4i" x4.j = "a4j"
+
+    x5a.i = "a5i" x5a.j = "a3j" x5a.k = "b3k" x5a.m = "b3m"
+    x5b.i = "a5i" x5b.j = "a3j" x5b.k = "b4k" x5b.m = "b4m"
+  }
+
+instance Jt = delta G Jx // JxGoal
+// instance Jt = delta G sigma F Js
+//  { options require_consistency=false allow_java_eqs_unsafe=true }
 
 // the JtSigma is isomorphic with the target JtGoal
 instance JtGoal = literal : T {
@@ -162,3 +186,8 @@ query Qs_b = literal : S -> R {
 instance Ks_b = eval Qs_b Js
 query Qt_b = [ Qx ; Qs_b ]
 instance Kt_b = eval Qt_b JtGoal
+
+// instance Kt_b_std = relationalize Kt_b
+// This reminds me of working with the hyper-reals.
+// When converting a hyper-real to a real only
+// the "standard" portion of the value is retained.

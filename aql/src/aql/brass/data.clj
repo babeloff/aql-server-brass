@@ -115,7 +115,7 @@
 (def mapping-x->s
   "A mapping between schema
     "
-  {:name "F"
+  {:name "Fx"
    :type :mapping
    :schemas ["X" "S"]
    :entities
@@ -178,7 +178,7 @@
 
 (def mapping-s->y
   "A mapping between schema"
-  {:name "coF"
+  {:name "Fy"
    :type :mapping
    :schemas ["S" "Y"]
    :entities
@@ -233,7 +233,7 @@
 
 (def mapping-x->t
   "A mapping between schema"
-  {:name "G"
+  {:name "Gx"
    :type :mapping
    :schemas ["X" "T"]
    :entities
@@ -273,7 +273,7 @@
 
 (def mapping-t->y
   "A mapping between schema"
-  {:name "coG"
+  {:name "Gy"
    :type :mapping
    :schemas ["T" "Y"]
    :entities
@@ -309,45 +309,31 @@
         }")
 
 (def ts-sql2
-    "typeside sql2 = literal {
+  "typeside sql2 = literal {
+     import sql
      java_types
-       TEXT = \"java.lang.String\"
-       VARCHAR = \"java.lang.String\"
-       DATETIME = \"java.util.Date\"
-       INTEGER = \"java.lang.Long\"
-       REAL = \"java.lang.Double\"
-       BLOB = \"java.util.ArrayList\"
-       GEO = \"java.lang.Long\"
-       BOOLEAN = \"java.lang.Boolean\"
-       true = \"java.lang.Boolean\"
+       Geo = \"java.lang.Long\"
      java_constants
-       TEXT = \"return input[0]\"
-       VARCHAR = \"return input[0]\"
-       DATETIME = \"return new java.util.Date(java.lang.Long.decode(input[0]))\"
-       INTEGER = \"return java.lang.Long.decode(input[0])\"
-       REAL = \"return java.lang.Double.parseDouble(input[0])\"
-       BLOB = \"return []\"
-       GEO = \"return java.lang.Long.decode(input[0])\"
-       BOOLEAN = \"return new java.lang.Boolean(input[0])\"
-       true = \"return true\"
+       Geo = \"return java.lang.Long.decode(input[0]))\"
      java_functions
-       int_to_real : INTEGER -> REAL = \"return 0.0 + input[0]\"
-       real_to_int : REAL -> INTEGER = \"return Math.round(input[0]).longValue()\"
-       date_to_int : DATETIME -> INTEGER = \"return input[0].getTime()\"
-       int_to_date : INTEGER -> DATETIME = \"return new java.util.Date(input[0])\"
-       txt_to_vc : TEXT -> VARCHAR = \"return input[0]\"
-       vc_to_txt : VARCHAR -> TEXT = \"return input[0]\"
-       real_to_geo : REAL -> GEO = \"return Math.round(input[0] * 1E6).longValue()\"
-       geo_to_real : GEO -> REAL = \"return input[0] / 1E6\"
-       now : -> DATETIME = \"return java.util.Date.from(java.time.Instant.now())\"
-       eqVc : VARCHAR, VARCHAR -> BOOLEAN = \"return input[0].equals(input[1])\"
-       eqInt : INTEGER, INTEGER -> BOOLEAN = \"return input[0] == input[1]\"
-       or : BOOLEAN, BOOLEAN -> BOOLEAN = \"return input[0] || input[1]\")
+       int_to_real : Bigint -> Real = \"return 0.0 + input[0]\"
+       real_to_int : Real -> Bigint = \"return Math.round(input[0]).longValue()\"
+       date_to_int : Timestamp -> Bigint = \"return input[0].getTime()\"
+       int_to_date : Bigint -> Timestamp = \"return new java.util.Date(input[0])\"
+       txt_to_vc : Text -> Varchar = \"return input[0]\"
+       vc_to_txt : Varchar -> Text = \"return input[0]\"
+       real_to_geo : Real -> Geo = \"return Math.round(input[0] * 1E6).longValue()\"
+       geo_to_real : Geo -> Real = \"return input[0] / 1E6\"
+       now : -> Timestamp = \"return java.util.Date.from(java.time.Instant.now())\"
+       eqVc : Varchar, Varchar -> Boolean = \"return input[0].equals(input[1])\"
+       eqInt : Bigint, Bigint -> Boolean = \"return input[0] == input[1]\"
+       or : Boolean, Boolean -> Boolean = \"return input[0] || input[1]\")
      }
   ")
 
 
-(def q1x0 "query Qx = [ toQuery G ; toCoQuery F ]")
+(def q1x0 "query Qx = [ toCoQuery Fx ; toQuery Gx ]")
+(def q1x0 "query Qy = [ toCoQuery Gy ; toQuery Fy ]")
 
  ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
  ;;  database/server/aql/src/aql/cp2_1_db.aql#L262
@@ -488,10 +474,10 @@ Same as query4 but no projection of column from joined table.
     entities
           Q
       attributes
-          name : Q -> VARCHAR
-          time : Q -> INTEGER
-          type : Q -> VARCHAR
-          channel : Q -> INTEGER
+          name : Q -> Varchar
+          time : Q -> Bigint
+          type : Q -> Varchar
+          channel : Q -> Bigint
   }")
 
 (def qs-05
@@ -639,46 +625,46 @@ Simple parameterized query.
      entities
            Q
        attributes
-           name : Q -> VARCHAR
-           time : Q -> INTEGER
-           tileX : Q -> GEO
-           tileY : Q -> GEO
+           name : Q -> Varchar
+           time : Q -> Bigint
+           tileX : Q -> Geo
+           tileY : Q -> Geo
    }")
 
-(def qs-08
-  "query Qs_08 = literal : S -> S8 {
-    entities
-      Q -> {
-        from
-          s : source
-          ce : cot_event
-          cep : cot_event_position
-        where
-          s = ce.source_id
-          ce = cep.cot_event_id
-        attributes
-          name -> s.name
-          time -> ce.server_time
-          tileX -> cep.tile_x
-          tileY -> cep.tile_y
-      }
-  }")
+(def qs-08pre
+  "query Qs_08pre = literal : S -> S8 {
+     params
+        name : String
+        server_time : Bigint
+     entity
+       Q -> {
+         from
+           s : source
+           ce : cot_event
+           cep : cot_event_position
+         where
+           s = ce.source_id
+           ce = cep.cot_event_id
+           q.name = name
+           q.time = server_time
+         attributes
+           name -> s.name
+           time -> ce.server_time
+           tileX -> cep.tile_x
+           tileY -> cep.tile_y
+       }
+    } ")
 
-(def qs-08p
-  "query Qs_08p = simple : S8 {
-    from q : Q
-    where
-      q.name = \"A6A7DC\"
-      q.time = \"201705071635\"
-    attributes
-        name -> q.name
-        time -> q.time
-        tileX -> q.tileX
-        tileY -> q.tileY
+(def qs-08
+  "query Qs_08p = literal : S -> S8 {
+     import Qs_08pre
+     bindings
+        name = \"A6A7DC\"
+        server_time = \"201705071635\"
       }")
 
+(def qt-08pre "query Qt_08pre = [ Qx ; Qs_08pre ]")
 (def qt-08 "query Qt_08 = [ Qx ; Qs_08 ]")
-(def qt-08p "query Qt_08p = [ Qt_08 ; Qs_08p ]")
 ;; instance q8a_inst = eval Qs_08p S_inst
 ;; instance q8a_inst = eval Qt_08p T_inst
 
@@ -747,14 +733,17 @@ Samples:
      entities
            Q
        attributes
-           name : Q -> VARCHAR
-           time : Q -> INTEGER
-           tileX : Q -> GEO
-           tileY : Q -> GEO
+           name : Q -> Varchar
+           time : Q -> Bigint
+           tileX : Q -> Geo
+           tileY : Q -> Geo
      }")
 
-(def qs-09
-  "query Qs_09 = literal : S -> S9 {
+(def qs-09pre
+  "query Qs_09pre = literal : S -> S9 {
+    params
+       name : String
+       server_time : Bigint
      entities
        Q -> {
          from
@@ -764,6 +753,8 @@ Samples:
          where
            s = ce.source_id
            ce = cep.cot_event_id
+           q.name = name
+           q.time = server_time
          attributes
            name -> s.name
            time -> ce.server_time
@@ -772,21 +763,16 @@ Samples:
          }
      }")
 
-(def qs-09p
-  "query Qs_09p = simple : S9 {
-    from q : Q
-    where
-      q.name = \"A6A7DC\"
-      q.time = \"201705071635\"
-    attributes
-        name -> q.name
-        time -> q.time
-        tileX -> q.tileX
-        tileY -> q.tileY
+(def qs-09
+  "query Qs_09 = literal : S -> S8 {
+     import Qs_09pre
+     bindings
+        name = \"A6A7DC\"
+        server_time = \"201705071635\"
       }")
 
+(def qt-09pre "query Qt_09pre = [ Qx ; Qs_09pre ]")
 (def qt-09 "query Qt_09 = [ Qx ; Qs_09 ]")
-(def qt-09p "query Qt_09p = [ Qt_09 ; Qs_09p ]")
 ;; instance q9_inst = eval Qt_09p T_inst
 ;; instance q9_inst = eval Qt_09p T_inst
 
@@ -803,9 +789,9 @@ Samples:
    ;qs-05b qt-05b
    ;qs-06s qt-06s
    ;qs-07s qt-07s
+   ;qs-08pre qt-08pre
    ;qs-08 qt-08
-   ;qs-08s qt-08s
-   ;qs-09 qt-09
+   ;qs-09pre qt-09pre
    ;qs-09 qt-09
 
 (def query-demo-attributes
@@ -820,6 +806,7 @@ Samples:
            "Qt_05b"
            "Qt_06s"
            "Qt_07s"
+           "Qt_08pre"
            "Qt_08"
-           "Qt_08s"
+           "Qt_09pre"
            "Qt_09"]})
