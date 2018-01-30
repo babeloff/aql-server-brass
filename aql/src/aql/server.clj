@@ -82,7 +82,7 @@
       (spit "brass_data.aql" cmd)
       (->> cmd
            aql-util/make-env
-           (aql-util/extract-result brass-data/query-demo-return)
+           (aql-util/extract-result brass-data/query-demo-attributes)
            json/write-str))))
 
 ;; https://weavejester.github.io/compojure/compojure.core.html#var-routes

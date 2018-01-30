@@ -137,24 +137,24 @@ query Qs_a = literal : S -> R {
   entity c -> {
   	from B1: b
     attributes
-	  i -> B1.has.i
-	  k -> B1.k
+  	  i -> B1.has.i
+  	  k -> B1.k
 
     foreign_keys
-	  has_d -> {
-	    B2 -> B1
-	  }
+  	  has_d -> {
+  	    B2 -> B1
+  	  }
   }
   entity d -> {
   	from
-	  B2 : b
+	   B2 : b
     attributes
-	  j -> B2.has.j
-	  m -> B2.m
+  	  j -> B2.has.j
+  	  m -> B2.m
     foreign_keys
-	  has_c -> {
-	    B1 -> B2
-	  }
+  	  has_c -> {
+  	    B1 -> B2
+  	  }
   }
 }
 
@@ -191,3 +191,55 @@ instance Kt_b = eval Qt_b JtGoal
 // This reminds me of working with the hyper-reals.
 // When converting a hyper-real to a real only
 // the "standard" portion of the value is retained.
+
+schema R2 = literal : sql {
+ entities
+   c
+ attributes
+   i : c -> Varchar
+   j : c -> Varchar
+   k : c -> Varchar
+   m : c -> Varchar
+}
+
+query Qs_1 = literal : S -> R2 {
+  entity c -> {
+  	from B1: b
+    where
+      B1.k  = "b1k"
+    attributes
+      i -> B1.has.i
+      j -> B1.has.j
+      k -> B1.k
+      m -> B1.m
+  }
+}
+
+instance Ks_1 = eval Qs_1 Js
+
+query Qs_2pre = literal : S -> R2 {
+  params
+    kay : Varchar
+
+  entity c -> {
+  	from B1: b
+    where
+     B1.k = kay
+    attributes
+      i -> B1.has.i
+      j -> B1.has.j
+      k -> B1.k
+      m -> B1.m
+  }
+}
+
+
+query Qs_2 = literal : S -> R2 {
+  bindings
+    kay = "b1k"
+  imports
+    Qs_2pre
+}
+
+instance Ks_2 = eval Qs_2 Js
+

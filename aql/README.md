@@ -5,6 +5,7 @@ This server responds to AQL requests.
 It is based on http://www.http-kit.org/
 
 https://drive.google.com/open?id=1WWsJp0n2LscyhV_HdJF9wWfquaT1hkU74iiDeJLnl7M
+Sample Cospan Mapping
 
 ## Files
 
@@ -42,15 +43,39 @@ The data used for the BRASS demonstration.
 
 ## Usage
 
+There are two main ways to use these functions.
+One way is as a server which may be exercised by the client.
+The other way is from the repl.
+
+### Server
 Start the server.
 
 clj -m aql.server
 
-Run the client demo from the command line.
+#### BRASS client
 
-clj -m aql.brass.client-demo
+Run the brass client demo from the command line.
+
+clj -m aql.brass.client
 
 This will submit a sample migration command from which the migrated queries will be extracted.
+
+#### AQL client
+
+Run the client demo from the command line.
+
+clj -m aql.demo.client
+
+This will submit an aql input.
+
+### REPL
+
+This is for testing the functions.
+
+clj repl
+
+Look in the respective scratch directories for studies of various types.
+Each scratch file contains comments explaining what is being examined.
 
 
 ## References

@@ -333,7 +333,7 @@
 
 
 (def q1x0 "query Qx = [ toCoQuery Fx ; toQuery Gx ]")
-(def q1x0 "query Qy = [ toCoQuery Gy ; toQuery Fy ]")
+(def q1y0 "query Qy = [ toCoQuery Gy ; toQuery Fy ]")
 
  ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
  ;;  database/server/aql/src/aql/cp2_1_db.aql#L262
@@ -352,10 +352,14 @@
   ")
 (def qs-01
   "query Qs_01 = simple : S  {
-    from ce:cot_event
-    where ce.cot_type = \"a-n-A-C-F-m\"
+    from
+     ce:cot_event
+    where
+     ce.cot_type = \"a-n-A-C-F-m\"
+    foreign_keys
+     source_id -> ce.has_source
     attributes
-        cot_type -> ce.cot_type
+     cot_type -> ce.cot_type
     }")
 
 (def qt-01 "query Qt_01 = [ Qx ; Qs_01 ]")
@@ -374,11 +378,15 @@ Like query 1 except filter on non-projected column.
 
 (def qs-02
   "query Qs_02 = simple : S  {
-    from ce:cot_event
-    where ce.servertime = \"201705071635\"
+    from
+     ce:cot_event
+    where
+     ce.servertime = \"201705071635\"
+    foreign_keys
+     source_id -> ce.has_source
     attributes
-        cot_type -> ce.cot_type
-        how -> ce.how
+     cot_type -> ce.cot_type
+     how -> ce.how
     }")
 
 (def qt-02 "query Qt_02 = [ Qx ; Qs_02 ]")
@@ -401,6 +409,8 @@ Query with a simple compound filter
      where
        ce.server_time = \"201705071635\"
        ce.cot_type = \"a-n-A-C-F-m\"
+     foreign_keys
+       source_id -> ce.has_source
      attributes
        cot_type -> ce.cot_type
        how -> ce.how
@@ -456,7 +466,6 @@ Same as query4 but no projection of column from joined table.
      where
        s = ce.source_id
        eqInt(s.channel,3) = true
-       //or(eqInt(s.channel,5), eqVc(ce.cot_type,\"a-n-A-C-F-m\")) = true
      attributes
        name -> s.name
        cot_type -> ce.cot_type
@@ -549,7 +558,6 @@ Same as query5 except join across tables.
 	join cot_event as ce on s.id = ce.source_id
 	where  s.channel = 5
 		or ce.cot_type = 'a-n-A-C-F-m'
-
 ")
 
 (def qs-06s
@@ -592,19 +600,13 @@ More complex join and filter
       s = ce.source_id
       ce = cep.cot_event_id
       s.channel = 3
+      cep.tilex = 18830
+      cep.tiley = 25704
     attributes
       name -> s.name
       cot_type -> ce.cot_type
       time -> ce.server_time
     }")
-
-; query q7a = simple : S {}
-;  import q7
-;  where cep.tilex = 18830 cep.tiley = 25704)
-
-; query q7b = simple : S {}
-;  import q7
-;  where s.channel = 3)
 
 (def qt-07s "query Qt_07s = [ Qx ; Qs_07s ]")
 ; instance q7_inst = eval Qs_07s S_inst
@@ -657,10 +659,10 @@ Simple parameterized query.
 
 (def qs-08
   "query Qs_08p = literal : S -> S8 {
-     import Qs_08pre
      bindings
         name = \"A6A7DC\"
         server_time = \"201705071635\"
+     import Qs_08pre
       }")
 
 (def qt-08pre "query Qt_08pre = [ Qx ; Qs_08pre ]")
@@ -753,8 +755,8 @@ Samples:
          where
            s = ce.source_id
            ce = cep.cot_event_id
-           q.name = name
-           q.time = server_time
+           ce.name = name
+           ce.time = server_time
          attributes
            name -> s.name
            time -> ce.server_time
@@ -764,11 +766,12 @@ Samples:
      }")
 
 (def qs-09
-  "query Qs_09 = literal : S -> S8 {
-     import Qs_09pre
+  "query Qs_09 = literal : S -> S9 {
      bindings
         name = \"A6A7DC\"
         server_time = \"201705071635\"
+
+     import Qs_09pre
       }")
 
 (def qt-09pre "query Qt_09pre = [ Qx ; Qs_09pre ]")
