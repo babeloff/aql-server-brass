@@ -1,6 +1,7 @@
 
 (ns aql.brass.util
   (:require
+   (aql.brass [spec :as brass-spec])
    (clojure [pprint :as pp]
             [string :as st])
    (com.rpl [specter :as sr]))
@@ -11,6 +12,36 @@
     AqlEnv
     AqlParser
     AqlMultiDriver)))
+
+
+(defn- convert-permute-col-name
+  [col-key]
+  (let [{ent :ent col :col}
+        (sr/select-one [col-key]
+            brass-spec/schema-permutation-mapping)]
+    [ent col]))
+
+(defn- convert-permute-entity
+  [{table "table" columns "columns"}]
+  {::brass-spec/name table
+   ::brass-spec/columns (mapv convert-permute-col-name columns)})
+
+(defn convert-perturbation
+  [sample-submission-json]
+  (let [init-source [{::brass-spec/name "source"
+                      ::brass-spec/columns
+                      [["source" "name"]
+                       ["source" "channel"]]}]]
+    {::brass-spec/tables
+     (->>
+       sample-submission-json
+       (sr/select-one
+         ["martiServerModel"
+          "requirements"
+          "postgresqlPerturbation"
+          "tables"])
+       (map convert-permute-entity)
+       (into init-source))}))
 
 (defn- expand-perturbation
   "construct an sequence of tuples [new-entity old-entity column]"
@@ -45,7 +76,8 @@
         ent-x (->> arrows (sr/select [sr/MAP-VALS]) distinct)
         ent-s (->> arrows (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
         ent-t (->> arrows (sr/select [sr/MAP-VALS sr/LAST]) distinct)]
-    {:x
+    {:s base
+     :x
      {:name "X"
       :type :schema
       :extend "sql1"
@@ -63,6 +95,18 @@
            (map
             (fn [[col-name {ent :move, col-type :col-type}]]
               [col-name [ent col-type]]))
+           (into {}))}
+     :y
+     {:name "Y"
+      :type :schema
+      :extend "sql1"
+      :entities #{"cot_cospan"}
+      :attributes
+      (->> col-map
+           (filter (fn [[_ {atype :atype}]] (= atype :attributes)))
+           (map
+            (fn [[col-name {col-type :col-type}]]
+              [col-name ["cot_cospan" col-type]]))
            (into {}))}
      :t
      {:name "T"

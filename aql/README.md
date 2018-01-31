@@ -72,7 +72,7 @@ This will submit an aql input.
 
 This is for testing the functions.
 
-clj repl
+clj
 
 Look in the respective scratch directories for studies of various types.
 Each scratch file contains comments explaining what is being examined.

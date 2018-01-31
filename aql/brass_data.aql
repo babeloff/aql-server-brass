@@ -1,9 +1,9 @@
 typeside sql1 = literal {
         imports sql
         java_functions
-            EqualStr : String, String -> Bool = "return input[0].equals(input[1])"
-            EqualVc : Varchar, Varchar -> Bool = "return input[0].equals(input[1])"
-            EqualInt : Integer, Integer -> Bool = "return input[0].equals(input[1])"
+            EqualStr : String, String -> Bool = "attributes input[0].equals(input[1])"
+            EqualVc : Varchar, Varchar -> Bool = "attributes input[0].equals(input[1])"
+            EqualInt : Integer, Integer -> Bool = "attributes input[0].equals(input[1])"
         }
 schema S = literal : sql1 {
 
@@ -82,7 +82,7 @@ schema T = literal : sql1 {
    point_hae : default -> Integer
 }
 
-mapping F = literal : X -> S {
+mapping Fx = literal : X -> S {
  entity source__cot_action -> source
  foreign_keys 
    
@@ -120,7 +120,7 @@ mapping F = literal : X -> S {
    point_hae -> point_hae
 }
 
-mapping G = literal : X -> T {
+mapping Gx = literal : X -> T {
  entity source__cot_action -> cot_action
  foreign_keys 
    
@@ -158,19 +158,27 @@ mapping G = literal : X -> T {
    point_hae -> point_hae
 }
 
-query Qx = [ toQuery G ; toCoQuery F ]
+query Qx = [ toCoQuery Fx ; toQuery Gx ]
 query Qs_01 = simple : S  {
-    from ce:cot_event
-    where ce.cot_type = "a-n-A-C-F-m"
+    from
+     ce:cot_event
+    where
+     ce.cot_type = "a-n-A-C-F-m"
+    foreign_keys
+     source_id -> ce.has_source
     attributes
-        cot_type -> ce.cot_type
-        }
+     cot_type -> ce.cot_type
+    }
 query Qt_01 = [ Qx ; Qs_01 ]
 query Qs_02 = simple : S  {
-    from ce:cot_event
-    where ce.servertime = "201705071635"
+    from
+     ce:cot_event
+    where
+     ce.servertime = "201705071635"
+    foreign_keys
+     source_id -> ce.has_source
     attributes
-        cot_type -> ce.cot_type
-        how -> ce.how
+     cot_type -> ce.cot_type
+     how -> ce.how
     }
 query Qt_02 = [ Qx ; Qs_02 ]

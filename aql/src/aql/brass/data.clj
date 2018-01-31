@@ -2,18 +2,53 @@
 ;; Schema for demonstrating the BRASS approach
 ;;
 
-(ns aql.brass.data)
+(ns aql.brass.data
+  (:require (aql.brass [spec :as s])))
 
 ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
 ;;   database/server/baseline_schema_ddl.sql
 
+;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
+;;  docs/CP/Immortals-Phase2-cp1-SchemaMigration.md
+;;  "Sample SubmissionModel value"
+
+(def sample-submission-json
+  {"martiServerModel"
+   {"requirements"
+    {"postgresqlPerturbation"
+     {"tables"
+      [{"table"  "cot_action"
+        "columns"
+         ["CotEvent_SourceId"
+          "CotEvent_How"
+          "CotEvent_ServerTime"
+          "Position_PointCE"
+          "Position_PointLE"
+          "Position_TileX"
+          "Position_Longitude"
+          "Position_Latitude"]}
+       {"table" "cot_detail"
+        "columns"
+        ["Position_PointHae"
+         "CotEvent_Detail"
+         "Position_TileY"
+         "CotEvent_CotType"]}]}}}})
+
+
+;; The schema-mapping is supplied and the...
+;;  X, F, T, and G
+;; ...should be derived from it.
+;;
+;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
+;;   das/das-testharness-coordinator/src/main/java/mil/darpa/immortals/
+;;   core/api/ll/phase2/martimodel/requirements/storage/postgresql/DatabaseColumns.java
 (def sc-s
-  {:name "S"
-   :type :schema
-   :extend "sql1"
-   :entities
+  {::s/name "S"
+   ::s/type :schema
+   ::s/extend "sql1"
+   ::s/entities
    #{"source" "cot_event" "cot_position"}
-   :attributes
+   ::s/attributes
    {"name" ["source" "Varchar"]
     "channel" ["source" "Varchar"]
 
@@ -29,49 +64,21 @@
     "tileY" ["cot_position" "Integer"]
     "latitude" ["cot_position" "Real"]
     "longitude" ["cot_position" "Real"]}
-   :references
-   {"has_source" ["cot_event" "source"]
+   ::s/references
+   {"source_id" ["cot_event" "source"]
     "has_cot_event" ["cot_position" "cot_event"]}})
 
-;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
-;;  docs/CP/Immortals-Phase2-cp1-SchemaMigration.md
-;;  "Sample SubmissionModel value"
-;;
-;; The schema-mapping is supplied and the...
-;;  X, F, T, and G
-;; ...should be derived from it.
-;;
-(def schema-perturbation
-  {:tables
-   [{:name "cot_action"
-     :columns
-     [["source" "name"]
-      ["source" "channel"]
-      ["cot_event" "how"]
-      ["cot_event" "servertime"]
-      ["cot_position" "point_ce"]
-      ["cot_position" "point_le"]
-      ["cot_position" "tileX"]
-      ["cot_position" "longitude"]
-      ["cot_position" "latitude"]]}
-    {:name "cot_detail"
-     :columns
-     [["cot_position" "point_hae"]
-      ["cot_event" "detail"]
-      ["cot_position" "tileY"]
-      ["cot_event" "cot_type"]]}]})
-
 (def sc-x
-  {:name "X"
-   :type :schema
-   :extend "sql1"
-   :entities
+  {::s/name "X"
+   ::s/type :schema
+   ::s/extend "sql1"
+   ::s/entities
    #{["source" "cot_action"]
      ["cot_event" "cot_action"]
      ["cot_event" "cot_detail"]
      ["cot_position" "cot_action"]
      ["cot_position" "cot_detail"]}
-   :attributes
+   ::s/attributes
    {"name" [["source" "cot_action"] "Varchar"]
     "channel" [["source" "cot_action"] "Varchar"]
 
@@ -89,8 +96,8 @@
 
     "tileY" [["cot_position" "cot_detail"] "Integer"]
     "point_hae" [["cot_position" "cot_detail"] "Integer"]}
-   :references
-   {"has_source"
+   ::s/references
+   {"source_id"
     [["cot_event" "cot_action"]
      ["source" "cot_action"]]
 
@@ -125,7 +132,7 @@
       "channel" "channel"}}
     [["cot_event" "cot_action"] ["cot_event"]]
     {:references
-     {"has_source" "has_source"
+     {"source_id" "source_id"
       "cot_event_idy" nil}
      :attributes
      {"how" "how"
@@ -154,12 +161,12 @@
       "point_hae" "point_hae"}}}})
 
 (def sc-y
-  {:name "Y"
-   :type :schema
-   :extend "sql1"
-   :entities
+  {::s/name "Y"
+   ::s/type :schema
+   ::s/extend "sql1"
+   ::s/entities
    #{"cot_cospan"}
-   :attributes
+   ::s/attributes
    {"name" ["cot_cospan" "Varchar"]
     "channel" ["cot_cospan" "Varchar"]
 
@@ -188,7 +195,7 @@
       "channel" "channel"}}
 
     [["cot_event"] ["cot_cospan"]]
-    {:references {"has_source" nil}
+    {:references {"source_id" nil}
      :attributes
      {"cot_type" "cot_type"
       "how" "how"
@@ -207,14 +214,15 @@
       "longitude" "longitude"}}}})
 
 (def sc-t
-  {:name "T"
-   :type :schema
-   :extend "sql1"
-   :entities
-   #{"cot_action" "cot_detail"}
-   :attributes
-   {"name"  ["cot_action" "Varchar"]
-    "channel"  ["cot_action" "Varchar"]
+  {::s/name "T"
+   ::s/type :schema
+   ::s/extend "sql1"
+   ::s/entities
+   #{"source" "cot_action" "cot_detail"}
+   ::s/attributes
+   {"name"  ["source" "Varchar"]
+    "channel"  ["source" "Varchar"]
+
     "how"  ["cot_action" "Varchar"]
     "servertime"  ["cot_action" "Bigint"]
     "point_ce" ["cot_action" "Integer"]
@@ -227,8 +235,9 @@
     "cot_type"  ["cot_detail" "Varchar"]
     "tileY" ["cot_detail" "Integer"]
     "point_hae" ["cot_detail" "Integer"]}
-   :references
-   {"cot_action_idx" ["cot_detail" "cot_action"]
+   ::s/references
+   {"source_id" ["cot_action" "source"]
+    "cot_action_idx" ["cot_detail" "cot_action"]
     "cot_action_idy" ["cot_action" "cot_detail"]}})
 
 (def mapping-x->t
@@ -244,7 +253,7 @@
     [["cot_event" "cot_action"] ["cot_action"]]
     {:references
      {"cot_event_idy" "cot_action_idy"
-      "has_source" nil}
+      "source_id" nil}
      :attributes
      {"how" "how"
       "servertime" "servertime"}}
@@ -357,7 +366,7 @@
     where
      ce.cot_type = \"a-n-A-C-F-m\"
     foreign_keys
-     source_id -> ce.has_source
+     source_id -> ce.source_id
     attributes
      cot_type -> ce.cot_type
     }")
@@ -383,7 +392,7 @@ Like query 1 except filter on non-projected column.
     where
      ce.servertime = \"201705071635\"
     foreign_keys
-     source_id -> ce.has_source
+     source_id -> ce.source_id
     attributes
      cot_type -> ce.cot_type
      how -> ce.how
@@ -410,7 +419,7 @@ Query with a simple compound filter
        ce.server_time = \"201705071635\"
        ce.cot_type = \"a-n-A-C-F-m\"
      foreign_keys
-       source_id -> ce.has_source
+       source_id -> ce.source_id
      attributes
        cot_type -> ce.cot_type
        how -> ce.how
