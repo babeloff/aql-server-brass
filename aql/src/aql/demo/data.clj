@@ -1,6 +1,6 @@
 (ns aql.demo.data)
 
-(def sc-s
+(def schema-s
   {:name "S"
    :type :schema
    :extend "sql"

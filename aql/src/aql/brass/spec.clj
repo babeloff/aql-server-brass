@@ -1,6 +1,7 @@
 
 (ns aql.brass.spec
-  (:require [clojure.spec.alpha :as s]))
+  (:require [clojure.spec.alpha :as s]
+            [aql.spec :as aql]))
 
 
 (def schema-permutation-mapping
@@ -22,22 +23,8 @@
    "Position_Longitude" {:ent "cot_event_position" :col "longitude"}
    "Position_Latitude" {:ent "cot_event_position" :col "latitude"}})
 
-(s/def ::name string?)
 (s/def ::column (s/coll-of string? :kind vector? :distinct true))
 (s/def ::columns (s/coll-of ::column :kind vector? :distinct true))
-(s/def ::table (s/keys :req [::name ::columns]))
+(s/def ::table (s/keys :req [::aql/name ::columns]))
 (s/def ::tables (s/coll-of ::table :kind vector? :distinct true))
 (s/def ::schema-perturbation (s/keys :req [::tables]))
-
-
-
-(s/def ::type #{:schema :mapping :query})
-(s/def ::extend string?)
-(s/def ::entity (s/or :single string? :multi (s/coll-of string?)))
-(s/def ::entities (s/coll-of ::entity :kind set? :distinct true))
-(s/def ::attribute (s/tuple ::entity string?))
-(s/def ::attributes (s/map-of string? ::attribute))
-(s/def ::reference (s/tuple ::entity string?))
-(s/def ::references (s/map-of string? ::attribute))
-(s/def ::schema (s/keys :req [::name ::type ::extend ::entities]
-                        :opt [::attributes ::references]))

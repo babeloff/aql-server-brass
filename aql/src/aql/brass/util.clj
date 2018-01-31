@@ -1,6 +1,7 @@
 
 (ns aql.brass.util
   (:require
+   (aql [spec :as aql-spec])
    (aql.brass [spec :as brass-spec])
    (clojure [pprint :as pp]
             [string :as st])
@@ -23,12 +24,12 @@
 
 (defn- convert-permute-entity
   [{table "table" columns "columns"}]
-  {::brass-spec/name table
+  {::aql-spec/name table
    ::brass-spec/columns (mapv convert-permute-col-name columns)})
 
 (defn convert-perturbation
   [sample-submission-json]
-  (let [init-source [{::brass-spec/name "source"
+  (let [init-source [{::aql-spec/name "source"
                       ::brass-spec/columns
                       [["source" "name"]
                        ["source" "channel"]]}]]

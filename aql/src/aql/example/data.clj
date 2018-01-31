@@ -4,7 +4,7 @@
 
 (ns aql.example.data)
 
-(def sc-s
+(def schema-s
   {:name "S"
    :type :schema
    :extend "sql1"
@@ -19,7 +19,7 @@
    :references
    {"has_a" ["b" "a"]}})
 
-(def sc-x
+(def schema-x
   {:name "X"
    :type :schema
    :extend "sql1"
@@ -39,7 +39,7 @@
    {"has_a" [["a" "c"]]}})
 
 
-(def sc-t
+(def schema-t
   {:name "T"
    :type :schema
    :extend "sql1"

@@ -3,7 +3,7 @@
 ;;
 
 (ns aql.brass.data
-  (:require (aql.brass [spec :as s])))
+  (:require (aql [spec :as s])))
 
 ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
 ;;   database/server/baseline_schema_ddl.sql
@@ -42,13 +42,14 @@
 ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
 ;;   das/das-testharness-coordinator/src/main/java/mil/darpa/immortals/
 ;;   core/api/ll/phase2/martimodel/requirements/storage/postgresql/DatabaseColumns.java
-(def sc-s
-  {::s/name "S"
-   ::s/type :schema
-   ::s/extend "sql1"
-   ::s/entities
+(def schema-s
+  #::s
+  {:name "S"
+   :type :schema
+   :extend "sql1"
+   :entities
    #{"source" "cot_event" "cot_position"}
-   ::s/attributes
+   :attributes
    {"name" ["source" "Varchar"]
     "channel" ["source" "Varchar"]
 
@@ -64,109 +65,19 @@
     "tileY" ["cot_position" "Integer"]
     "latitude" ["cot_position" "Real"]
     "longitude" ["cot_position" "Real"]}
-   ::s/references
+   :references
    {"source_id" ["cot_event" "source"]
     "has_cot_event" ["cot_position" "cot_event"]}})
 
-(def sc-x
-  {::s/name "X"
-   ::s/type :schema
-   ::s/extend "sql1"
-   ::s/entities
-   #{["source" "cot_action"]
-     ["cot_event" "cot_action"]
-     ["cot_event" "cot_detail"]
-     ["cot_position" "cot_action"]
-     ["cot_position" "cot_detail"]}
-   ::s/attributes
-   {"name" [["source" "cot_action"] "Varchar"]
-    "channel" [["source" "cot_action"] "Varchar"]
 
-    "how"  [["cot_event" "cot_action"] "Varchar"]
-    "servertime"  [["cot_event" "cot_action"] "Bigint"]
-
-    "detail"  [["cot_event" "cot_detail"] "Text"]
-    "cot_type"  [["cot_event" "cot_detail"] "Varchar"]
-
-    "point_ce" [["cot_position" "cot_action"] "Integer"]
-    "point_le" [["cot_position" "cot_action"] "Integer"]
-    "tileX" [["cot_position" "cot_action"] "Integer"]
-    "latitude" [["cot_position" "cot_action"] "Real"]
-    "longitude" [["cot_position" "cot_action"] "Real"]
-
-    "tileY" [["cot_position" "cot_detail"] "Integer"]
-    "point_hae" [["cot_position" "cot_detail"] "Integer"]}
-   ::s/references
-   {"source_id"
-    [["cot_event" "cot_action"]
-     ["source" "cot_action"]]
-
-    "cot_event_idx"
-    [["cot_event" "cot_detail"]
-     ["cot_event" "cot_action"]]
-    "cot_event_idy"
-    [["cot_event" "cot_action"]
-     ["cot_event" "cot_detail"]]
-
-    "has_cot_event"
-    [["cot_position" "cot_action"]
-     ["cot_event" "cot_detail"]]
-
-    "cot_position_idx"
-    [["cot_position" "cot_detail"]
-     ["cot_position" "cot_action"]]
-    "cot_position_idy"
-    [["cot_position" "cot_action"]
-     ["cot_position" "cot_detail"]]}})
-
-(def mapping-x->s
-  "A mapping between schema
-    "
-  {:name "Fx"
-   :type :mapping
-   :schemas ["X" "S"]
+(def schema-x
+  #::s
+  {:name "X"
+   :type :schema
+   :extend "sql1"
    :entities
-   {[["source" "cot_action"] ["source"]]
-    {:attributes
-     {"name" "name"
-      "channel" "channel"}}
-    [["cot_event" "cot_action"] ["cot_event"]]
-    {:references
-     {"source_id" "source_id"
-      "cot_event_idy" nil}
-     :attributes
-     {"how" "how"
-      "servertime" "servertime"}}
-    [["cot_event" "cot_detail"] ["cot_event"]]
-    {:references
-     {"cot_event_idx" nil}
-     :attributes
-     {"detail" "detail"
-      "cot_type" "cot_type"}}
-    [["cot_position" "cot_action"] ["cot_position"]]
-    {:references
-     {"has_cot_event" "has_cot_event"
-      "cot_position_idy" nil}
-     :attributes
-     {"point_ce" "point_ce"
-      "point_le" "point_le"
-      "tileX" "tileX"
-      "latitude" "latitude"
-      "longitude" "longitude"}}
-    [["cot_position" "cot_detail"] ["cot_position"]]
-    {:references
-     {"cot_position_idx" nil}
-     :attributes
-     {"tileY" "tileY"
-      "point_hae" "point_hae"}}}})
-
-(def sc-y
-  {::s/name "Y"
-   ::s/type :schema
-   ::s/extend "sql1"
-   ::s/entities
    #{"cot_cospan"}
-   ::s/attributes
+   :attributes
    {"name" ["cot_cospan" "Varchar"]
     "channel" ["cot_cospan" "Varchar"]
 
@@ -183,28 +94,32 @@
     "latitude" ["cot_cospan" "Real"]
     "longitude" ["cot_cospan" "Real"]}})
 
-(def mapping-s->y
+(def mapping-s->x
   "A mapping between schema"
-  {:name "Fy"
+  #::s
+  {:name "F"
    :type :mapping
-   :schemas ["S" "Y"]
-   :entities
+   :schema-map ["S" "X"]
+   :entity-map
    {[["source"] ["cot_cospan"]]
-    {:attributes
+    #::s
+    {:attribute-map
      {"name" "name"
       "channel" "channel"}}
 
     [["cot_event"] ["cot_cospan"]]
-    {:references {"source_id" nil}
-     :attributes
+    #::s
+    {:reference-map {"source_id" nil}
+     :attribute-map
      {"cot_type" "cot_type"
       "how" "how"
       "detail" "detail"
       "servertime" "servertime"}}
 
     [["cot_position"] ["cot_cospan"]]
-    {:references {"has_cot_event" nil}
-     :attributes
+    #::s
+    {:reference-map {"has_cot_event" nil}
+     :attribute-map
      {"point_hae" "point_hae"
       "point_ce" "point_ce"
       "point_le" "point_le"
@@ -213,13 +128,14 @@
       "latitude" "latitude"
       "longitude" "longitude"}}}})
 
-(def sc-t
-  {::s/name "T"
-   ::s/type :schema
-   ::s/extend "sql1"
-   ::s/entities
+(def schema-t
+  #::s
+  {:name "T"
+   :type :schema
+   :extend "sql1"
+   :entities
    #{"source" "cot_action" "cot_detail"}
-   ::s/attributes
+   :attributes
    {"name"  ["source" "Varchar"]
     "channel"  ["source" "Varchar"]
 
@@ -235,61 +151,24 @@
     "cot_type"  ["cot_detail" "Varchar"]
     "tileY" ["cot_detail" "Integer"]
     "point_hae" ["cot_detail" "Integer"]}
-   ::s/references
+   :references
    {"source_id" ["cot_action" "source"]
     "cot_action_idx" ["cot_detail" "cot_action"]
     "cot_action_idy" ["cot_action" "cot_detail"]}})
 
-(def mapping-x->t
-  "A mapping between schema"
-  {:name "Gx"
-   :type :mapping
-   :schemas ["X" "T"]
-   :entities
-   {[["source" "cot_action"] ["cot_action"]]
-    {:attributes
-     {"name" "name"
-      "channel" "channel"}}
-    [["cot_event" "cot_action"] ["cot_action"]]
-    {:references
-     {"cot_event_idy" "cot_action_idy"
-      "source_id" nil}
-     :attributes
-     {"how" "how"
-      "servertime" "servertime"}}
-    [["cot_event" "cot_detail"] ["cot_detail"]]
-    {:references
-     {"cot_event_idx" "cot_action_idx"}
-     :attributes
-     {"detail" "detail"
-      "cot_type" "cot_type"}}
-    [["cot_position" "cot_action"] ["cot_action"]]
-    {:references
-     {"has_cot_event" "has_cot_event"
-      "cot_position_idy" "cot_action_idy"}
-     :attributes
-     {"point_ce" "point_ce"
-      "point_le" "point_le"
-      "tileX" "tileX"
-      "latitude" "latitude"
-      "longitude" "longitude"}}
-    [["cot_position" "cot_detail"] ["cot_detail"]]
-    {:references
-     {"cot_position_idx" "cot_action_idx"}
-     :attributes
-     {"tileY" "tileY"
-      "point_hae" "point_hae"}}}})
 
-(def mapping-t->y
+(def mapping-t->x
   "A mapping between schema"
-  {:name "Gy"
+  #::s
+  {:name "G"
    :type :mapping
-   :schemas ["T" "Y"]
-   :entities
+   :schema-map ["T" "X"]
+   :entity-map
    {[["cot_action"] ["cot_cospan"]]
-    {:references
+    #::s
+    {:reference-map
      {"cot_action_idx" nil}
-     :attributes
+     :attribute-map
      {"name" "name"
       "channel" "channel"
       "how" "how"
@@ -300,9 +179,10 @@
       "longitude" "longitude"
       "latitude" "latitude"}}
     [["cot_detail"] ["cot_cospan"]]
-    {:references
+    #::s
+    {:reference-map
      {"cot_action_idy" nil}
-     :attributes
+     :attribute-map
      {"point_hae" "point_hae"
       "detail" "detail"
       "tileY" "tileY"
@@ -340,9 +220,7 @@
      }
   ")
 
-
-(def q1x0 "query Qx = [ toCoQuery Fx ; toQuery Gx ]")
-(def q1y0 "query Qy = [ toCoQuery Gy ; toQuery Fy ]")
+(def q1y0 "query Qy = [ toCoQuery G ; toQuery F ]")
 
  ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
  ;;  database/server/aql/src/aql/cp2_1_db.aql#L262
