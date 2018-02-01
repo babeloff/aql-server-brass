@@ -3,7 +3,7 @@
 ;; mucking around with Ryan's sample
 (require '(clojure.data [json :as json]))
 (require '[aql.demo.data :as demo] :reload)
-(require '[aql.util :as util] :reload)
+(require '[aql.wrap :as util] :reload)
 (require '[aql.demo.client :as client] :reload)
 
 

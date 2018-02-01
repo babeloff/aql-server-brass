@@ -7,7 +7,7 @@
 (require '[aql.brass.spec :as brass-spec] :reload)
 (require '[aql.brass.data :as brass-data] :reload)
 (require '[aql.brass.util :as brass-util] :reload)
-(require '[aql.util :as aql-util] :reload)
+(require '[aql.serialize :as aql-serial] :reload)
 
 (def schema-perturbation
   (brass-util/convert-perturbation brass-data/sample-submission-json))
@@ -21,9 +21,9 @@
 
 (s/explain ::aql-spec/mapping brass-data/mapping-s->x)
 (s/explain ::aql-spec/mapping brass-data/mapping-t->x)
-;; (pp/pprint brass-data/schema-x)
+;; (pp/pprint brass-data/mapping-s->x)
 
-(def factory (brass-util/aql-factory
+(def factory (brass-util/aql-cospan-factory
               brass-data/schema-s
               schema-perturbation))
 
@@ -31,31 +31,32 @@
   ([val] (pp/pprint val) val)
   ([alt val] (do (pp/pprint [val alt])) alt))
 
-(->> brass-data/schema-s
+(->> factory
+     ::brass-util/s
      pp-identity
-     aql-util/serialize-aql-schema
+     aql-serial/to-aql
      print)
 
 (->> factory
-     (sr/select-one [:y])
+     ::brass-util/x
      (pp-identity brass-data/schema-x)
-     aql-util/serialize-aql-schema
+     aql-serial/to-aql
      print)
 
 (->> factory
-     (sr/select-one [:t])
+     ::brass-util/t
      (pp-identity brass-data/schema-t)
-     aql-util/serialize-aql-schema
+     aql-serial/to-aql
      print)
 
 (->> factory
-     (sr/select-one [:f])
-     (pp-identity brass-data/mapping-x->s)
-     aql-util/serialize-aql-mapping
+     ::brass-util/f
+     (pp-identity brass-data/mapping-s->x)
+     aql-serial/to-aql
      print)
 
 (->> factory
-     (sr/select-one [:g])
-     (pp-identity brass-data/mapping-x->t)
-     aql-util/serialize-aql-mapping
+     ::brass-util/g
+     (pp-identity brass-data/mapping-t->x)
+     aql-serial/to-aql
      print)

@@ -3,7 +3,7 @@
   (:require [clojure.spec.alpha :as s]))
 
 (s/def ::name string?)
-(s/def ::type #{:schema :mapping :query})
+(s/def ::type #{::schema ::mapping ::query})
 (s/def ::entity-key (s/or :single string? :multi (s/coll-of string? :kind vector?)))
 
 (s/def ::extend string?)

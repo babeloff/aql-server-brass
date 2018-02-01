@@ -6,7 +6,7 @@
 
 (require '[aql.brass.data :as brass-data] :reload)
 (require '[aql.brass.util :as brass] :reload)
-(require '[aql.util :as util] :reload)
+(require '[aql.wrap :as util] :reload)
 (require '[clojure.string :as st])
 (require '[clojure.pprint :as pp])
 (require '(com.rpl [specter :as sr]))

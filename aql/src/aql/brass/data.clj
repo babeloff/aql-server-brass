@@ -45,7 +45,7 @@
 (def schema-s
   #::s
   {:name "S"
-   :type :schema
+   :type ::s/schema
    :extend "sql1"
    :entities
    #{"source" "cot_event" "cot_position"}
@@ -73,7 +73,7 @@
 (def schema-x
   #::s
   {:name "X"
-   :type :schema
+   :type ::s/schema
    :extend "sql1"
    :entities
    #{"cot_cospan"}
@@ -98,7 +98,7 @@
   "A mapping between schema"
   #::s
   {:name "F"
-   :type :mapping
+   :type ::s/mapping
    :schema-map ["S" "X"]
    :entity-map
    {[["source"] ["cot_cospan"]]
@@ -131,7 +131,7 @@
 (def schema-t
   #::s
   {:name "T"
-   :type :schema
+   :type ::s/schema
    :extend "sql1"
    :entities
    #{"source" "cot_action" "cot_detail"}
@@ -161,7 +161,7 @@
   "A mapping between schema"
   #::s
   {:name "G"
-   :type :mapping
+   :type ::s/mapping
    :schema-map ["T" "X"]
    :entity-map
    {[["cot_action"] ["cot_cospan"]]

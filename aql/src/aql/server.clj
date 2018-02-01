@@ -15,7 +15,7 @@
    (aql.brass
     [data :as brass-data]
     [util :as brass-util])
-   (aql [util :as aql-util])))
+   [aql.wrap :as aql-wrap]))
 
 (defn usage [req]
   (log/info "usage:" (keys req))
@@ -51,11 +51,11 @@
   (log/info "aql-handler")
   (if-let [action (sr/select-one [:body] request)]
     (let [model (sr/select-one ["model"] action)
-          aql-env (aql-util/make-env (str model))
+          aql-env (aql-wrap/make-env (str model))
           return (sr/select-one ["return"] action)]
       (log/info "aql-handler:" return)
       (->> aql-env
-           (aql-util/extract-result return)
+           (aql-wrap/extract-result return)
            json/write-str))))
 
 (defn brass-p2c1-handler [request]
@@ -65,24 +65,24 @@
           factory (brass-util/aql-factory base pm)
           model [brass-data/ts-sql1
                  (->> brass-data/schema-s
-                      aql-util/serialize-aql-schema)
+                      aql-wrap/serialize-aql-schema)
                  (->> factory
                       (sr/select-one [:x])
-                      aql-util/serialize-aql-schema)
+                      aql-wrap/serialize-aql-schema)
                  (->> factory
                       (sr/select-one [:t])
-                      aql-util/serialize-aql-schema)
+                      aql-wrap/serialize-aql-schema)
                  (->> brass-data/mapping-x->s
-                      aql-util/serialize-aql-mapping)
+                      aql-wrap/serialize-aql-mapping)
                  (->> brass-data/mapping-x->t
-                      aql-util/serialize-aql-mapping)
+                      aql-wrap/serialize-aql-mapping)
                  brass-data/q1x0]
           cmd (->> (into model brass-data/query-demo) (st/join "\n"))]
       (log/info "brass phase 2 demo: " cmd)
       (spit "brass_data.aql" cmd)
       (->> cmd
-           aql-util/make-env
-           (aql-util/extract-result brass-data/query-demo-attributes)
+           aql-wrap/make-env
+           (aql-wrap/extract-result brass-data/query-demo-attributes)
            json/write-str))))
 
 ;; https://weavejester.github.io/compojure/compojure.core.html#var-routes

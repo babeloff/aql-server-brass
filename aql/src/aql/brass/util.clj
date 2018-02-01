@@ -69,7 +69,7 @@
                          :col-type col-type}]))
        (into {})))
 
-(defn aql-factory
+(defn aql-cospan-factory
   [base pert]
   (let [ent-map (schema-map-by-name base)
         arrows (expand-perturbation pert)
@@ -77,28 +77,11 @@
         ent-x (->> arrows (sr/select [sr/MAP-VALS]) distinct)
         ent-s (->> arrows (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
         ent-t (->> arrows (sr/select [sr/MAP-VALS sr/LAST]) distinct)]
-    {:s base
-     :x
+    {::s base
+
+     ::x
+     #::aql-spec
      {:name "X"
-      :type :schema
-      :extend "sql1"
-      :entities (into #{} ent-x)
-      :attributes
-      (->> col-map
-           (filter (fn [[_ {atype :atype}]] (= atype :attributes)))
-           (map
-            (fn [[col-name {ent :move, col-type :col-type}]]
-              [col-name [ent col-type]]))
-           (into {}))
-      :references
-      (->> col-map
-           (filter (fn [[_ {atype :atype}]] (= atype :references)))
-           (map
-            (fn [[col-name {ent :move, col-type :col-type}]]
-              [col-name [ent col-type]]))
-           (into {}))}
-     :y
-     {:name "Y"
       :type :schema
       :extend "sql1"
       :entities #{"cot_cospan"}
@@ -109,7 +92,8 @@
             (fn [[col-name {col-type :col-type}]]
               [col-name ["cot_cospan" col-type]]))
            (into {}))}
-     :t
+     ::t
+     #::aql-spec
      {:name "T"
       :type :schema
       :extend "sql1"
@@ -128,14 +112,16 @@
             (fn [[col-name {[_ new-ent] :move, col-type :col-type}]]
               [col-name [new-ent col-type]]))
            (into {}))}
-     :f
+     ::f
+     #::aql-spec
      {:name "F"
       :type :mapping
       :schemas ["X" "S"]
       :entities (-> ent-x identity)
       :attributes nil
       :references nil}
-     :g
+     ::g
+     #::aql-spec
      {:name "G"
       :type :mapping
       :schemas ["X" "T"]
