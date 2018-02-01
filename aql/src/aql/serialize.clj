@@ -16,16 +16,28 @@
 
 (defn env->query-names [env] (-> env .defs .qs .map keys))
 
-(defmulti serialize-name
+(defmulti to-name
   (fn [name]
     (cond
       (string? name) ::string
       (vector? name) ::vector
       :else ::default)))
 
-(defmethod serialize-name ::string [name] name)
-(defmethod serialize-name ::vector [name] (st/join "__" name))
-(defmethod serialize-name ::default [name] "default")
+(defmulti wrap-literal (fn [obj literal] (::aql-spec/type obj)))
+(defmulti to-literal (fn [obj] (::aql-spec/type obj)))
+(defmulti to-aql
+  (fn [obj]
+    (cond
+      (string? obj) ::string
+      (contains? obj ::aql-spec/type) (::aql-spec/type obj)
+      :else ::defult)))
+
+(defmethod to-aql ::string [obj] obj)
+(defmethod to-aql ::default [obj] (str "// no " obj))
+
+(defmethod to-name ::string [name] name)
+(defmethod to-name ::vector [name] (st/join "__" name))
+(defmethod to-name ::default [name] "default")
 
 (defn aql-format [base-indent & coll]
   (let [indent (atom base-indent)
@@ -52,17 +64,12 @@
               (str ax "\n" @indent val))))]
     (reduce helper "" coll)))
 
-
-(defmulti wrap-literal (fn [obj literal] (::aql-spec/type obj)))
-(defmulti to-literal (fn [obj] (::aql-spec/type obj)))
-(defmulti to-aql (fn [obj] (::aql-spec/type obj)))
-
 (defmethod wrap-literal
   ::aql-spec/schema
   [schema literal]
   (str "schema " (::aql-spec/name schema)
        " = literal : " (::aql-spec/extend schema)
-       " {\n" literal "\n}\n"))
+       " {" literal "\n}\n"))
 
 (defmethod to-aql
   ::aql-spec/schema
@@ -73,76 +80,44 @@
   ::aql-spec/schema
   [schema]
   (aql-format
-   ""
-   " entities "
+   "  "
+   "entities "
    ::in
-   (->> schema ::aql-spec/entities (map serialize-name))
+   (->> schema ::aql-spec/entities (map to-name))
    ::out
-   " foreign_keys "
+   "foreign_keys "
    ::in
    (map
     (fn [[key [src dst]]]
       (str key " : "
-           (serialize-name src) " -> "
-           (serialize-name dst)))
+           (to-name src) " -> "
+           (to-name dst)))
     (::aql-spec/references schema))
    ::out
-   " path_equations "
+   "path_equations "
    ::in
    (map
     (fn [[left right]]
       (str (st/join "." left) " = " (st/join "." right)))
     (::aql-spec/equations schema))
    ::out
-   " attributes "
+   "attributes "
    ::in
    (map
     (fn [[key [src type]]]
       (str key " : "
-           (serialize-name src) " -> " type))
+           (to-name src) " -> " type))
     (::aql-spec/attributes schema))))
 
-(defn norm-attr->ents [schema]
-  (into #{}
-        (map
-         (fn [[key [ent _]]]
-           (str ent "__" key))
-         (:attributes schema))))
-
-(defn norm-attr->attrs [schema]
-  (into {}
-        (map
-         (fn [[key [ent type]]]
-           (let [nent (str ent "__" key)]
-             [nent [nent type]]))
-         (:attributes schema))))
-
-(defn norm-refs->ents [schema])
-(defn norm-attr->refs [schema])
-(defn norm-refs->refs [schema])
-
-(defn norm-aql-schema [schema]
-  "Expand each attribute into its own entity.
-    classes as entites are elimintated."
-  (wrap-literal schema
-    (str
-     " entities "
-     (norm-attr->ents schema)
-     (norm-refs->ents schema)
-     " foreign_keys "
-     (norm-attr->refs schema)
-     (norm-refs->refs schema)
-     " attributes "
-     (norm-attr->attrs schema))))
 
 (defmethod wrap-literal
   ::aql-spec/mapping
   [mapping literal]
   (str "mapping " (::aql-spec/name mapping)
-       " = literal : " (st/join " -> " (:schemas mapping))
-       " {\n" literal "\n}\n"))
+       " = literal : " (st/join " -> " (::aql-spec/schema-map mapping))
+       " {" literal "\n}\n"))
 
-(defn serialize-aql-mapping-reference
+(defn to-aql-mapping-reference
   "f -> N or f -> g"
   [[_ dest-ent] [src dest]]
   (cond
@@ -152,29 +127,27 @@
     :else
     (str src " -> " dest)))
 
-(defn serialize-aql-mapping-attribute
+(defn to-aql-mapping-attribute
   "f -> N or f -> g"
   [[_ _] [src dest]]
   (str src " -> " dest))
 
-(defn serialize-aql-mapping-entity
+(defn to-literal-mapping-entity
   [[entity-key entity-value]]
-  (let [[src dest] (map serialize-name entity-key)
-        fks (:references entity-value)
-        attrs (:attributes entity-value)]
+  (let [[src dest] (map to-name entity-key)
+        fks (::aql-spec/reference-map entity-value)
+        attrs (::aql-spec/attribute-map entity-value)]
     (aql-format
-     ""
-     " entity "
+     "  "
+     (str "entity " (str src " -> " dest))
      ::in
-     (str src " -> " dest)
+     "foreign_keys "
+     ::in
+     (map #(to-aql-mapping-reference [src dest] %) fks)
      ::out
-     " foreign_keys "
+     "attributes "
      ::in
-     (map #(serialize-aql-mapping-reference [src dest] %) fks)
-     ::out
-     " attributes "
-     ::in
-     (map #(serialize-aql-mapping-attribute [src dest] %) attrs))))
+     (map #(to-aql-mapping-attribute [src dest] %) attrs))))
 
 (defmethod to-aql
   ::aql-spec/mapping
@@ -184,8 +157,7 @@
 (defmethod to-literal
   ::aql-spec/mapping
   [mapping]
-  (aql-format
-   ""
-   " entities "
-   (::aql-spec/entities mapping)
-   (map serialize-aql-mapping-entity)))
+  (->>
+   (::aql-spec/entity-map mapping)
+   (map to-literal-mapping-entity)
+   st/join))

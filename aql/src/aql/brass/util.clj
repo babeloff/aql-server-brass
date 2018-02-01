@@ -75,7 +75,7 @@
         arrows (expand-perturbation pert)
         col-map (merge-with #(conj %1 [:move %2]) ent-map arrows)
         ent-x (->> arrows (sr/select [sr/MAP-VALS]) distinct)
-        ent-s (->> arrows (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
+        ; ent-s (->> arrows (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
         ent-t (->> arrows (sr/select [sr/MAP-VALS sr/LAST]) distinct)]
     {::s base
 
