@@ -27,11 +27,6 @@
 (defmethod serialize-name ::vector [name] (st/join "__" name))
 (defmethod serialize-name ::default [name] "default")
 
-(defn wrap-schema [schema literal]
-  (str "schema " (::aql-spec/name schema)
-       " = literal : " (::aql-spec/extend schema)
-       " {\n" literal "\n}\n"))
-
 (defn aql-format [base-indent & coll]
   (let [indent (atom base-indent)
         helper
@@ -57,40 +52,55 @@
               (str ax "\n" @indent val))))]
     (reduce helper "" coll)))
 
+
+(defmulti wrap-literal (fn [obj literal] (::aql-spec/type obj)))
+(defmulti to-literal (fn [obj] (::aql-spec/type obj)))
 (defmulti to-aql (fn [obj] (::aql-spec/type obj)))
 
-(defmethod to-aql ::aql-spec/schema [schema]
-  (wrap-schema
-   schema
-   (aql-format
-    ""
-    " entities "
-    ::in
-    (->> schema ::aql-spec/entities (map serialize-name))
-    ::out
-    " foreign_keys "
-    ::in
-    (map
-     (fn [[key [src dst]]]
-       (str key " : "
-            (serialize-name src) " -> "
-            (serialize-name dst)))
-     (::aql-spec/references schema))
-    ::out
-    " path_equations "
-    ::in
-    (map
-     (fn [[left right]]
-       (str (st/join "." left) " = " (st/join "." right)))
-     (::aql-spec/equations schema))
-    ::out
-    " attributes "
-    ::in
-    (map
-     (fn [[key [src type]]]
-       (str key " : "
-            (serialize-name src) " -> " type))
-     (::aql-spec/attributes schema)))))
+(defmethod wrap-literal
+  ::aql-spec/schema
+  [schema literal]
+  (str "schema " (::aql-spec/name schema)
+       " = literal : " (::aql-spec/extend schema)
+       " {\n" literal "\n}\n"))
+
+(defmethod to-aql
+  ::aql-spec/schema
+  [schema]
+  (wrap-literal schema (to-literal schema)))
+
+(defmethod to-literal
+  ::aql-spec/schema
+  [schema]
+  (aql-format
+   ""
+   " entities "
+   ::in
+   (->> schema ::aql-spec/entities (map serialize-name))
+   ::out
+   " foreign_keys "
+   ::in
+   (map
+    (fn [[key [src dst]]]
+      (str key " : "
+           (serialize-name src) " -> "
+           (serialize-name dst)))
+    (::aql-spec/references schema))
+   ::out
+   " path_equations "
+   ::in
+   (map
+    (fn [[left right]]
+      (str (st/join "." left) " = " (st/join "." right)))
+    (::aql-spec/equations schema))
+   ::out
+   " attributes "
+   ::in
+   (map
+    (fn [[key [src type]]]
+      (str key " : "
+           (serialize-name src) " -> " type))
+    (::aql-spec/attributes schema))))
 
 (defn norm-attr->ents [schema]
   (into #{}
@@ -114,19 +124,21 @@
 (defn norm-aql-schema [schema]
   "Expand each attribute into its own entity.
     classes as entites are elimintated."
-  wrap-schema schema
-  (str
-   " entities "
-   (norm-attr->ents schema)
-   (norm-refs->ents schema)
-   " foreign_keys "
-   (norm-attr->refs schema)
-   (norm-refs->refs schema)
-   " attributes "
-   (norm-attr->attrs schema)))
+  (wrap-literal schema
+    (str
+     " entities "
+     (norm-attr->ents schema)
+     (norm-refs->ents schema)
+     " foreign_keys "
+     (norm-attr->refs schema)
+     (norm-refs->refs schema)
+     " attributes "
+     (norm-attr->attrs schema))))
 
-(defn wrap-mapping [mapping literal]
-  (str "mapping " (:name mapping)
+(defmethod wrap-literal
+  ::aql-spec/mapping
+  [mapping literal]
+  (str "mapping " (::aql-spec/name mapping)
        " = literal : " (st/join " -> " (:schemas mapping))
        " {\n" literal "\n}\n"))
 
@@ -164,10 +176,16 @@
      ::in
      (map #(serialize-aql-mapping-attribute [src dest] %) attrs))))
 
-(defmethod to-aql ::aql-spec/mapping 
+(defmethod to-aql
+  ::aql-spec/mapping
   [mapping]
-  (->>
-   (:entities mapping)
-   (map serialize-aql-mapping-entity)
-   (st/join "\n")
-   (wrap-mapping mapping)))
+  (wrap-literal mapping (to-literal mapping)))
+
+(defmethod to-literal
+  ::aql-spec/mapping
+  [mapping]
+  (aql-format
+   ""
+   " entities "
+   (::aql-spec/entities mapping)
+   (map serialize-aql-mapping-entity)))
