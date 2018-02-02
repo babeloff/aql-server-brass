@@ -24,8 +24,10 @@
 ;; (pp/pprint brass-data/mapping-s->x)
 
 (def factory (brass-util/aql-cospan-factory
-              brass-data/schema-s
-              schema-perturbation))
+              {::brass-spec/s brass-data/schema-s
+               ::brass-spec/x brass-data/schema-x
+               ::brass-spec/f brass-data/mapping-s->x
+               ::brass-spec/schema-perturbation schema-perturbation}))
 
 (defn pp-identity
   ([val] (pp/pprint val) val)
@@ -39,24 +41,36 @@
 
 (->> factory
      ::brass-util/x
-     (pp-identity brass-data/schema-x)
-     aql-serial/to-aql
-     print)
-
-(->> factory
-     ::brass-util/t
-     (pp-identity brass-data/schema-t)
+     pp-identity
      aql-serial/to-aql
      print)
 
 (->> factory
      ::brass-util/f
-     (pp-identity brass-data/mapping-s->x)
+     pp-identity
      aql-serial/to-aql
      print)
 
 (->> factory
+     ::brass-util/t
+     pp-identity
+     aql-serial/to-aql
+     print)
+
+(require '[aql.brass.util :as brass-util] :reload)
+(def factory (brass-util/aql-cospan-factory
+              {::brass-spec/s brass-data/schema-s
+               ::brass-spec/x brass-data/schema-x
+               ::brass-spec/f brass-data/mapping-s->x
+               ::brass-spec/schema-perturbation schema-perturbation}))
+;(def base brass-data/schema-s)
+;(pp/pprint (brass-util/schema->col-lookup<-name base))
+;(def perturb-lookup (brass-util/perturb->col-lookup<-name schema-perturbation))
+;(pp/pprint perturb-lookup)
+;(pp/pprint schema-perturbation)
+
+(->> factory
      ::brass-util/g
-     (pp-identity brass-data/mapping-t->x)
+     pp-identity
      aql-serial/to-aql
      print)

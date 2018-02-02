@@ -181,7 +181,9 @@
     [["cot_detail"] ["cot_cospan"]]
     #::s
     {:reference-map
-     {"cot_action_idy" nil}
+     {"source_id" nil
+      "cot_action_idx" nil
+      "cot_action_idy" nil}
      :attribute-map
      {"point_hae" "point_hae"
       "detail" "detail"

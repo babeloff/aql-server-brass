@@ -44,87 +44,97 @@
        (map convert-permute-entity)
        (into init-source))}))
 
-(defn- expand-perturbation
+(defn perturb->col-lookup<-name
   "construct an sequence of tuples [new-entity old-entity column]"
   [pert]
   (->> pert
-       (sr/select [:tables sr/ALL (sr/collect-one :name)
-                   :columns sr/ALL (sr/collect-one sr/FIRST)
-                   sr/LAST])
+       (sr/select
+        [::brass-spec/tables sr/ALL (sr/collect-one ::aql-spec/name)
+         ::brass-spec/columns sr/ALL (sr/collect-one sr/FIRST)
+         sr/LAST])
        (map (fn [[new-ent old-ent col-name]]
               [col-name [old-ent new-ent]]))
        (into {})))
 
-(defn- schema-map-by-name
+(defn schema->col-lookup<-name
   [base]
   (->> base
        (sr/select
-        [(sr/submap [:references :attributes]) sr/ALL (sr/collect-one sr/FIRST)
+        [(sr/submap [::aql-spec/references ::aql-spec/attributes])
+         sr/ALL (sr/collect-one sr/FIRST)
          sr/LAST sr/ALL (sr/collect-one sr/FIRST)
          sr/LAST (sr/collect-one sr/FIRST)
          sr/LAST])
        (map (fn [[arrow-type col-name ent-name col-type]]
-              [col-name {:atype arrow-type
-                         :ent-name ent-name
-                         :col-type col-type}]))
+              [col-name {::atype arrow-type
+                         ::ent-name ent-name
+                         ::col-ent col-type}]))
        (into {})))
 
 (defn aql-cospan-factory
-  [base pert]
-  (let [ent-map (schema-map-by-name base)
-        arrows (expand-perturbation pert)
-        col-map (merge-with #(conj %1 [:move %2]) ent-map arrows)
-        ent-x (->> arrows (sr/select [sr/MAP-VALS]) distinct)
-        ; ent-s (->> arrows (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
-        ent-t (->> arrows (sr/select [sr/MAP-VALS sr/LAST]) distinct)]
+  [{base ::brass-spec/s
+    cospan ::brass-spec/x
+    pert ::brass-spec/schema-perturbation
+    ftor-f ::brass-spec/f}]
+  (let [ent-lookup (schema->col-lookup<-name base)
+        perturb-lookup (perturb->col-lookup<-name pert)
+        col-lookup (merge-with #(conj %1 [::pert %2])
+                               ent-lookup perturb-lookup)
+        ; ent-x (->> perturb-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
+        ; ent-s (->> perturb-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
+        ent-t (->> perturb-lookup (sr/select [sr/MAP-VALS sr/LAST]) distinct)
+        attr-lookup (filter
+                      (fn [[_ {atype ::atype}]]
+                        (= atype ::aql-spec/attributes))
+                      col-lookup)
+        refr-lookup (filter
+                      (fn [[_ {atype ::atype}]]
+                        (= atype ::aql-spec/references))
+                      col-lookup)
+        target-ent->col-lookup
+        (->> pert
+             (sr/select [::brass-spec/tables sr/ALL])
+             (map (fn [{name ::aql-spec/name, cols ::brass-spec/columns}]
+                    [name cols]))
+             (into {}))]
     {::s base
+     ::x cospan
+     ::f ftor-f
 
-     ::x
-     #::aql-spec
-     {:name "X"
-      :type :schema
-      :extend "sql1"
-      :entities #{"cot_cospan"}
-      :attributes
-      (->> col-map
-           (filter (fn [[_ {atype :atype}]] (= atype :attributes)))
-           (map
-            (fn [[col-name {col-type :col-type}]]
-              [col-name ["cot_cospan" col-type]]))
-           (into {}))}
      ::t
      #::aql-spec
      {:name "T"
-      :type :schema
+      :type ::aql-spec/schema
       :extend "sql1"
       :entities (into #{} ent-t)
       :attributes
-      (->> col-map
-           (filter (fn [[_ {atype :atype}]] (= atype :attributes)))
-           (map
-            (fn [[col-name {[_ new-ent] :move, col-type :col-type}]]
-              [col-name [new-ent col-type]]))
-           (into {}))
+      (->> attr-lookup
+         (map
+          (fn [[col-name {[_ new-ent] ::pert, col-type ::col-ent}]]
+            [col-name [new-ent col-type]]))
+         (into {}))
       :references
-      (->> col-map
-           (filter (fn [[_ {atype :atype}]] (= atype :references)))
-           (map
-            (fn [[col-name {[_ new-ent] :move, col-type :col-type}]]
+      (->> refr-lookup
+          (map
+            (fn [[col-name {[_ new-ent] ::pert, col-type ::col-ent}]]
               [col-name [new-ent col-type]]))
-           (into {}))}
-     ::f
-     #::aql-spec
-     {:name "F"
-      :type :mapping
-      :schemas ["X" "S"]
-      :entities (-> ent-x identity)
-      :attributes nil
-      :references nil}
+          (into {}))}
+
      ::g
      #::aql-spec
      {:name "G"
-      :type :mapping
-      :schemas ["X" "T"]
-      :entities (-> ent-x identity)
-      :attributes nil
-      :references nil}}))
+      :type ::aql-spec/mapping
+      :schema-map ["X" "T"]
+      :entity-map
+      (->> ent-t
+        (map (fn [ent-name]
+               {[[ent-name] ["cot_cospan"]]
+                #::aql-spec
+                {:attribute-map
+                 (->> ent-name
+                  (get target-ent->col-lookup)
+                  (map (fn [[_ col-name]] (vector col-name col-name)))
+                  (into {}))
+                 :reference-map
+                 {"cot_action_idy" nil}}}))
+        (into {}))}}))
