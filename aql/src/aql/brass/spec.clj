@@ -14,6 +14,7 @@
    "CotEvent_Detail" {:ent "cot_event" :col "detail"}
    "CotEvent_ServerTime" {:ent "cot_event" :col "servertime"}
 
+   "Position_HasEvent" {:ent "cot_event_position" :col "has_cot_event"}
    "Position_CotEventId" {:ent "cot_event_position" :col "cot_event_id"}
    "Position_PointHae" {:ent "cot_event_position" :col "point_hae"}
    "Position_PointCE" {:ent "cot_event_position" :col "point_ce"}

@@ -80,6 +80,16 @@
       (sr/pred= type))]
    sr/NONE col-lookup))
 
+(def target-ent->fk
+  {"source_id" ["cot_action" "source"]
+   "has_cot_action" ["cot_detail" "cot_action"]
+   "has_cot_detail" ["cot_action" "cot_detail"]})
+
+(def target-ent->fk-lookup
+   {"source" nil
+    "cot_action" {"source_id" nil}
+    "cot_detail" {"has_cot_action" nil}})
+
 (defn aql-cospan-factory
   [{base ::brass-spec/s
     cospan ::brass-spec/x
@@ -90,7 +100,7 @@
         col-lookup (merge-with #(conj %1 [::pert %2])
                                ent-lookup perturb-lookup)
         attr-lookup (filter<-type ::aql-spec/attributes col-lookup)
-        refr-lookup (filter<-type ::aql-spec/references col-lookup)
+        ; refr-lookup (filter<-type ::aql-spec/references col-lookup)
         target-ent->col-lookup
         (->> pert
              (sr/select [::brass-spec/tables sr/ALL])
@@ -117,11 +127,7 @@
             [col-name [new-ent col-type]]))
          (into {}))
       :references
-      (->> refr-lookup
-          (map
-            (fn [[col-name {[_ new-ent] ::pert, col-type ::col-ent}]]
-              [col-name [new-ent col-type]]))
-          (into {}))}
+      target-ent->fk}
 
      ::g
      #::aql-spec
@@ -131,7 +137,7 @@
       :entity-map
       (->> ent-t
         (map (fn [ent-name]
-               {[[ent-name] ["cot_cospan"]]
+               [[[ent-name] ["cot_cospan"]]
                 #::aql-spec
                 {:attribute-map
                  (->> ent-name
@@ -139,5 +145,6 @@
                   (map (fn [[_ col-name]] (vector col-name col-name)))
                   (into {}))
                  :reference-map
-                 {"cot_action_idy" nil}}}))
+                 (->> ent-name
+                      (get target-ent->fk-lookup))}]))
         (into {}))}}))
