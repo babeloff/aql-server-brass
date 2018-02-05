@@ -11,7 +11,7 @@
 (s/def ::attribute (s/tuple ::entity-key string?))
 (s/def ::attributes (s/map-of string? ::attribute))
 (s/def ::reference (s/tuple ::entity-key string?))
-(s/def ::references (s/map-of string? ::attribute))
+(s/def ::references (s/map-of string? ::reference))
 (s/def ::schema (s/keys :req [::name ::type ::extend ::entities]
                         :opt [::attributes ::references]))
 

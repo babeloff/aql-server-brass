@@ -63,11 +63,19 @@
                ::brass-spec/x brass-data/schema-x
                ::brass-spec/f brass-data/mapping-s->x
                ::brass-spec/schema-perturbation schema-perturbation}))
-;(def base brass-data/schema-s)
-;(pp/pprint (brass-util/schema->col-lookup<-name base))
-;(def perturb-lookup (brass-util/perturb->col-lookup<-name schema-perturbation))
-;(pp/pprint perturb-lookup)
-;(pp/pprint schema-perturbation)
+; (def base brass-data/schema-s)
+; (pp/pprint base)
+; (def ent-lookup (brass-util/schema->col-lookup<-name base))
+; (pp/pprint ent-lookup)
+; (pp/pprint schema-perturbation)
+; (def perturb-lookup (brass-util/perturb->col-lookup<-name schema-perturbation))
+; (pp/pprint perturb-lookup)
+; (def col-lookup (merge-with #(conj %1 [::pert %2]) ent-lookup perturb-lookup))
+; (pp/pprint col-lookup)
+; (def al (brass-util/filter<-type ::aql-spec/attributes col-lookup))
+; (pp/pprint al)
+; (def rl (brass-util/filter<-type ::aql-spec/references col-lookup))
+; (pp/pprint rl)
 
 (->> factory
      ::brass-util/g

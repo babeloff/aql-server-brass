@@ -71,6 +71,15 @@
                          ::col-ent col-type}]))
        (into {})))
 
+(defn filter<-type
+  [type col-lookup]
+  (sr/setval
+   [sr/MAP-VALS
+    (sr/not-selected?
+      :aql.brass.util/atype
+      (sr/pred= type))]
+   sr/NONE col-lookup))
+
 (defn aql-cospan-factory
   [{base ::brass-spec/s
     cospan ::brass-spec/x
@@ -80,23 +89,17 @@
         perturb-lookup (perturb->col-lookup<-name pert)
         col-lookup (merge-with #(conj %1 [::pert %2])
                                ent-lookup perturb-lookup)
-        ; ent-x (->> perturb-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
-        ; ent-s (->> perturb-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
-        ent-t (->> perturb-lookup (sr/select [sr/MAP-VALS sr/LAST]) distinct)
-        attr-lookup (filter
-                      (fn [[_ {atype ::atype}]]
-                        (= atype ::aql-spec/attributes))
-                      col-lookup)
-        refr-lookup (filter
-                      (fn [[_ {atype ::atype}]]
-                        (= atype ::aql-spec/references))
-                      col-lookup)
+        attr-lookup (filter<-type ::aql-spec/attributes col-lookup)
+        refr-lookup (filter<-type ::aql-spec/references col-lookup)
         target-ent->col-lookup
         (->> pert
              (sr/select [::brass-spec/tables sr/ALL])
              (map (fn [{name ::aql-spec/name, cols ::brass-spec/columns}]
                     [name cols]))
-             (into {}))]
+             (into {}))
+        ; ent-x (->> perturb-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
+        ; ent-s (->> perturb-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
+        ent-t (->> perturb-lookup (sr/select [sr/MAP-VALS sr/LAST]) distinct)]
     {::s base
      ::x cospan
      ::f ftor-f

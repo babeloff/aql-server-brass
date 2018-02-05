@@ -11,7 +11,7 @@
    "CotEvent_SourceId" {:ent "cot_event" :col "source_id"}
    "CotEvent_CotType" {:ent "cot_event" :col "cot_type"}
    "CotEvent_How" {:ent "cot_event" :col "how"}
-   "CotEvent_Detail" {:ent "cot_event" :col "latitude"}
+   "CotEvent_Detail" {:ent "cot_event" :col "detail"}
    "CotEvent_ServerTime" {:ent "cot_event" :col "servertime"}
 
    "Position_CotEventId" {:ent "cot_event_position" :col "cot_event_id"}
