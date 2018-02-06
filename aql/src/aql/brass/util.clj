@@ -80,15 +80,17 @@
       (sr/pred= type))]
    sr/NONE col-lookup))
 
-(def target-ent->fk
-  {"source_id" ["cot_action" "source"]
-   "has_cot_action" ["cot_detail" "cot_action"]
-   "has_cot_detail" ["cot_action" "cot_detail"]})
+(defn target-ent->fk [ent-name]
+  (get {"source_id" ["cot_action" "source"]
+        "has_cot_action" ["cot_detail" "cot_action"]
+        "has_cot_detail" ["cot_action" "cot_detail"]}
+       ent-name))
 
-(def target-ent->fk-lookup
-   {"source" nil
-    "cot_action" {"source_id" nil}
-    "cot_detail" {"has_cot_action" nil}})
+(defn target-ent->fk-mapping [ent-name]
+   (get {"source" nil
+         "cot_action" {"source_id" nil}
+         "cot_detail" {"has_cot_action" nil}}
+        ent-name))
 
 (defn aql-cospan-factory
   [{base ::brass-spec/s
@@ -141,10 +143,10 @@
                 #::aql-spec
                 {:attribute-map
                  (->> ent-name
-                  (get target-ent->col-lookup)
+                  target-ent->col-lookup
                   (map (fn [[_ col-name]] (vector col-name col-name)))
                   (into {}))
                  :reference-map
                  (->> ent-name
-                      (get target-ent->fk-lookup))}]))
+                      target-ent->fk-mapping)}]))
         (into {}))}}))

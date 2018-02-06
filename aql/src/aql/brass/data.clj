@@ -221,7 +221,7 @@
      }
   ")
 
-(def q1y0 "query Qy = [ toCoQuery G ; toQuery F ]")
+(def qgf "query Qx = [ toCoQuery G ; toQuery F ]")
 
  ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
  ;;  database/server/aql/src/aql/cp2_1_db.aql#L262
