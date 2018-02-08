@@ -99,7 +99,7 @@ schema T = literal : sql1 {
     point_hae : cot_detail -> Integer
 }
 
-mapping G = literal : X -> T {
+mapping G = literal : T -> X {
   entity cot_detail -> cot_cospan
     foreign_keys 
       has_cot_action -> cot_cospan
@@ -131,9 +131,8 @@ query Qs_01 = simple : S  {
      ce:cot_event
     where
      ce.cot_type = "a-n-A-C-F-m"
-    foreign_keys
-     source_id -> ce.source_id
     attributes
+     source_id -> ce.source_id
      cot_type -> ce.cot_type
     }
 query Qt_01 = [ Qx ; Qs_01 ]
@@ -142,9 +141,8 @@ query Qs_02 = simple : S  {
      ce:cot_event
     where
      ce.servertime = "1494174900"
-    foreign_keys
-     source_id -> ce.source_id
     attributes
+     source_id -> ce.source_id
      cot_type -> ce.cot_type
      how -> ce.how
     }

@@ -244,9 +244,8 @@
      ce:cot_event
     where
      ce.cot_type = \"a-n-A-C-F-m\"
-    foreign_keys
-     source_id -> ce.source_id
     attributes
+     source_id -> ce.source_id
      cot_type -> ce.cot_type
     }")
 
@@ -270,9 +269,8 @@ Like query 1 except filter on non-projected column.
      ce:cot_event
     where
      ce.servertime = \"1494174900\"
-    foreign_keys
-     source_id -> ce.source_id
     attributes
+     source_id -> ce.source_id
      cot_type -> ce.cot_type
      how -> ce.how
     }")
@@ -297,9 +295,8 @@ Query with a simple compound filter
      where
        ce.server_time = \"1494174900\"
        ce.cot_type = \"a-n-A-C-F-m\"
-     foreign_keys
-       source_id -> ce.source_id
      attributes
+      source_id -> ce.source_id
        cot_type -> ce.cot_type
        how -> ce.how
      }")

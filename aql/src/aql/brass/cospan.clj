@@ -134,7 +134,7 @@
      #::aql-spec
      {:name "G"
       :type ::aql-spec/mapping
-      :schema-map ["X" "T"]
+      :schema-map ["T" "X"]
       :entity-map
       (->> ent-t
         (map (fn [ent-name]
