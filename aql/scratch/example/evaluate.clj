@@ -2,12 +2,11 @@
 
 ;; mucking around with Ryan's sample
 (require '(clojure.data [json :as json]))
-(require '[aql.example.data :as data] :reload)
+;; (require '[aql.example.data :as data] :reload)
 (require '[aql.wrap :as wrap] :reload)
 (require '[aql.demo.client :as client] :reload)
 
 
-;; (util/serialize-aql-schema demo/schema-s)
 (def aql-env (wrap/make-env (:model client/schema-mapping)))
 (def return (json/read-str (json/write-str (:return client/schema-mapping))))
 

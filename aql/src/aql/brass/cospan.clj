@@ -1,5 +1,5 @@
 
-(ns aql.brass.util
+(ns aql.brass.cospan
   (:require
    (aql [spec :as aql-spec])
    (aql.brass [spec :as brass-spec])
@@ -76,7 +76,7 @@
   (sr/setval
    [sr/MAP-VALS
     (sr/not-selected?
-      :aql.brass.util/atype
+      ::atype
       (sr/pred= type))]
    sr/NONE col-lookup))
 

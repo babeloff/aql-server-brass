@@ -57,11 +57,10 @@
                        (log/error "serialize a function? " obj)
                        ax)
             (stringger [ax obj]
-                       (log/debug "string")
+                       (log/debug "string" obj)
                        (str ax "\n" @indent obj))
             (helper
              [ax obj]
-             (log/debug "helper " obj)
              (try
                (cond
                  (nil? obj) ax

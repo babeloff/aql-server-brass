@@ -16,34 +16,34 @@
    (aql.brass
     [data :as brass-data]
     [spec :as brass-spec]
-    [util :as brass-util])
+    [cospan :as brass-cospan])
    (aql [wrap :as aql-wrap]
         [serialize :as aql-serial])))
 
 (defn brass-p2c1-handler [request]
   (if-let [action (sr/select-one [:body] request)]
     (let [p-json (get action :permutation)
-          perturb (brass-util/convert-perturbation p-json)
-          factory (brass-util/aql-cospan-factory
+          perturb (brass-cospan/convert-perturbation p-json)
+          factory (brass-cospan/aql-cospan-factory
                    {::brass-spec/s brass-data/schema-s
                     ::brass-spec/x brass-data/schema-x
                     ::brass-spec/f brass-data/mapping-s->x
                     ::brass-spec/schema-perturbation perturb})
           model [brass-data/ts-sql1
                  (->> factory
-                      ::brass-util/s
+                      ::brass-cospan/s
                       aql-serial/to-aql)
                  (->> factory
-                      ::brass-util/x
+                      ::brass-cospan/x
                       aql-serial/to-aql)
                  (->> factory
-                      ::brass-util/f
+                      ::brass-cospan/f
                       aql-serial/to-aql)
                  (->> factory
-                      ::brass-util/t
+                      ::brass-cospan/t
                       aql-serial/to-aql)
                  (->> factory
-                      ::brass-util/g
+                      ::brass-cospan/g
                       aql-serial/to-aql)
                  brass-data/qgf]
           cmd (->>  brass-data/query-demo

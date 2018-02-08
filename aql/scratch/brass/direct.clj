@@ -5,7 +5,7 @@
 (import '(catdata.aql.exp AqlEnv AqlParser AqlMultiDriver))
 
 (require '[aql.brass.data :as brass-data] :reload)
-(require '[aql.brass.util :as brass] :reload)
+(require '[aql.brass.cospan :as brass-cospan] :reload)
 (require '[aql.wrap :as util] :reload)
 (require '[clojure.string :as st])
 (require '[clojure.pprint :as pp])
@@ -49,10 +49,10 @@
      util/query->sql
      print)
 
-(def ent-map (brass/schema-map-by-name brass-data/schema-s))
-(def arrows (brass/expand-perturbation brass-data/schema-perturbation))
+(def ent-map (brass-cospan/schema-map-by-name brass-data/schema-s))
+(def arrows (brass-cospan/expand-perturbation brass-data/schema-perturbation))
 (def col-map (merge-with #(conj %1 [:move %2]) ent-map arrows))
 (pp/pprint col-map)
 (def ent-x (->> arrows (sr/select [sr/MAP-VALS]) distinct))
-(brass/schema-map-by-name brass-data/schema-s)
-(brass/make-central-schema brass-data/schema-s brass-data/schema-perturbation)
+(brass-cospan/schema-map-by-name brass-data/schema-s)
+(brass-cospan/make-central-schema brass-data/schema-s brass-data/schema-perturbation)
