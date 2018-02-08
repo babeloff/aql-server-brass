@@ -1,13 +1,13 @@
 
 (require '(com.rpl [specter :as sr]))
 (require '[aql.example.data-cospan :as data] :reload)
-(require '[aql.serialize :as aql-serial] :reload)
+(require '[aql.serialize :as as] :reload)
 ; (require '[aql.spec :as asp] :reload)
-
+(print (as/aql-format "abcde" "w" ::as/in "x" ::as/out "y" ::as/out "z"))
 
 (defn to-aql [key]
   (->> key
-       aql-serial/to-aql
+       as/to-aql
        print))
 
 ; (to-aql data/mapping-f)

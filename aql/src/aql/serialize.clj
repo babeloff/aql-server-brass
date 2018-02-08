@@ -3,6 +3,7 @@
   (:require
    (clojure [pprint :as pp]
             [string :as st])
+   (clojure.tools [logging :as log])
    (com.rpl [specter :as sr])
    (aql [spec :as aql-spec])))
 
@@ -39,29 +40,39 @@
 (defmethod to-name ::vector [name] (st/join "__" name))
 (defmethod to-name ::default [name] "default")
 
+
+
 (defn aql-format [base-indent & coll]
   (let [indent (atom base-indent)
         helper
-        (fn [ax val]
-          (cond
-            (= ::in val)
-            (do
-              (swap! indent #(str "  " %))
-              ax)
-            (= ::out val)
-            (do
-              (swap! indent #(subs % (min (count %) 2)))
-              ax)
-            (= ::reset val)
-            (do
-              (reset! indent base-indent)
-              ax)
-            (coll? val)
-            (do
-              (reduce #(str %1 "\n" @indent %2) ax val))
-            :else
-            (do
-              (str ax "\n" @indent val))))]
+        (fn [ax obj]
+          (try
+            (cond
+              (symbol? obj)
+              (do
+                (log/error  "how to serialize a function? " obj))
+              (and (keyword? obj) (= ::in obj))
+              (do
+                (swap! indent #(str "  " %))
+                ax)
+              (and (keyword? obj) (= ::out obj))
+              (do
+                (swap! indent #(subs % (min (count %) 2)))
+                ax)
+              (and (keyword? obj) (= ::reset obj))
+              (do
+                (reset! indent base-indent)
+                ax)
+              (seq obj)
+              (do
+                (reduce #(str %1 "\n" @indent %2) ax obj))
+              :else
+              (do
+                (str ax "\n" @indent obj)))
+            (catch Throwable ex
+              (log/error  "format: "
+                          (pr-str (take 10 obj))
+                          ex))))]
     (reduce helper "" coll)))
 
 (defmethod wrap-literal

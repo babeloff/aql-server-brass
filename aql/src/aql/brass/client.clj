@@ -1,4 +1,4 @@
-(ns aql.brass.client 
+(ns aql.brass.client
     (:require
         (org.httpkit [client :as clt])
         (ring.util [io :as ring-io])
@@ -13,7 +13,7 @@
     {:method :post
         :headers {"content-type" "application/json; charset=UTF-8"}
         :body (->
-                {:permutation brass-data/schema-perturbation}
+                {:permutation brass-data/sample-submission-json}
                 json/write-str
                 ring-io/string-input-stream)})
 
