@@ -1,8 +1,10 @@
-(ns aql.demo.data)
+(ns aql.demo.data
+  (:require (aql [spec :as s])))
 
 (def schema-s
+  #::s
   {:name "S"
-   :type :schema
+   :type ::s/schema
    :extend "sql"
    :entities
    #{"Employee" "Department"}

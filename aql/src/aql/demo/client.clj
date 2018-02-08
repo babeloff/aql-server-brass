@@ -9,12 +9,12 @@
         (ring.util [io :as ring-io])
         (aql.demo [data :as data])
         (aql [data :as aql-data])
-        (aql [util :as util])))
+        (aql [serialize :as serialize])))
 
 (def schema-mapping
     {:model (st/join "\n"
                 [   aql-data/ts0
-                    (util/serialize-aql-schema data/schema-s)
+                    (serialize/to-aql data/schema-s)
                     data/qu0])
      :return {:query ["Q"]
               :schema ["S"]}})

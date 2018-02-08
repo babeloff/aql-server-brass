@@ -69,10 +69,11 @@
                  (and (keyword? obj) (= ::out obj)) (outdentter ax)
                  (and (keyword? obj) (= ::reset obj)) (resetter ax)
                  (string? obj) (stringger ax obj)
-                 (seq obj) (reduce helper ax obj)
+                 (seq obj) (do (log/debug "helper" obj)
+                             (reduce helper ax obj))
                  :else (stringger ax obj))
                (catch Throwable ex
-                 (log/error  "format: "
+                 (log/error  "problem formatting: "
                              (pr-str (take 10 obj))
                              ex))))]
       (reduce helper "" coll))))
@@ -147,27 +148,29 @@
      ::in
      (comment)
      (when-let [fks (::aql-spec/reference-map entity-value)]
-       ["foreign_keys "
-        ::in
-        (map
-          (fn [from-src-ent from-dest-ent]
-            (cond
-              (nil? from-dest-ent)
-              (str from-src-ent " -> " to-dest-ent)
+       (when fks
+         ["foreign_keys "
+          ::in
+          (map
+           (fn [[from-src-ent from-dest-ent]]
+             (cond
+               (nil? from-dest-ent)
+               (str from-src-ent " -> " to-dest-ent)
 
-              :else
-              (str from-src-ent " -> " from-dest-ent)))
-          fks)
-        ::out])
+               :else
+               (str from-src-ent " -> " from-dest-ent)))
+           fks)
+          ::out]))
      (comment)
      (when-let [attrs (::aql-spec/attribute-map entity-value)]
-       ["attributes "
-        ::in
-        (map
-         (fn [from-src from-dest]
-           (str from-src " -> " from-dest))
-         attrs)
-        ::out]))))
+       (when attrs
+         ["attributes "
+          ::in
+          (map
+           (fn [[from-src from-dest]]
+             (str from-src " -> " from-dest))
+           attrs)
+          ::out])))))
 
 (defmethod to-aql
   ::aql-spec/mapping
@@ -177,7 +180,7 @@
 (defmethod to-literal
   ::aql-spec/mapping
   [mapping]
-  (->>
-   (::aql-spec/entity-map mapping)
-   (map to-literal-mapping-entity)
-   st/join))
+  (->> mapping
+       ::aql-spec/entity-map
+       (map to-literal-mapping-entity)
+       st/join))

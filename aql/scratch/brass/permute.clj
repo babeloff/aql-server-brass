@@ -39,7 +39,7 @@
 (s/explain ::aql-spec/mapping brass-data/mapping-t->x)
 ;; (pp/pprint brass-data/mapping-s->x)
 
-(def factory (brass-cospan/aql-cospan-factory
+(def factory (brass-cospan/factory
               {::brass-spec/s brass-data/schema-s
                ::brass-spec/x brass-data/schema-x
                ::brass-spec/f brass-data/mapping-s->x

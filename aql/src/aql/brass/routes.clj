@@ -24,7 +24,7 @@
   (if-let [action (sr/select-one [:body] request)]
     (let [p-json (get action :permutation)
           perturb (brass-cospan/convert-perturbation p-json)
-          factory (brass-cospan/aql-cospan-factory
+          factory (brass-cospan/factory
                    {::brass-spec/s brass-data/schema-s
                     ::brass-spec/x brass-data/schema-x
                     ::brass-spec/f brass-data/mapping-s->x
