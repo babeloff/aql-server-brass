@@ -40,40 +40,43 @@
 (defmethod to-name ::vector [name] (st/join "__" name))
 (defmethod to-name ::default [name] "default")
 
-
-
 (defn aql-format [base-indent & coll]
-  (let [indent (atom base-indent)
-        helper
-        (fn [ax obj]
-          (try
-            (cond
-              (symbol? obj)
-              (do
-                (log/error  "how to serialize a function? " obj))
-              (and (keyword? obj) (= ::in obj))
-              (do
-                (swap! indent #(str "  " %))
-                ax)
-              (and (keyword? obj) (= ::out obj))
-              (do
-                (swap! indent #(subs % (min (count %) 2)))
-                ax)
-              (and (keyword? obj) (= ::reset obj))
-              (do
-                (reset! indent base-indent)
-                ax)
-              (seq obj)
-              (do
-                (reduce #(str %1 "\n" @indent %2) ax obj))
-              :else
-              (do
-                (str ax "\n" @indent obj)))
-            (catch Throwable ex
-              (log/error  "format: "
-                          (pr-str (take 10 obj))
-                          ex))))]
-    (reduce helper "" coll)))
+  (let [indent (atom base-indent)]
+    (letfn [(indentter [ax]
+              (log/debug "indent")
+              (swap! indent #(str "  " %))
+              ax)
+            (outdentter [ax]
+                        (log/debug "outdent")
+                        (swap! indent #(subs % (min (count %) 2)))
+                        ax)
+            (resetter [ax]
+                      (log/debug "reset")
+                      (reset! indent base-indent) ax)
+            (symboller [ax obj]
+                       (log/error "serialize a function? " obj)
+                       ax)
+            (stringger [ax obj]
+                       (log/debug "string")
+                       (str ax "\n" @indent obj))
+            (helper
+             [ax obj]
+             (log/debug "helper " obj)
+             (try
+               (cond
+                 (nil? obj) ax
+                 (symbol? obj) (symboller ax obj)
+                 (and (keyword? obj) (= ::in obj)) (indentter ax)
+                 (and (keyword? obj) (= ::out obj)) (outdentter ax)
+                 (and (keyword? obj) (= ::reset obj)) (resetter ax)
+                 (string? obj) (stringger ax obj)
+                 (seq obj) (reduce helper ax obj)
+                 :else (stringger ax obj))
+               (catch Throwable ex
+                 (log/error  "format: "
+                             (pr-str (take 10 obj))
+                             ex))))]
+      (reduce helper "" coll))))
 
 (defmethod wrap-literal
   ::aql-spec/schema
@@ -90,36 +93,43 @@
 (defmethod to-literal
   ::aql-spec/schema
   [schema]
+  (log/info "to-literal schema " schema)
   (aql-format
    "  "
-   "entities "
-   ::in
-   (->> schema ::aql-spec/entities (map to-name))
-   ::out
-   "foreign_keys "
-   ::in
-   (map
-    (fn [[key [src dst]]]
-      (str key " : "
-           (to-name src) " -> "
-           (to-name dst)))
-    (::aql-spec/references schema))
-   ::out
-   "path_equations "
-   ::in
-   (map
-    (fn [[left right]]
-      (str (st/join "." left) " = " (st/join "." right)))
-    (::aql-spec/equations schema))
-   ::out
-   "attributes "
-   ::in
-   (map
-    (fn [[key [src type]]]
-      (str key " : "
-           (to-name src) " -> " type))
-    (::aql-spec/attributes schema))))
-
+   (when-let [entities (::aql-spec/entities schema)]
+     ["entities "
+      ::in
+      (map to-name entities)
+      ::out])
+   (comment)
+   (when-let [references (::aql-spec/references schema)]
+     ["foreign_keys "
+      ::in
+      (map
+       (fn [[key [src dst]]]
+         (str key " : "
+              (to-name src) " -> "
+              (to-name dst)))
+       references)
+      ::out])
+   (comment)
+   (when-let [equations (::aql-spec/equations schema)]
+     ["path_equations "
+      ::in
+      (map
+       (fn [[left right]]
+         (str (st/join "." left) " = " (st/join "." right)))
+       equations)
+      ::out])
+   (comment)
+   (when-let [attributes (::aql-spec/attributes schema)]
+     ["attributes "
+      ::in
+      (map
+       (fn [[key [src type]]]
+         (str key " : "
+              (to-name src) " -> " type))
+       attributes)])))
 
 (defmethod wrap-literal
   ::aql-spec/mapping
@@ -128,37 +138,37 @@
        " = literal : " (st/join " -> " (::aql-spec/schema-map mapping))
        " {" literal "\n}\n"))
 
-(defn to-aql-mapping-reference
-  "f -> N or f -> g"
-  [[_ dest-ent] [src dest]]
-  (cond
-    (nil? dest)
-    (str src " -> " dest-ent)
-
-    :else
-    (str src " -> " dest)))
-
-(defn to-aql-mapping-attribute
-  "f -> N or f -> g"
-  [[_ _] [src dest]]
-  (str src " -> " dest))
-
 (defn to-literal-mapping-entity
   [[entity-key entity-value]]
-  (let [[src dest] (map to-name entity-key)
-        fks (::aql-spec/reference-map entity-value)
-        attrs (::aql-spec/attribute-map entity-value)]
+  (let [[to-src-ent to-dest-ent] (map to-name entity-key)]
     (aql-format
      "  "
-     (str "entity " (str src " -> " dest))
+     (comment)
+     (str "entity " (str to-src-ent " -> " to-dest-ent))
      ::in
-     "foreign_keys "
-     ::in
-     (map #(to-aql-mapping-reference [src dest] %) fks)
-     ::out
-     "attributes "
-     ::in
-     (map #(to-aql-mapping-attribute [src dest] %) attrs))))
+     (comment)
+     (when-let [fks (::aql-spec/reference-map entity-value)]
+       ["foreign_keys "
+        ::in
+        (map
+          (fn [from-src-ent from-dest-ent]
+            (cond
+              (nil? from-dest-ent)
+              (str from-src-ent " -> " to-dest-ent)
+
+              :else
+              (str from-src-ent " -> " from-dest-ent)))
+          fks)
+        ::out])
+     (comment)
+     (when-let [attrs (::aql-spec/attribute-map entity-value)]
+       ["attributes "
+        ::in
+        (map
+         (fn [from-src from-dest]
+           (str from-src " -> " from-dest))
+         attrs)
+        ::out]))))
 
 (defmethod to-aql
   ::aql-spec/mapping
