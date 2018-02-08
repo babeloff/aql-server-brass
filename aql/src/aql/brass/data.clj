@@ -193,9 +193,9 @@
   "typeside sql1 = literal {
         imports sql
         java_functions
-            EqualStr : String, String -> Bool = \"attributes input[0].equals(input[1])\"
-            EqualVc : Varchar, Varchar -> Bool = \"attributes input[0].equals(input[1])\"
-            EqualInt : Integer, Integer -> Bool = \"attributes input[0].equals(input[1])\"
+            EqualStr : String, String -> Bool = \"return input[0].equals(input[1])\"
+            EqualVc : Varchar, Varchar -> Bool = \"return input[0].equals(input[1])\"
+            EqualInt : Integer, Integer -> Bool = \"return input[0].equals(input[1])\"
         }")
 
 (def ts-sql2
@@ -260,7 +260,7 @@ Like query 1 except filter on non-projected column.
 
 	select ce.id, ce.source_id, ce.cot_type, ce.how
 	from cot_event as ce
-	where ce.servertime = 201705071635
+	where ce.servertime = 1494174900 // 2017-05-07t16:35
 
 ")
 
@@ -269,7 +269,7 @@ Like query 1 except filter on non-projected column.
     from
      ce:cot_event
     where
-     ce.servertime = \"201705071635\"
+     ce.servertime = \"1494174900\"
     foreign_keys
      source_id -> ce.source_id
     attributes
@@ -287,7 +287,7 @@ Query with a simple compound filter
 
 	select ce.id, ce.source_id, ce.cot_type, ce.how
 	from cot_event as ce
-	where ce.servertime = 201705071635
+	where ce.servertime = 1494174900
 	and ce.cot_type = 'a-n-A-C-F-m'
 ")
 
@@ -295,7 +295,7 @@ Query with a simple compound filter
   "query Qs_03 = simple : S {
      from ce : cot_event
      where
-       ce.server_time = \"201705071635\"
+       ce.server_time = \"1494174900\"
        ce.cot_type = \"a-n-A-C-F-m\"
      foreign_keys
        source_id -> ce.source_id
@@ -549,7 +549,7 @@ Simple parameterized query.
   "query Qs_08p = literal : S -> S8 {
      bindings
         name = \"A6A7DC\"
-        server_time = \"201705071635\"
+        server_time = \"1494174900\"
      import Qs_08pre
       }")
 
@@ -614,7 +614,7 @@ attributesing all results from sample parameter binding.
 
 Samples:
 
-	where s.name = 'ABD19E' and servertime = 201705071645
+	where s.name = 'ABD19E' and servertime = 1494174900
 
 ")
 
@@ -657,7 +657,7 @@ Samples:
   "query Qs_09 = literal : S -> S9 {
      bindings
         name = \"A6A7DC\"
-        server_time = \"201705071635\"
+        server_time = \"1494174900\"
 
      import Qs_09pre
       }")

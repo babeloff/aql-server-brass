@@ -1,65 +1,19 @@
 typeside sql1 = literal {
         imports sql
         java_functions
-            EqualStr : String, String -> Bool = "attributes input[0].equals(input[1])"
-            EqualVc : Varchar, Varchar -> Bool = "attributes input[0].equals(input[1])"
-            EqualInt : Integer, Integer -> Bool = "attributes input[0].equals(input[1])"
+            EqualStr : String, String -> Bool = "return input[0].equals(input[1])"
+            EqualVc : Varchar, Varchar -> Bool = "return input[0].equals(input[1])"
+            EqualInt : Integer, Integer -> Bool = "return input[0].equals(input[1])"
         }
 schema S = literal : sql1 {
-  e
-  n
-  t
-  i
-  t
-  i
-  e
-  s
-   
+  entities 
     cot_position
     cot_event
     source
-  f
-  o
-  r
-  e
-  i
-  g
-  n
-  _
-  k
-  e
-  y
-  s
-   
+  foreign_keys 
     source_id : cot_event -> source
     has_cot_event : cot_position -> cot_event
-  p
-  a
-  t
-  h
-  _
-  e
-  q
-  u
-  a
-  t
-  i
-  o
-  n
-  s
-   
-    clojure.lang.LazySeq@1
-  a
-  t
-  t
-  r
-  i
-  b
-  u
-  t
-  e
-  s
-   
+  attributes 
     tileY : cot_position -> Integer
     point_ce : cot_position -> Integer
     servertime : cot_event -> Bigint
@@ -76,57 +30,9 @@ schema S = literal : sql1 {
 }
 
 schema X = literal : sql1 {
-  e
-  n
-  t
-  i
-  t
-  i
-  e
-  s
-   
+  entities 
     cot_cospan
-  f
-  o
-  r
-  e
-  i
-  g
-  n
-  _
-  k
-  e
-  y
-  s
-   
-    clojure.lang.LazySeq@1
-  p
-  a
-  t
-  h
-  _
-  e
-  q
-  u
-  a
-  t
-  i
-  o
-  n
-  s
-   
-    clojure.lang.LazySeq@1
-  a
-  t
-  t
-  r
-  i
-  b
-  u
-  t
-  e
-  s
-   
+  attributes 
     tileY : cot_cospan -> Integer
     point_ce : cot_cospan -> Integer
     servertime : cot_cospan -> Bigint
@@ -143,177 +49,22 @@ schema X = literal : sql1 {
 }
 
 mapping F = literal : S -> X {
-  e
-  n
-  t
-  i
-  t
-  y
-   
-  s
-  o
-  u
-  r
-  c
-  e
-   
-  -
-  >
-   
-  c
-  o
-  t
-  _
-  c
-  o
-  s
-  p
-  a
-  n
-    f
-    o
-    r
-    e
-    i
-    g
-    n
-    _
-    k
-    e
-    y
-    s
-     
-      clojure.lang.LazySeq@1
-    a
-    t
-    t
-    r
-    i
-    b
-    u
-    t
-    e
-    s
-     
+  entity source -> cot_cospan
+    attributes 
       name -> name
       channel -> channel
-  e
-  n
-  t
-  i
-  t
-  y
-   
-  c
-  o
-  t
-  _
-  e
-  v
-  e
-  n
-  t
-   
-  -
-  >
-   
-  c
-  o
-  t
-  _
-  c
-  o
-  s
-  p
-  a
-  n
-    f
-    o
-    r
-    e
-    i
-    g
-    n
-    _
-    k
-    e
-    y
-    s
-     
+  entity cot_event -> cot_cospan
+    foreign_keys 
       source_id -> cot_cospan
-    a
-    t
-    t
-    r
-    i
-    b
-    u
-    t
-    e
-    s
-     
+    attributes 
       cot_type -> cot_type
       how -> how
       detail -> detail
       servertime -> servertime
-  e
-  n
-  t
-  i
-  t
-  y
-   
-  c
-  o
-  t
-  _
-  p
-  o
-  s
-  i
-  t
-  i
-  o
-  n
-   
-  -
-  >
-   
-  c
-  o
-  t
-  _
-  c
-  o
-  s
-  p
-  a
-  n
-    f
-    o
-    r
-    e
-    i
-    g
-    n
-    _
-    k
-    e
-    y
-    s
-     
+  entity cot_position -> cot_cospan
+    foreign_keys 
       has_cot_event -> cot_cospan
-    a
-    t
-    t
-    r
-    i
-    b
-    u
-    t
-    e
-    s
-     
+    attributes 
       point_hae -> point_hae
       point_ce -> point_ce
       point_le -> point_le
@@ -324,101 +75,52 @@ mapping F = literal : S -> X {
 }
 
 schema T = literal : sql1 {
-  p
-  a
-  t
-  h
-  _
-  e
-  q
-  u
-  a
-  t
-  i
-  o
-  n
-  s
-   
-    clojure.lang.LazySeq@1
-  a
-  t
-  t
-  r
-  i
-  b
-  u
-  t
-  e
-  s
-   
-    tileY : default -> Integer
-    point_ce : default -> Integer
-    servertime : default -> Bigint
-    longitude : default -> Real
-    cot_type : default -> Varchar
-    detail : default -> Text
-    latitude : default -> Real
+  entities 
+    cot_action
+    source
+    cot_detail
+  foreign_keys 
+    source_id : cot_action -> source
+    has_cot_action : cot_detail -> cot_action
+    has_cot_detail : cot_action -> cot_detail
+  attributes 
+    tileY : cot_detail -> Integer
+    point_ce : cot_action -> Integer
+    servertime : cot_action -> Bigint
+    longitude : cot_action -> Real
+    cot_type : cot_detail -> Varchar
+    detail : cot_detail -> Text
+    latitude : cot_action -> Real
     name : source -> Varchar
-    tileX : default -> Integer
-    point_le : default -> Integer
-    how : default -> Varchar
+    tileX : cot_action -> Integer
+    point_le : cot_action -> Integer
+    how : cot_action -> Varchar
     channel : source -> Varchar
-    point_hae : default -> Integer
+    point_hae : cot_detail -> Integer
 }
 
 mapping G = literal : X -> T {
-  e
-  n
-  t
-  i
-  t
-  y
-   
-  s
-  o
-  u
-  r
-  c
-  e
-   
-  -
-  >
-   
-  c
-  o
-  t
-  _
-  c
-  o
-  s
-  p
-  a
-  n
-    f
-    o
-    r
-    e
-    i
-    g
-    n
-    _
-    k
-    e
-    y
-    s
-     
-      clojure.lang.LazySeq@1
-    a
-    t
-    t
-    r
-    i
-    b
-    u
-    t
-    e
-    s
-     
+  entity cot_detail -> cot_cospan
+    foreign_keys 
+      has_cot_action -> cot_cospan
+    attributes 
+      point_hae -> point_hae
+      detail -> detail
+      tileY -> tileY
+      cot_type -> cot_type
+  entity cot_action -> cot_cospan
+    foreign_keys 
+      source_id -> cot_cospan
+    attributes 
+      how -> how
+      servertime -> servertime
+      point_ce -> point_ce
+      point_le -> point_le
+      tileX -> tileX
+      longitude -> longitude
+      latitude -> latitude
+  entity source -> cot_cospan
+    attributes 
       name -> name
       channel -> channel
 }
@@ -439,7 +141,7 @@ query Qs_02 = simple : S  {
     from
      ce:cot_event
     where
-     ce.servertime = "201705071635"
+     ce.servertime = "1494174900"
     foreign_keys
      source_id -> ce.source_id
     attributes
