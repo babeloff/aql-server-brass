@@ -5,14 +5,12 @@
 (require '(clojure.tools [logging :as log]))
 
 (require '[aql.spec :as aql-spec] :reload)
+(require '[aql.util :as aql-util] :reload)
 (require '[aql.brass.spec :as brass-spec] :reload)
 (require '[aql.brass.data :as brass-data] :reload)
 (require '[aql.brass.cospan :as brass-cospan] :reload)
 (require '[aql.serialize :as aql-serial] :reload)
 
-(defn pp-identity
-  ([val] (pp/pprint val) val)
-  ([alt val] (do (pp/pprint [val alt])) alt))
 
 (def perturb (brass-cospan/convert-perturbation brass-data/sample-submission-json))
 (s/explain ::brass-spec/schema-perturbation perturb)
@@ -47,31 +45,31 @@
 
 (->> factory
      ::brass-cospan/s
-     pp-identity
+     aql-util/pp-identity
      aql-serial/to-aql
      print)
 
 (->> factory
      ::brass-cospan/x
-     pp-identity
+     aql-util/pp-identity
      aql-serial/to-aql
      print)
 
 (->> factory
      ::brass-cospan/f
-     pp-identity
+     aql-util/pp-identity
      aql-serial/to-aql
      print)
 
 (->> factory
      ::brass-cospan/t
-     pp-identity
+     aql-util/pp-identity
      aql-serial/to-aql
      print)
 
 (->> factory
      ::brass-cospan/g
-     pp-identity
+     aql-util/pp-identity
      aql-serial/to-aql
      print)
 

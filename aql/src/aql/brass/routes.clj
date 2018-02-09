@@ -1,6 +1,7 @@
 (ns aql.brass.routes
   (:require
-   (aql [routes :as aql-routes])
+   (aql [routes :as aql-routes]
+        [util :as aql-util])
    (org.httpkit [server :as svr])
    (clojure.data [json :as json])
    (clojure.tools [logging :as log])
@@ -52,11 +53,19 @@
                       (into model)
                       (st/join "\n"))]
         (log/info "brass phase 2 demo: " cmd)
-        (spit "brass_data.aql" cmd)
-        (->> cmd
-             aql-wrap/make-env
-             (aql-wrap/extract-result brass-data/query-demo-attributes)
-             json/write-str)))))
+        (spit "brass_data.aql" (str cmd "\n"))
+        (try
+          (let [env (aql-wrap/make-env cmd)]
+            (->> env
+              (aql-wrap/extract-result brass-data/query-demo-attributes)
+              (aql-util/log-info-echo "result ")
+              json/write-str))
+          (catch Exception ex
+            (log/error "aql fault " ex)
+            (->>
+             {:status "aql-error"
+              :msg (.getMessage ex)}
+             json/write-str)))))))
 
 ;; https://weavejester.github.io/compojure/compojure.core.html#var-routes
 (def brass-handlers
