@@ -11,7 +11,6 @@
 (require '[aql.brass.cospan :as brass-cospan] :reload)
 (require '[aql.serialize :as aql-serial] :reload)
 
-
 (def perturb (brass-cospan/convert-perturbation brass-data/sample-submission-json))
 (s/explain ::brass-spec/schema-perturbation perturb)
 ;; (pp/pprint perturb)
@@ -45,31 +44,31 @@
 
 (->> factory
      ::brass-cospan/s
-     aql-util/pp-identity
+     aql-util/pp-echo
      aql-serial/to-aql
      print)
 
 (->> factory
      ::brass-cospan/x
-     aql-util/pp-identity
+     aql-util/pp-echo
      aql-serial/to-aql
      print)
 
 (->> factory
      ::brass-cospan/f
-     aql-util/pp-identity
+     aql-util/pp-echo
      aql-serial/to-aql
      print)
 
 (->> factory
      ::brass-cospan/t
-     aql-util/pp-identity
+     aql-util/pp-echo
      aql-serial/to-aql
      print)
 
 (->> factory
      ::brass-cospan/g
-     aql-util/pp-identity
+     aql-util/pp-echo
      aql-serial/to-aql
      print)
 
