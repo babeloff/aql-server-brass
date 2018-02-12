@@ -53,11 +53,11 @@
   (log/info "aql-handler")
   (if-let [action (sr/select-one [:body] request)]
     (let [model (sr/select-one ["model"] action)
-          aql-env (aql-wrap/make-env (str model))
-          return (sr/select-one ["return"] action)]
-      (log/info "aql-handler:" return)
+          aql-env (aql-wrap/generate (str model))
+          return-objs (sr/select-one ["return"] action)]
+      (log/info "aql-handler:" return-objs)
       (->> aql-env
-           (aql-wrap/extract-result return)
+           (aql-wrap/xform-result return-objs)
            json/write-str))))
 
 ;; https://weavejester.github.io/compojure/compojure.core.html#var-routes

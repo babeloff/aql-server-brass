@@ -6,6 +6,7 @@
    (clojure.tools [logging :as log])
    (com.rpl [specter :as sr]))
   (:import
+   (catdata LineException)
    (catdata.aql
     AqlCmdLine)
    (catdata.aql.exp
@@ -20,61 +21,53 @@
   (when schema
     (AqlCmdLine/schemaToSql schema)))
 
-(defn env->schema [env name]
-  (-> env .defs .schs .map (get name)))
-
-(defn env->schema-names [env] (-> env .defs .schs .map keys))
-
-(defn env->schema->sql [aql-env name]
-  (schema->sql (env->schema aql-env name)))
-
 (defn query->sql [query]
   (when query
     (AqlCmdLine/queryToSql query)))
 
-(defn env->query [env name]
-  (-> env .defs .qs .map (get name)))
-
-(defn env->query-names [env] (-> env .defs .qs .map keys))
-
 (defn env->maps [env]
-  (let [edefs (.defs env)]
-    {:instance (-> edefs .qs .map)
-     :mapping (-> edefs .maps .map)
-     :schema (-> edefs .schs .map)
-     :transform (-> edefs .trans .map)
-     :typeside (-> edefs .tys .map)
-     :query (-> edefs .qs .map)
-     :command (-> edefs .ps .map)
-     :graph (-> edefs .gs .map)
-     :comment (-> edefs .cs .map)
-     :schema-colimit (-> edefs .scs .map)
-     :constraint (-> edefs .eds .map)}))
+  (let [env-defs (.-defs env)]
+    {::instance (-> env-defs .-qs .-map)
+     ::mapping (-> env-defs .-maps .-map)
+     ::schema (-> env-defs .-schs .-map)
+     ::transform (-> env-defs .-trans .-map)
+     ::typeside (-> env-defs .-tys .-map)
+     ::query (-> env-defs .-qs .-map)
+     ::command (-> env-defs .-ps .-map)
+     ::graph (-> env-defs .-gs .-map)
+     ::comment (-> env-defs .-cs .-map)
+     ::schema-colimit (-> env-defs .-scs .-map)
+     ::constraint (-> env-defs .-eds .-map)}))
 
-(defn env->query->sql [aql-env name]
-  (query->sql (env->query aql-env name)))
+(defn env->schema->sql [env-map name]
+  (schema->sql (get name (::schema env-map))))
 
-(defn extract-sql-schema [aql-env req]
-  (map #(vector % (env->schema->sql aql-env %)) req))
+(defn env->query->sql [env-map name]
+  (query->sql (get name (::query env-map))))
 
-(defn extract-sql-query [aql-env req]
-  (map #(vector % (env->query->sql aql-env %)) req))
+(defn xform-result [reqs gen]
+  (log/debug "extract-result" reqs)
+  (let [env-map (env->maps (sr/select-one [:env] gen))]
+    {:query (->>
+             (sr/select-one [:query] reqs)
+             (map #(vector % (env->query->sql env-map %)))
+             (into []))
+     :schema (->>
+              (sr/select-one [:schema] reqs)
+              (map #(vector % (env->schema->sql env-map %)))
+              (into []))
+     :error (->>
+             (sr/select-one [:err] gen)
+             (map #(.getMessage %))
+             (into []))}))
 
-(defn extract-sql [aql-env [key req]]
-  (case (keyword key)
-    :query
-    [key (extract-sql-query aql-env req)]
-
-    :schema
-    [key (extract-sql-schema aql-env req)]))
-
-(defn extract-result [reqs aql-env]
-  (log/debug "extract-sql" reqs)
-  (into {} (map #(extract-sql aql-env %) reqs)))
-
-(defn make-env [model]
+(defn generate [model]
   (let [parser (AqlParser/getParser)
         prog (.parseProgram parser model)
         drvr (AqlMultiDriver. prog (make-array String 1)  nil)]
     (.start drvr)
-    (.env drvr)))
+    {:status (.toString drvr)
+     :env (.-env drvr)
+     :err (->> (.-exn drvr)
+               (filter #(instance? LineException %))
+               (into []))}))

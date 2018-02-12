@@ -55,9 +55,9 @@
         (log/info "brass phase 2 demo: " cmd)
         (spit "brass_data.aql" (str cmd "\n"))
         (try
-          (let [env (aql-wrap/make-env cmd)]
-            (->> env
-              (aql-wrap/extract-result brass-data/query-demo-attributes)
+          (let [gen (aql-wrap/generate cmd)]
+            (->> gen
+              (aql-wrap/xform-result brass-data/query-demo-attributes)
               (aql-util/log-info-echo "result ")
               json/write-str))
           (catch Exception ex
