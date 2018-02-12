@@ -17,16 +17,16 @@
    AqlParser
    AqlMultiDriver)
  '(catdata LineException))
-(def aql (slurp "brass_data.aql"))
+(def model (slurp "brass_data.aql"))
 
-(def gen (aql-wrap/generate aql))
+(def gen (aql-wrap/generate model))
 (def env (sr/select-one [:env] gen))
 (def reqs (merge brass-data/query-demo-attributes))
-(aql-wrap/xform-result (merge brass-data/query-demo-attributes) gen)
-(aql-util/log-info-echo "result " json/write-str)
-  ;(catch Exception ex
-  ;  (log/error "aql fault " ex)
-  ;  (->>
-  ;   {:status "aql-error"
-  ;    :msg (.getMessage ex)
-  ;   json/write-str))
+(def result (aql-wrap/xform-result reqs gen))
+(aql-util/log-info-echo "result " result)
+
+(def env-map (aql-wrap/env->maps (sr/select-one [:env] gen)))
+(def queries (sr/select-one [:query] reqs))
+(def query-results (map #(vector % (aql-wrap/env->query->sql env-map %)) queries))
+(aql-wrap/env->query->sql env-map "Qs_01")
+(::aql-wrap/query env-map)

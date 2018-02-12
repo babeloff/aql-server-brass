@@ -87,7 +87,8 @@
 
 (defn target-ent->fk-mapping [ent-name]
    (get {"source" nil
-         "cot_action" {"source_id" nil}
+         "cot_action" {"source_id" nil
+                       "has_cot_detail" nil}
          "cot_detail" {"has_cot_action" nil}}
         ent-name))
 

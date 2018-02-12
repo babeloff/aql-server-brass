@@ -14,9 +14,6 @@
     AqlParser
     AqlMultiDriver)))
 
-;; It may be useful to pass in an array to update
-;; see src/catdata/aql/gui/AqlCodeEditor:: makeEnv
-
 (defn schema->sql [schema]
   (when schema
     (AqlCmdLine/schemaToSql schema)))
@@ -39,22 +36,16 @@
      ::schema-colimit (-> env-defs .-scs .-map)
      ::constraint (-> env-defs .-eds .-map)}))
 
-(defn env->schema->sql [env-map name]
-  (schema->sql (get name (::schema env-map))))
-
-(defn env->query->sql [env-map name]
-  (query->sql (get name (::query env-map))))
-
 (defn xform-result [reqs gen]
   (log/debug "extract-result" reqs)
   (let [env-map (env->maps (sr/select-one [:env] gen))]
     {:query (->>
              (sr/select-one [:query] reqs)
-             (map #(vector % (env->query->sql env-map %)))
+             (map #(vector % (query->sql (get (::query env-map) %))))
              (into []))
      :schema (->>
               (sr/select-one [:schema] reqs)
-              (map #(vector % (env->schema->sql env-map %)))
+              (map #(vector % (schema->sql (get (::query env-map) %))))
               (into []))
      :error (->>
              (sr/select-one [:err] gen)

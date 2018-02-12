@@ -163,14 +163,18 @@
    :type ::s/mapping
    :schema-map ["T" "X"]
    :entity-map
-   {[["cot_action"] ["cot_cospan"]]
+   {
+     [["entity source"] ["cot_cospan"]]
+     {:attribute-map
+       {"name" "name"
+        "channel" "channel"}}
+    [["cot_action"] ["cot_cospan"]]
     #::s
     {:reference-map
-     {"cot_action_idx" nil}
+     {"has_cot_detail" nil
+      "source_id" nil}
      :attribute-map
-     {"name" "name"
-      "channel" "channel"
-      "how" "how"
+     {"how" "how"
       "servertime" "servertime"
       "point_ce" "point_ce"
       "point_le" "point_le"
@@ -180,9 +184,7 @@
     [["cot_detail"] ["cot_cospan"]]
     #::s
     {:reference-map
-     {"source_id" nil
-      "cot_action_idx" nil
-      "cot_action_idy" nil}
+     {"has_cot_action" nil}
      :attribute-map
      {"point_hae" "point_hae"
       "detail" "detail"
@@ -200,11 +202,11 @@
 
 (def ts-sql2
   "typeside sql2 = literal {
-     import sql
+     imports sql
      java_types
        Geo = \"java.lang.Long\"
      java_constants
-       Geo = \"return java.lang.Long.decode(input[0]))\"
+       Geo = \"return java.lang.Long.decode(input[0])\"
      java_functions
        int_to_real : Bigint -> Real = \"return 0.0 + input[0]\"
        real_to_int : Real -> Bigint = \"return Math.round(input[0]).longValue()\"
@@ -217,7 +219,7 @@
        now : -> Timestamp = \"return java.util.Date.from(java.time.Instant.now())\"
        eqVc : Varchar, Varchar -> Boolean = \"return input[0].equals(input[1])\"
        eqInt : Bigint, Bigint -> Boolean = \"return input[0] == input[1]\"
-       or : Boolean, Boolean -> Boolean = \"return input[0] || input[1]\")
+       // or : Boolean, Boolean -> Boolean = \"return input[0] || input[1]\")
      }
   ")
 
@@ -245,7 +247,7 @@
     where
      ce.cot_type = \"a-n-A-C-F-m\"
     attributes
-     source_id -> ce.source_id
+     // source_id -> ce.source_id
      cot_type -> ce.cot_type
     }")
 
@@ -270,7 +272,7 @@ Like query 1 except filter on non-projected column.
     where
      ce.servertime = \"1494174900\"
     attributes
-     source_id -> ce.source_id
+     // source_id -> ce.source_id
      cot_type -> ce.cot_type
      how -> ce.how
     }")
@@ -293,10 +295,10 @@ Query with a simple compound filter
   "query Qs_03 = simple : S {
      from ce : cot_event
      where
-       ce.server_time = \"1494174900\"
+       ce.servertime = \"1494174900\"
        ce.cot_type = \"a-n-A-C-F-m\"
      attributes
-      source_id -> ce.source_id
+       // source_id -> ce.source_id
        cot_type -> ce.cot_type
        how -> ce.how
      }")
@@ -326,7 +328,7 @@ Simple join with filter
      attributes
        name -> s.name
        cot_type -> ce.cot_type
-       time -> ce.server_time
+       time -> ce.servertime
   }")
 
 (def qt-04 "query Qt_04 = [ Qx ; Qs_04 ]")
@@ -354,7 +356,7 @@ Same as query4 but no projection of column from joined table.
      attributes
        name -> s.name
        cot_type -> ce.cot_type
-       time -> ce.server_time
+       time -> ce.servertime
   }")
 
 (def qt-05s "query Qt_05s = [ Qx ; Qs_05s ]")
@@ -364,19 +366,19 @@ Same as query4 but no projection of column from joined table.
 ;;   eval Qt_05s T_inst
 
 (def sc-05
-  "schema S5 = literal : sql2 {
+  "schema S5 = literal : sql1 {
     entities
           Q
       attributes
           name : Q -> Varchar
           time : Q -> Bigint
           type : Q -> Varchar
-          channel : Q -> Bigint
+          channel : Q -> Varchar
   }")
 
 (def qs-05
   "query Qs_05 = literal : S -> S5 {
-     entities Q -> {
+     entity Q -> {
        from
          ce : cot_event
          s : source
@@ -386,7 +388,7 @@ Same as query4 but no projection of column from joined table.
          name -> s.name
          type -> ce.cot_type
          channel -> s.channel
-         time -> ce.server_time
+         time -> ce.servertime
      }
     }")
 
@@ -398,7 +400,7 @@ Same as query4 but no projection of column from joined table.
 
 (def qs-05a
   "query Qs_05a = literal : S5 -> S5 {
-    entities
+    entity
       Q -> {
         from q: Q
         where eqInt(q.channel,\"3\") = true
@@ -416,7 +418,7 @@ Same as query4 but no projection of column from joined table.
 
 (def qs-05b
   "query Qs_05b = literal : S5 -> S5 {
-    entities
+    entity
       Q -> {
         from q: Q
         where
@@ -456,7 +458,7 @@ Same as query5 except join across tables.
     attributes
       name -> s.name
       cot_type -> ce.cot_type
-      time -> ce.server_time
+      time -> ce.servertime
   }")
 
 (def qt-06s "query Qt_06s = [ Qx ; Qs_06s ]")
@@ -490,7 +492,7 @@ More complex join and filter
     attributes
       name -> s.name
       cot_type -> ce.cot_type
-      time -> ce.server_time
+      time -> ce.servertime
     }")
 
 (def qt-07s "query Qt_07s = [ Qx ; Qs_07s ]")
@@ -504,11 +506,11 @@ Simple parameterized query.
 	select s.id, s.name, ce.servertime, cep.tilex, cep.tiley
 	from source as s
 	join cot_event as ce on s.id = ce.source_id
-	where s.name = ? and ce.server_time = ?
+	where s.name = ? and ce.servertime = ?
 ")
 
 (def sc-08
-  "schema S8 = literal : sql2 {
+  "schema S8 = literal : sql1 {
      entities
            Q
        attributes
@@ -522,7 +524,7 @@ Simple parameterized query.
   "query Qs_08pre = literal : S -> S8 {
      params
         name : String
-        server_time : Bigint
+        servertime : Bigint
      entity
        Q -> {
          from
@@ -533,10 +535,10 @@ Simple parameterized query.
            s = ce.source_id
            ce = cep.cot_event_id
            q.name = name
-           q.time = server_time
+           q.time = servertime
          attributes
            name -> s.name
-           time -> ce.server_time
+           time -> ce.servertime
            tileX -> cep.tile_x
            tileY -> cep.tile_y
        }
@@ -546,7 +548,7 @@ Simple parameterized query.
   "query Qs_08p = literal : S -> S8 {
      bindings
         name = \"A6A7DC\"
-        server_time = \"1494174900\"
+        servertime = \"1494174900\"
      import Qs_08pre
       }")
 
@@ -607,7 +609,7 @@ attributesing all results from sample parameter binding.
 	from source as s
 	join cot_event as ce on s.id = ce.source_id
 	join cot_event_position cep on ce.id = cep.cot_event_id
-	where s.name = ? and ce.server_time = ?
+	where s.name = ? and ce.servertime = ?
 
 Samples:
 
@@ -616,7 +618,7 @@ Samples:
 ")
 
 (def sc-09
-  "schema S9 = literal : sql2 {
+  "schema S9 = literal : sql1 {
      entities
            Q
        attributes
@@ -630,8 +632,8 @@ Samples:
   "query Qs_09pre = literal : S -> S9 {
     params
        name : String
-       server_time : Bigint
-     entities
+       servertime : Bigint
+     entity
        Q -> {
          from
            s : source
@@ -641,10 +643,10 @@ Samples:
            s = ce.source_id
            ce = cep.cot_event_id
            ce.name = name
-           ce.time = server_time
+           ce.time = servertime
          attributes
            name -> s.name
-           time -> ce.server_time
+           time -> ce.servertime
            tileX -> cep.tile_x
            tileY -> cep.tile_y
          }
@@ -654,7 +656,7 @@ Samples:
   "query Qs_09 = literal : S -> S9 {
      bindings
         name = \"A6A7DC\"
-        server_time = \"1494174900\"
+        servertime = \"1494174900\"
 
      import Qs_09pre
       }")
@@ -668,10 +670,11 @@ Samples:
   "all the queries for the demo
     Includes all the initial queries as well as the targets"
   [qs-01 qt-01
-   qs-02 qt-02])
-   ;qs-03 qt-03
-   ;qs-04 qt-04
-   ;qs-05 qt-05
+   qs-02 qt-02
+   qs-03 qt-03
+   qs-04 qt-04
+   sc-05
+   qs-05 qt-05])
    ;qs-05s qt-05s
    ;qs-05a qt-05a
    ;qs-05b qt-05b
@@ -684,8 +687,8 @@ Samples:
 
 (def query-demo-attributes
   "a list of the queries to attributes"
-  {:query ["Qt_01"
-           "Qt_02"
+  {:query ["Qs_01" "Qt_01"
+           "Qs_02" "Qt_02"
            "Qt_03"
            "Qt_04"
            "Qt_05"

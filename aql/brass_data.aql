@@ -5,6 +5,27 @@ typeside sql1 = literal {
             EqualVc : Varchar, Varchar -> Bool = "return input[0].equals(input[1])"
             EqualInt : Integer, Integer -> Bool = "return input[0].equals(input[1])"
         }
+typeside sql2 = literal {
+     imports sql
+     java_types
+       Geo = "java.lang.Long"
+     java_constants
+       Geo = "return java.lang.Long.decode(input[0])"
+     java_functions
+       int_to_real : Bigint -> Real = "return 0.0 + input[0]"
+       real_to_int : Real -> Bigint = "return Math.round(input[0]).longValue()"
+       date_to_int : Timestamp -> Bigint = "return input[0].getTime()"
+       int_to_date : Bigint -> Timestamp = "return new java.util.Date(input[0])"
+       txt_to_vc : Text -> Varchar = "return input[0]"
+       vc_to_txt : Varchar -> Text = "return input[0]"
+       real_to_geo : Real -> Geo = "return Math.round(input[0] * 1E6).longValue()"
+       geo_to_real : Geo -> Real = "return input[0] / 1E6"
+       now : -> Timestamp = "return java.util.Date.from(java.time.Instant.now())"
+       eqVc : Varchar, Varchar -> Boolean = "return input[0].equals(input[1])"
+       eqInt : Bigint, Bigint -> Boolean = "return input[0] == input[1]"
+       // or : Boolean, Boolean -> Boolean = "return input[0] || input[1]")
+     }
+  
 schema S = literal : sql1 {
   entities 
     cot_position
@@ -111,6 +132,7 @@ mapping G = literal : T -> X {
   entity cot_action -> cot_cospan
     foreign_keys 
       source_id -> cot_cospan
+      has_cot_detail -> cot_cospan
     attributes 
       how -> how
       servertime -> servertime
@@ -132,7 +154,7 @@ query Qs_01 = simple : S  {
     where
      ce.cot_type = "a-n-A-C-F-m"
     attributes
-     source_id -> ce.source_id
+     // source_id -> ce.source_id
      cot_type -> ce.cot_type
     }
 query Qt_01 = [ Qx ; Qs_01 ]
@@ -142,8 +164,56 @@ query Qs_02 = simple : S  {
     where
      ce.servertime = "1494174900"
     attributes
-     source_id -> ce.source_id
+     // source_id -> ce.source_id
      cot_type -> ce.cot_type
      how -> ce.how
     }
 query Qt_02 = [ Qx ; Qs_02 ]
+query Qs_03 = simple : S {
+     from ce : cot_event
+     where
+       ce.servertime = "1494174900"
+       ce.cot_type = "a-n-A-C-F-m"
+     attributes
+       // source_id -> ce.source_id
+       cot_type -> ce.cot_type
+       how -> ce.how
+     }
+query Qt_03 = [ Qx ; Qs_03 ]
+query Qs_04 = simple : S {
+     from
+       ce : cot_event
+       s : source
+     where
+       s = ce.source_id
+       s.channel = "7"
+     attributes
+       name -> s.name
+       cot_type -> ce.cot_type
+       time -> ce.servertime
+  }
+query Qt_04 = [ Qx ; Qs_04 ]
+schema S5 = literal : sql1 {
+    entities
+          Q
+      attributes
+          name : Q -> Varchar
+          time : Q -> Bigint
+          type : Q -> Varchar
+          channel : Q -> Varchar
+  }
+query Qs_05 = literal : S -> S5 {
+     entity Q -> {
+       from
+         ce : cot_event
+         s : source
+       where
+         s = ce.source_id
+       attributes
+         name -> s.name
+         type -> ce.cot_type
+         channel -> s.channel
+         time -> ce.servertime
+     }
+    }
+query Qt_05 = [ Qx ; Qs_05 ]

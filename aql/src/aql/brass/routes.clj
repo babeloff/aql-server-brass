@@ -32,8 +32,9 @@
                       ::brass-spec/x brass-data/schema-x
                       ::brass-spec/f brass-data/mapping-s->x
                       ::brass-spec/schema-perturbation perturb})
-            model [brass-data/ts-sql1
-                   (->> factory
+            typeside [brass-data/ts-sql1
+                      brass-data/ts-sql2]
+            model [(->> factory
                         ::brass-cospan/s
                         aql-serial/to-aql)
                    (->> factory
@@ -49,9 +50,10 @@
                         ::brass-cospan/g
                         aql-serial/to-aql)
                    brass-data/qgf]
-            cmd (->>  brass-data/query-demo
-                      (into model)
-                      (st/join "\n"))]
+            cmd (st/join "\n"
+                  (sequence cat [typeside
+                                 model
+                                 brass-data/query-demo]))]
         (log/info "brass phase 2 demo: " cmd)
         (spit "brass_data.aql" (str cmd "\n"))
         (try
