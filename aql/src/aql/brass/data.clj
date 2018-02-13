@@ -49,25 +49,24 @@
    :entities
    #{"source" "cot_event" "cot_position"}
    :attributes
-   {"name" ["source" "Varchar"]
-    "channel" ["source" "Varchar"]
+   [["name" "source" "Varchar"]
+    ["channel" "source" "Varchar"]
 
-    "cot_type"  ["cot_event" "Varchar"]
-    "how"  ["cot_event" "Varchar"]
-    "detail"  ["cot_event" "Text"]
-    "servertime"  ["cot_event" "Bigint"]
+    ["cot_type" "cot_event" "Varchar"]
+    ["how" "cot_event" "Varchar"]
+    ["detail" "cot_event" "Text"]
+    ["servertime" "cot_event" "Bigint"]
 
-    "point_hae" ["cot_position" "Integer"]
-    "point_ce" ["cot_position" "Integer"]
-    "point_le" ["cot_position" "Integer"]
-    "tileX" ["cot_position" "Integer"]
-    "tileY" ["cot_position" "Integer"]
-    "latitude" ["cot_position" "Real"]
-    "longitude" ["cot_position" "Real"]}
+    ["point_hae" "cot_position" "Integer"]
+    ["point_ce" "cot_position" "Integer"]
+    ["point_le" "cot_position" "Integer"]
+    ["tileX" "cot_position" "Integer"]
+    ["tileY" "cot_position" "Integer"]
+    ["latitude" "cot_position" "Real"]
+    ["longitude" "cot_position" "Real"]]
    :references
-   {"source_id" ["cot_event" "source"]
-    "has_cot_event" ["cot_position" "cot_event"]}})
-
+   [["source_id" "cot_event" "source"]
+    ["has_cot_event" "cot_position" "cot_event"]]})
 
 (def schema-x
   #::s
@@ -77,21 +76,21 @@
    :entities
    #{"cot_cospan"}
    :attributes
-   {"name" ["cot_cospan" "Varchar"]
-    "channel" ["cot_cospan" "Varchar"]
+   [["name" "cot_cospan" "Varchar"]
+    ["channel" "cot_cospan" "Varchar"]
 
-    "cot_type"  ["cot_cospan" "Varchar"]
-    "how"  ["cot_cospan" "Varchar"]
-    "detail"  ["cot_cospan" "Text"]
-    "servertime"  ["cot_cospan" "Bigint"]
+    ["cot_type" "cot_cospan" "Varchar"]
+    ["how" "cot_cospan" "Varchar"]
+    ["detail" "cot_cospan" "Text"]
+    ["servertime" "cot_cospan" "Bigint"]
 
-    "point_hae" ["cot_cospan" "Integer"]
-    "point_ce" ["cot_cospan" "Integer"]
-    "point_le" ["cot_cospan" "Integer"]
-    "tileX" ["cot_cospan" "Integer"]
-    "tileY" ["cot_cospan" "Integer"]
-    "latitude" ["cot_cospan" "Real"]
-    "longitude" ["cot_cospan" "Real"]}})
+    ["point_hae" "cot_cospan" "Integer"]
+    ["point_ce" "cot_cospan" "Integer"]
+    ["point_le" "cot_cospan" "Integer"]
+    ["tileX" "cot_cospan" "Integer"]
+    ["tileY" "cot_cospan" "Integer"]
+    ["latitude" "cot_cospan" "Real"]
+    ["longitude" "cot_cospan" "Real"]]})
 
 (def mapping-s->x
   "A mapping between schema"
@@ -135,25 +134,25 @@
    :entities
    #{"source" "cot_action" "cot_detail"}
    :attributes
-   {"name"  ["source" "Varchar"]
-    "channel"  ["source" "Varchar"]
+   [["name" "source" "Varchar"]
+    ["channel" "source" "Varchar"]
 
-    "how"  ["cot_action" "Varchar"]
-    "servertime"  ["cot_action" "Bigint"]
-    "point_ce" ["cot_action" "Integer"]
-    "point_le" ["cot_action" "Integer"]
-    "tileX" ["cot_action" "Integer"]
-    "latitude" ["cot_action" "Real"]
-    "longitude" ["cot_action" "Real"]
+    ["how" "cot_action" "Varchar"]
+    ["servertime" "cot_action" "Bigint"]
+    ["point_ce" "cot_action" "Integer"]
+    ["point_le" "cot_action" "Integer"]
+    ["tileX" "cot_action" "Integer"]
+    ["latitude" "cot_action" "Real"]
+    ["longitude" "cot_action" "Real"]
 
-    "detail"  ["cot_detail" "Text"]
-    "cot_type"  ["cot_detail" "Varchar"]
-    "tileY" ["cot_detail" "Integer"]
-    "point_hae" ["cot_detail" "Integer"]}
+    ["detail" "cot_detail" "Text"]
+    ["cot_type" "cot_detail" "Varchar"]
+    ["tileY" "cot_detail" "Integer"]
+    ["point_hae" "cot_detail" "Integer"]]
    :references
-   {"source_id" ["cot_action" "source"]
-    "cot_action_idx" ["cot_detail" "cot_action"]
-    "cot_action_idy" ["cot_action" "cot_detail"]}})
+   [["source_id" "cot_action" "source"]
+    ["cot_action_idx" "cot_detail" "cot_action"]
+    ["cot_action_idy" "cot_action" "cot_detail"]]})
 
 
 (def mapping-t->x
@@ -416,7 +415,8 @@ Same as query4 but no projection of column from joined table.
       channel -> \"(c,ce)\".source_id.channel
       name -> \"(c,ce)\".source_id.name
       time -> \"(c,ce)\".servertime
-      type -> \"(t,ce)\".cot_type
+      type_c -> \"(c,ce)\".cot_type
+      type_t -> \"(t,ce)\".cot_type
   }")
 
 (def qt-05 "query Qt_05 = [ Qx ; Qs_05 ]")

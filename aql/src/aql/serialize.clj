@@ -106,7 +106,7 @@
      ["foreign_keys "
       ::in
       (map
-       (fn [[key [src dst]]]
+       (fn [[key src dst]]
          (str key " : "
               (to-name src) " -> "
               (to-name dst)))
@@ -126,7 +126,7 @@
      ["attributes "
       ::in
       (map
-       (fn [[key [src type]]]
+       (fn [[key src type]]
          (str key " : "
               (to-name src) " -> " type))
        attributes)])))

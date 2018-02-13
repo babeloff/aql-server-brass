@@ -22,10 +22,21 @@
 ; (pp/pprint perturb-lookup)
 (def col-lookup (merge-with #(conj %1 [::pert %2]) ent-lookup perturb-lookup))
 ; (pp/pprint col-lookup)
-; (def al (brass-cospan/filter<-type ::aql-spec/attributes col-lookup))
+(def attr-lookup (brass-cospan/filter<-type ::aql-spec/attributes col-lookup))
 ; (pp/pprint al)
-(def rl (brass-cospan/filter<-type ::aql-spec/references col-lookup))
-(pp/pprint rl)
+; (def refr-lookup (brass-cospan/filter<-type ::aql-spec/references col-lookup))
+(pp/pprint attr-lookup)
+
+(def target-ent->col-lookup
+  (->> perturb
+     (sr/select [::brass-spec/tables sr/ALL])
+     (map (fn [{name ::aql-spec/name, cols ::brass-spec/columns}]
+            [name cols]))
+     (into {})))
+(def ent-t
+  (->> perturb-lookup
+       (sr/select [sr/MAP-VALS sr/LAST])
+       distinct))
 
 (s/explain ::aql-spec/schema brass-data/schema-s)
 (s/explain ::aql-spec/schema brass-data/schema-x)

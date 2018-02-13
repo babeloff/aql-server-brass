@@ -27,6 +27,25 @@
   {::aql-spec/name table
    ::brass-spec/columns (mapv convert-permute-col-name columns)})
 
+(defn provide-references [tables permute]
+  [::brass-spec/references nil])
+
+;(defn target-ent->fk [references]
+;   (into #{} (map (fn [[key [from to]]] to)) tef
+;                   (merge ())])
+
+(defn target-ent->fk []
+  [["source_id" "cot_action" "source"]
+   ["has_cot_action" "cot_detail" "cot_action"]
+   ["has_cot_detail" "cot_action" "cot_detail"]])
+
+(defn target-ent->fk-mapping [ent-name]
+   (get {"source" nil
+         "cot_action" {"source_id" nil
+                       "has_cot_detail" nil}
+         "cot_detail" {"has_cot_action" nil}}
+        ent-name))
+
 (defn convert-perturbation
   [sample-submission-json]
   (let [init-source [{::aql-spec/name "source"
@@ -61,11 +80,8 @@
   (->> base
        (sr/select
         [(sr/submap [::aql-spec/references ::aql-spec/attributes])
-         sr/ALL (sr/collect-one sr/FIRST)
-         sr/LAST sr/ALL (sr/collect-one sr/FIRST)
-         sr/LAST (sr/collect-one sr/FIRST)
-         sr/LAST])
-       (map (fn [[arrow-type col-name ent-name col-type]]
+         sr/ALL (sr/collect-one sr/FIRST) sr/LAST sr/ALL])
+       (map (fn [[arrow-type [col-name ent-name col-type]]]
               [col-name {::atype arrow-type
                          ::ent-name ent-name
                          ::col-ent col-type}]))
@@ -80,38 +96,29 @@
       (sr/pred= type))]
    sr/NONE col-lookup))
 
-(defn target-ent->fk []
-  {"source_id" ["cot_action" "source"]
-   "has_cot_action" ["cot_detail" "cot_action"]
-   "has_cot_detail" ["cot_action" "cot_detail"]})
-
-(defn target-ent->fk-mapping [ent-name]
-   (get {"source" nil
-         "cot_action" {"source_id" nil
-                       "has_cot_detail" nil}
-         "cot_detail" {"has_cot_action" nil}}
-        ent-name))
 
 (defn factory
   [{base ::brass-spec/s
     cospan ::brass-spec/x
-    pert ::brass-spec/schema-perturbation
+    perturb ::brass-spec/schema-perturbation
     ftor-f ::brass-spec/f}]
   (let [ent-lookup (schema->col-lookup<-name base)
-        perturb-lookup (perturb->col-lookup<-name pert)
+        perturb-lookup (perturb->col-lookup<-name perturb)
         col-lookup (merge-with #(conj %1 [::pert %2])
                                ent-lookup perturb-lookup)
         attr-lookup (filter<-type ::aql-spec/attributes col-lookup)
         ; refr-lookup (filter<-type ::aql-spec/references col-lookup)
         target-ent->col-lookup
-        (->> pert
+        (->> perturb
              (sr/select [::brass-spec/tables sr/ALL])
              (map (fn [{name ::aql-spec/name, cols ::brass-spec/columns}]
                     [name cols]))
              (into {}))
         ; ent-x (->> perturb-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
         ; ent-s (->> perturb-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
-        ent-t (->> perturb-lookup (sr/select [sr/MAP-VALS sr/LAST]) distinct)]
+        ent-t (->> perturb-lookup
+                   (sr/select [sr/MAP-VALS sr/LAST])
+                   distinct)]
     {::s base
      ::x cospan
      ::f ftor-f
@@ -126,8 +133,8 @@
       (->> attr-lookup
          (map
           (fn [[col-name {[_ new-ent] ::pert, col-type ::col-ent}]]
-            [col-name [new-ent col-type]]))
-         (into {}))
+            [col-name new-ent col-type]))
+         (into []))
       :references
       (target-ent->fk)}
 

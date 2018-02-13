@@ -40,38 +40,38 @@ schema S = literal : sql1 {
     source_id : cot_event -> source
     has_cot_event : cot_position -> cot_event
   attributes 
-    tileY : cot_position -> Integer
-    point_ce : cot_position -> Integer
-    servertime : cot_event -> Bigint
-    longitude : cot_position -> Real
-    cot_type : cot_event -> Varchar
-    detail : cot_event -> Text
-    latitude : cot_position -> Real
     name : source -> Varchar
-    tileX : cot_position -> Integer
-    point_le : cot_position -> Integer
-    how : cot_event -> Varchar
     channel : source -> Varchar
+    cot_type : cot_event -> Varchar
+    how : cot_event -> Varchar
+    detail : cot_event -> Text
+    servertime : cot_event -> Bigint
     point_hae : cot_position -> Integer
+    point_ce : cot_position -> Integer
+    point_le : cot_position -> Integer
+    tileX : cot_position -> Integer
+    tileY : cot_position -> Integer
+    latitude : cot_position -> Real
+    longitude : cot_position -> Real
 }
 
 schema X = literal : sql1 {
   entities 
     cot_cospan
   attributes 
-    tileY : cot_cospan -> Integer
-    point_ce : cot_cospan -> Integer
-    servertime : cot_cospan -> Bigint
-    longitude : cot_cospan -> Real
-    cot_type : cot_cospan -> Varchar
-    detail : cot_cospan -> Text
-    latitude : cot_cospan -> Real
     name : cot_cospan -> Varchar
-    tileX : cot_cospan -> Integer
-    point_le : cot_cospan -> Integer
-    how : cot_cospan -> Varchar
     channel : cot_cospan -> Varchar
+    cot_type : cot_cospan -> Varchar
+    how : cot_cospan -> Varchar
+    detail : cot_cospan -> Text
+    servertime : cot_cospan -> Bigint
     point_hae : cot_cospan -> Integer
+    point_ce : cot_cospan -> Integer
+    point_le : cot_cospan -> Integer
+    tileX : cot_cospan -> Integer
+    tileY : cot_cospan -> Integer
+    latitude : cot_cospan -> Real
+    longitude : cot_cospan -> Real
 }
 
 mapping F = literal : S -> X {
@@ -261,7 +261,8 @@ query Qn_05 = [ Qx ; Qm_05 ]
       channel -> "(c,ce)".source_id.channel
       name -> "(c,ce)".source_id.name
       time -> "(c,ce)".servertime
-      type -> "(t,ce)".cot_type
+      type_c -> "(c,ce)".cot_type
+      type_t -> "(t,ce)".cot_type
   }
 query Qt_05 = [ Qx ; Qs_05 ]
 query Qs_06s = simple : S {
