@@ -8,6 +8,7 @@ typeside sql1 = literal {
           EqualStr : String, String -> Bool = "return input[0].equals(input[1])"
           EqualVc : Varchar, Varchar -> Bool = "return input[0].equals(input[1])"
           EqualInt : Integer, Integer -> Bool = "return input[0].equals(input[1])"
+          OrBool : Bool, Bool -> Bool = "return input[0] || input[1]"
         }
 typeside sql2 = literal {
      imports sql
@@ -197,6 +198,66 @@ query Qs_04 = simple : S {
        time -> ce.servertime
   }
 query Qt_04 = [ Qx ; Qs_04 ]
+schema S5 = literal : sql1 {
+    entities
+          Qchan
+          Qtype
+      attributes
+          name : Qchan -> Varchar
+          time : Qchan -> Bigint
+          type : Qchan -> Varchar
+          channel : Qchan -> Varchar
+
+          name : Qtype -> Varchar
+          time : Qtype -> Bigint
+          type : Qtype -> Varchar
+          channel : Qtype -> Varchar
+  }
+query Qs_05 = literal : S -> S5 {
+    entity
+      Qchan -> {
+        from
+          s : source
+          ce : cot_event
+        where
+          s = ce.source_id
+          s.channel = "3"
+        attributes
+          name -> s.name
+          type -> ce.cot_type
+          channel -> s.channel
+          time -> ce.servertime
+        }
+    entity
+     Qtype -> {
+       from
+         s : source
+         ce : cot_event
+       where
+         s = ce.source_id
+         ce.cot_type = "a-n-A-C-F-m"
+       attributes
+       name -> s.name
+       type -> ce.cot_type
+       channel -> s.channel
+       time -> ce.servertime
+       }
+  }
+query Qt_05 = [ Qx ; Qs_05 ]
+query Qs_06s = simple : S {
+    from
+      ce : cot_event
+      s : source
+    where
+      s = ce.source_id
+      OrBool(EqualVc(s.channel,"5"),
+             EqualVc(ce.cot_type,"a-n-A-C-F-m")) = true
+    attributes
+      name -> s.name
+      cot_type -> ce.cot_type
+      time -> ce.servertime
+  }
+query Qt_06s = [ Qx ; Qs_06s ]
 query Qs_07s = simple : S {
     from
       ce : cot_event
@@ -245,12 +306,14 @@ query Qs_08pre = literal : S -> S8 {
            tileY -> cep.tileY
        }
     } 
+// FIXME query Qt_08pre = [ Qx ; Qs_08pre ]
 query Qs_08 = literal : S -> S8 {
      bindings
         name_parm = "A6A7DC"
         servertime_parm = "1494174900"
      imports Qs_08pre
   }
+// FIXME query Qt_08 = [ Qx ; Qs_08 ]
 schema S9 = literal : sql1 {
      entities
            Q
@@ -282,6 +345,7 @@ query Qs_09pre = literal : S -> S9 {
            tileY -> cep.tileY
          }
      }
+// FIXME query Qt_09pre = [ Qx ; Qs_09pre ]
 query Qs_09 = literal : S -> S9 {
      bindings
         name_param = "A6A7DC"
@@ -289,3 +353,4 @@ query Qs_09 = literal : S -> S9 {
 
      imports Qs_09pre
   }
+// FIXME query Qt_09 = [ Qx ; Qs_09 ]

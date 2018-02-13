@@ -202,6 +202,7 @@
           EqualStr : String, String -> Bool = \"return input[0].equals(input[1])\"
           EqualVc : Varchar, Varchar -> Bool = \"return input[0].equals(input[1])\"
           EqualInt : Integer, Integer -> Bool = \"return input[0].equals(input[1])\"
+          OrBool : Bool, Bool -> Bool = \"return input[0] || input[1]\"
         }")
 
 (def ts-sql2
@@ -346,24 +347,10 @@ Same as query4 but no projection of column from joined table.
 	select s.name, ce.cot_type, ce.servertime
 	from source as s
 	join cot_event as ce on s.id = ce.source_id
-	where s.channel = 5 or ce.cot_type = 'a-n-A-C-F-s'
+	where s.channel = 5
+     or ce.cot_type = 'a-n-A-C-F-s'
 ")
 
-(def qs-05s
-  "query Qs_05s = simple : S {
-     from
-       ce : cot_event
-       s : source
-     where
-       s = ce.source_id
-       eqInt(s.channel,3) = true
-     attributes
-       name -> s.name
-       cot_type -> ce.cot_type
-       time -> ce.servertime
-  }")
-
-(def qt-05s "query Qt_05s = [ Qx ; Qs_05s ]")
 ;; instance q5s_inst =
 ;;   eval Qs_05s S_inst
 ;;  ~=
@@ -372,73 +359,52 @@ Same as query4 but no projection of column from joined table.
 (def sc-05
   "schema S5 = literal : sql1 {
     entities
-          Q
+          Qchan
+          Qtype
       attributes
-          name : Q -> Varchar
-          time : Q -> Bigint
-          type : Q -> Varchar
-          channel : Q -> Varchar
+          name : Qchan -> Varchar
+          time : Qchan -> Bigint
+          type : Qchan -> Varchar
+          channel : Qchan -> Varchar
+
+          name : Qtype -> Varchar
+          time : Qtype -> Bigint
+          type : Qtype -> Varchar
+          channel : Qtype -> Varchar
   }")
 
 (def qs-05
   "query Qs_05 = literal : S -> S5 {
-     entity Q -> {
+    entity
+      Qchan -> {
+        from
+          s : source
+          ce : cot_event
+        where
+          s = ce.source_id
+          s.channel = \"3\"
+        attributes
+          name -> s.name
+          type -> ce.cot_type
+          channel -> s.channel
+          time -> ce.servertime
+        }
+    entity
+     Qtype -> {
        from
-         ce : cot_event
          s : source
+         ce : cot_event
        where
          s = ce.source_id
+         ce.cot_type = \"a-n-A-C-F-m\"
        attributes
-         name -> s.name
-         type -> ce.cot_type
-         channel -> s.channel
-         time -> ce.servertime
-     }
-    }")
-
-(def qt-05 "query Qt_05 = [ Qx ; Qs_05 ]")
-;; instance s5_inst = eval Qs_05 S_inst
-;; instance s5_inst = eval Qt_05 T_inst
-
-;; schema S5simple = dst q5c
-
-(def qs-05a
-  "query Qs_05a = literal : S5 -> S5 {
-    entity
-      Q -> {
-        from q: Q
-        where eqInt(q.channel,\"3\") = true
-        attributes
-          name -> q.name
-          type -> q.type
-          channel -> q.channel
-          time -> q.time
-     }
+       name -> s.name
+       type -> ce.cot_type
+       channel -> s.channel
+       time -> ce.servertime
+       }
   }")
-
-(def qt-05a "query Qt_05a = [ Qx ; Qs_05a ]")
-;; instance q5a_inst = eval Qs_05a S_inst
-;; instance q5a_inst = eval Qt_05a T_inst
-
-(def qs-05b
-  "query Qs_05b = literal : S5 -> S5 {
-    entity
-      Q -> {
-        from q: Q
-        where
-          q.type = \"a-n-A-C-F-m\"
-          eqInt(q.channel,\"3\") = false
-        attributes
-          name -> q.name
-          type -> q.type
-          channel -> q.channel
-          time -> q.time
-        }
-      }")
-
-(def qt-05b "query Qt_05b = [ Qx ; Qs_05b ]")
-;; instance q5b_inst = eval Qt_05b s5_inst
-;; instance q5c_inst = coproduct q5a_inst + q5b_inst : S5
+(def qt-05 "query Qt_05 = [ Qx ; Qs_05 ]")
 
 (def qs-06-doc  "
 ## Query 6 : cot_eventsForConstantMixedJoin
@@ -458,7 +424,8 @@ Same as query5 except join across tables.
       s : source
     where
       s = ce.source_id
-      or(eqInt(s.channel,\"5\"), eqVc(ce.cot_type,\"a-n-A-C-F-m\")) = true
+      OrBool(EqualVc(s.channel,\"5\"),
+             EqualVc(ce.cot_type,\"a-n-A-C-F-m\")) = true
     attributes
       name -> s.name
       cot_type -> ce.cot_type
@@ -556,8 +523,8 @@ Simple parameterized query.
      imports Qs_08pre
   }")
 
-(def qt-08pre "query Qt_08pre = [ Qx ; Qs_08pre ]")
-(def qt-08 "query Qt_08 = [ Qx ; Qs_08 ]")
+(def qt-08pre "// FIXME query Qt_08pre = [ Qx ; Qs_08pre ]")
+(def qt-08 "// FIXME query Qt_08 = [ Qx ; Qs_08 ]")
 ;; instance q8a_inst = eval Qs_08p S_inst
 ;; instance q8a_inst = eval Qt_08p T_inst
 
@@ -665,8 +632,8 @@ Samples:
      imports Qs_09pre
   }")
 
-(def qt-09pre "query Qt_09pre = [ Qx ; Qs_09pre ]")
-(def qt-09 "query Qt_09 = [ Qx ; Qs_09 ]")
+(def qt-09pre "// FIXME query Qt_09pre = [ Qx ; Qs_09pre ]")
+(def qt-09 "// FIXME query Qt_09 = [ Qx ; Qs_09 ]")
 ;; instance q9_inst = eval Qt_09p T_inst
 ;; instance q9_inst = eval Qt_09p T_inst
 
@@ -677,19 +644,16 @@ Samples:
    qs-02 qt-02
    qs-03 qt-03
    qs-04 qt-04
-   ;sc-05
-   ;qs-05 qt-05
-   ;qs-05s qt-05s
-   ;qs-05a qt-05a
-   ;qs-05b qt-05b])
-   ;qs-06s qt-06s
+   sc-05
+   qs-05 qt-05
+   qs-06s qt-06s
    qs-07s qt-07s
    sc-08
-   qs-08pre ;qt-08pre
-   qs-08 ;qt-08])
+   qs-08pre qt-08pre
+   qs-08 qt-08
    sc-09
-   qs-09pre ;qt-09pre
-   qs-09]) ;qt-09])
+   qs-09pre qt-09pre
+   qs-09 qt-09])
 
 (def query-demo-attributes
   "a list of the queries to return"
@@ -698,9 +662,6 @@ Samples:
            "Qs_03" "Qt_03"
            "Qs_04" "Qt_04"
            "Qs_05" "Qt_05"
-           "Qs_05s" "Qt_05s"
-           "Qs_05a" "Qt_05a"
-           "Qs_05b" "Qt_05b"
            "Qs_06s" "Qt_06s"
            "Qs_07s" "Qt_07s"
            "Qs_08pre" "Qt_08pre"

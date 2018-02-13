@@ -16,11 +16,17 @@
 
 (defn schema->sql [schema]
   (when schema
-    (AqlCmdLine/schemaToSql schema)))
+    (try
+      (AqlCmdLine/schemaToSql schema)
+      (catch Exception ex
+        "cannot generate sql for schema"))))
 
 (defn query->sql [query]
   (when query
-    (AqlCmdLine/queryToSql query)))
+    (try
+      (AqlCmdLine/queryToSql query)
+      (catch Exception ex
+        "cannot generate sql for query"))))
 
 (defn env->maps [env]
   (let [env-defs (.-defs env)]
