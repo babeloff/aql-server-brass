@@ -194,10 +194,14 @@
 (def ts-sql1
   "typeside sql1 = literal {
         imports sql
+        java_types
+          Geo = \"java.lang.Long\"
+        java_constants
+          Geo = \"return java.lang.Long.decode(input[0])\"
         java_functions
-            EqualStr : String, String -> Bool = \"return input[0].equals(input[1])\"
-            EqualVc : Varchar, Varchar -> Bool = \"return input[0].equals(input[1])\"
-            EqualInt : Integer, Integer -> Bool = \"return input[0].equals(input[1])\"
+          EqualStr : String, String -> Bool = \"return input[0].equals(input[1])\"
+          EqualVc : Varchar, Varchar -> Bool = \"return input[0].equals(input[1])\"
+          EqualInt : Integer, Integer -> Bool = \"return input[0].equals(input[1])\"
         }")
 
 (def ts-sql2
@@ -454,7 +458,7 @@ Same as query5 except join across tables.
       s : source
     where
       s = ce.source_id
-      or(eqInt(s.channel,\"5\"), eqVc(ce.cot_type,\"a-n-A-C-F-m\") = true
+      or(eqInt(s.channel,\"5\"), eqVc(ce.cot_type,\"a-n-A-C-F-m\")) = true
     attributes
       name -> s.name
       cot_type -> ce.cot_type
@@ -472,8 +476,8 @@ More complex join and filter
 	select s.name, ce.id, ce.cot_type, ce.servertime
 	from source as s
 	join cot_event as ce on s.id = ce.source_id
-	join cot_event_position cep on ce.id = cep.cot_event_id
-	where  s.channel = 3 and cep.tilex = 18830 and cep.tiley = 25704
+	join cot_position cep on ce.id = cep.has_cot_event
+	where  s.channel = 3 and cep.tileX = 18830 and cep.tileY = 25704
 
 ")
 
@@ -481,14 +485,14 @@ More complex join and filter
   "query Qs_07s = simple : S {
     from
       ce : cot_event
-      cep : cot_event_position
+      cep : cot_position
       s : source
     where
       s = ce.source_id
-      ce = cep.cot_event_id
+      ce = cep.has_cot_event
       s.channel = 3
-      cep.tilex = 18830
-      cep.tiley = 25704
+      cep.tileX = 18830
+      cep.tileY = 25704
     attributes
       name -> s.name
       cot_type -> ce.cot_type
@@ -503,7 +507,7 @@ More complex join and filter
 ## Query 8 : cot_eventsForUidAndInterval
 Simple parameterized query.
 
-	select s.id, s.name, ce.servertime, cep.tilex, cep.tiley
+	select s.id, s.name, ce.servertime, cep.tileX, cep.tileY
 	from source as s
 	join cot_event as ce on s.id = ce.source_id
 	where s.name = ? and ce.servertime = ?
@@ -516,41 +520,41 @@ Simple parameterized query.
        attributes
            name : Q -> Varchar
            time : Q -> Bigint
-           tileX : Q -> Geo
-           tileY : Q -> Geo
+           tileX : Q -> Integer
+           tileY : Q -> Integer
    }")
 
 (def qs-08pre
   "query Qs_08pre = literal : S -> S8 {
      params
-        name : String
-        servertime : Bigint
+        name_parm : Varchar
+        servertime_parm : Bigint
      entity
        Q -> {
          from
            s : source
            ce : cot_event
-           cep : cot_event_position
+           cep : cot_position
          where
            s = ce.source_id
-           ce = cep.cot_event_id
-           q.name = name
-           q.time = servertime
+           ce = cep.has_cot_event
+           s.name = name_parm
+           ce.servertime = servertime_parm
          attributes
            name -> s.name
            time -> ce.servertime
-           tileX -> cep.tile_x
-           tileY -> cep.tile_y
+           tileX -> cep.tileX
+           tileY -> cep.tileY
        }
     } ")
 
 (def qs-08
-  "query Qs_08p = literal : S -> S8 {
+  "query Qs_08 = literal : S -> S8 {
      bindings
-        name = \"A6A7DC\"
-        servertime = \"1494174900\"
-     import Qs_08pre
-      }")
+        name_parm = \"A6A7DC\"
+        servertime_parm = \"1494174900\"
+     imports Qs_08pre
+  }")
 
 (def qt-08pre "query Qt_08pre = [ Qx ; Qs_08pre ]")
 (def qt-08 "query Qt_08 = [ Qx ; Qs_08 ]")
@@ -578,12 +582,12 @@ might get just a few results for a set of parameters.
 
 	samples as
 	(
-	select source_id, source_name, servertime, row_number() over(partition by source_id, servertime) as rownum, tilex, tiley
+	select source_id, source_name, servertime, row_number() over(partition by source_id, servertime) as rownum, tileX, tileY
 	from
-		(select s.id as source_id, s.name as source_name, ce.servertime, cep.tilex, cep.tiley,
+		(select s.id as source_id, s.name as source_name, ce.servertime, cep.tileX, cep.tileY,
 		row_number() over(order by s.id, ce.servertime, random()) as rownum
 		from source s join cot_event ce on s.id = ce.source_id
-		join cot_event_position cep on ce.id = cep.cot_event_id
+		join cot_position cep on ce.id = cep.has_cot_event
 		join (	select t1.id, t1.servertime
 				from (select distinct S.id, ce2.servertime
 				      from source S join cot_event ce2 on S.id = ce2.source_id
@@ -593,7 +597,7 @@ might get just a few results for a set of parameters.
 		) as t3
 	)
 
-	select samples.source_id as id, samples.source_name as name, samples.servertime, samples.tilex, samples.tiley
+	select samples.source_id as id, samples.source_name as name, samples.servertime, samples.tileX, samples.tileY
 	from samples join sampleSizes on samples.source_id = sampleSizes.source_id and samples.servertime = sampleSizes.servertime
 	where samples.rownum <= sampleSizes.sample_size
 
@@ -605,10 +609,10 @@ Compare to query 8 except trained using bound parameters.
 Effectively treating it as a canned query but
 attributesing all results from sample parameter binding.
 
-	select s.id, s.name, ce.servertime, cep.tilex, cep.tiley
+	select s.id, s.name, ce.servertime, cep.tileX, cep.tileY
 	from source as s
 	join cot_event as ce on s.id = ce.source_id
-	join cot_event_position cep on ce.id = cep.cot_event_id
+	join cot_position cep on ce.id = cep.has_cot_event
 	where s.name = ? and ce.servertime = ?
 
 Samples:
@@ -624,42 +628,42 @@ Samples:
        attributes
            name : Q -> Varchar
            time : Q -> Bigint
-           tileX : Q -> Geo
-           tileY : Q -> Geo
+           tileX : Q -> Integer
+           tileY : Q -> Integer
      }")
 
 (def qs-09pre
   "query Qs_09pre = literal : S -> S9 {
     params
-       name : String
-       servertime : Bigint
+       name_param : Varchar
+       servertime_param : Bigint
      entity
        Q -> {
          from
            s : source
            ce : cot_event
-           cep : cot_event_position
+           cep : cot_position
          where
            s = ce.source_id
-           ce = cep.cot_event_id
-           ce.name = name
-           ce.time = servertime
+           ce = cep.has_cot_event
+           s.name = name_param
+           ce.servertime = servertime_param
          attributes
            name -> s.name
            time -> ce.servertime
-           tileX -> cep.tile_x
-           tileY -> cep.tile_y
+           tileX -> cep.tileX
+           tileY -> cep.tileY
          }
      }")
 
 (def qs-09
   "query Qs_09 = literal : S -> S9 {
      bindings
-        name = \"A6A7DC\"
-        servertime = \"1494174900\"
+        name_param = \"A6A7DC\"
+        servertime_param = \"1494174900\"
 
-     import Qs_09pre
-      }")
+     imports Qs_09pre
+  }")
 
 (def qt-09pre "query Qt_09pre = [ Qx ; Qs_09pre ]")
 (def qt-09 "query Qt_09 = [ Qx ; Qs_09 ]")
@@ -673,31 +677,33 @@ Samples:
    qs-02 qt-02
    qs-03 qt-03
    qs-04 qt-04
-   sc-05
-   qs-05 qt-05])
+   ;sc-05
+   ;qs-05 qt-05
    ;qs-05s qt-05s
    ;qs-05a qt-05a
-   ;qs-05b qt-05b
+   ;qs-05b qt-05b])
    ;qs-06s qt-06s
-   ;qs-07s qt-07s
-   ;qs-08pre qt-08pre
-   ;qs-08 qt-08
-   ;qs-09pre qt-09pre
-   ;qs-09 qt-09
+   qs-07s qt-07s
+   sc-08
+   qs-08pre ;qt-08pre
+   qs-08 ;qt-08])
+   sc-09
+   qs-09pre ;qt-09pre
+   qs-09]) ;qt-09])
 
 (def query-demo-attributes
-  "a list of the queries to attributes"
+  "a list of the queries to return"
   {:query ["Qs_01" "Qt_01"
            "Qs_02" "Qt_02"
-           "Qt_03"
-           "Qt_04"
-           "Qt_05"
-           "Qt_05s"
-           "Qt_05a"
-           "Qt_05b"
-           "Qt_06s"
-           "Qt_07s"
-           "Qt_08pre"
-           "Qt_08"
-           "Qt_09pre"
-           "Qt_09"]})
+           "Qs_03" "Qt_03"
+           "Qs_04" "Qt_04"
+           "Qs_05" "Qt_05"
+           "Qs_05s" "Qt_05s"
+           "Qs_05a" "Qt_05a"
+           "Qs_05b" "Qt_05b"
+           "Qs_06s" "Qt_06s"
+           "Qs_07s" "Qt_07s"
+           "Qs_08pre" "Qt_08pre"
+           "Qs_08" "Qt_08"
+           "Qs_09pre" "Qt_09pre"
+           "Qs_09" "Qt_09"]})

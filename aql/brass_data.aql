@@ -1,9 +1,13 @@
 typeside sql1 = literal {
         imports sql
+        java_types
+          Geo = "java.lang.Long"
+        java_constants
+          Geo = "return java.lang.Long.decode(input[0])"
         java_functions
-            EqualStr : String, String -> Bool = "return input[0].equals(input[1])"
-            EqualVc : Varchar, Varchar -> Bool = "return input[0].equals(input[1])"
-            EqualInt : Integer, Integer -> Bool = "return input[0].equals(input[1])"
+          EqualStr : String, String -> Bool = "return input[0].equals(input[1])"
+          EqualVc : Varchar, Varchar -> Bool = "return input[0].equals(input[1])"
+          EqualInt : Integer, Integer -> Bool = "return input[0].equals(input[1])"
         }
 typeside sql2 = literal {
      imports sql
@@ -193,27 +197,95 @@ query Qs_04 = simple : S {
        time -> ce.servertime
   }
 query Qt_04 = [ Qx ; Qs_04 ]
-schema S5 = literal : sql1 {
-    entities
-          Q
-      attributes
-          name : Q -> Varchar
-          time : Q -> Bigint
-          type : Q -> Varchar
-          channel : Q -> Varchar
-  }
-query Qs_05 = literal : S -> S5 {
-     entity Q -> {
-       from
-         ce : cot_event
-         s : source
-       where
-         s = ce.source_id
-       attributes
-         name -> s.name
-         type -> ce.cot_type
-         channel -> s.channel
-         time -> ce.servertime
-     }
+query Qs_07s = simple : S {
+    from
+      ce : cot_event
+      cep : cot_position
+      s : source
+    where
+      s = ce.source_id
+      ce = cep.has_cot_event
+      s.channel = 3
+      cep.tileX = 18830
+      cep.tileY = 25704
+    attributes
+      name -> s.name
+      cot_type -> ce.cot_type
+      time -> ce.servertime
     }
-query Qt_05 = [ Qx ; Qs_05 ]
+query Qt_07s = [ Qx ; Qs_07s ]
+schema S8 = literal : sql1 {
+     entities
+           Q
+       attributes
+           name : Q -> Varchar
+           time : Q -> Bigint
+           tileX : Q -> Integer
+           tileY : Q -> Integer
+   }
+query Qs_08pre = literal : S -> S8 {
+     params
+        name_parm : Varchar
+        servertime_parm : Bigint
+     entity
+       Q -> {
+         from
+           s : source
+           ce : cot_event
+           cep : cot_position
+         where
+           s = ce.source_id
+           ce = cep.has_cot_event
+           s.name = name_parm
+           ce.servertime = servertime_parm
+         attributes
+           name -> s.name
+           time -> ce.servertime
+           tileX -> cep.tileX
+           tileY -> cep.tileY
+       }
+    } 
+query Qs_08 = literal : S -> S8 {
+     bindings
+        name_parm = "A6A7DC"
+        servertime_parm = "1494174900"
+     imports Qs_08pre
+  }
+schema S9 = literal : sql1 {
+     entities
+           Q
+       attributes
+           name : Q -> Varchar
+           time : Q -> Bigint
+           tileX : Q -> Integer
+           tileY : Q -> Integer
+     }
+query Qs_09pre = literal : S -> S9 {
+    params
+       name_param : Varchar
+       servertime_param : Bigint
+     entity
+       Q -> {
+         from
+           s : source
+           ce : cot_event
+           cep : cot_position
+         where
+           s = ce.source_id
+           ce = cep.has_cot_event
+           s.name = name_param
+           ce.servertime = servertime_param
+         attributes
+           name -> s.name
+           time -> ce.servertime
+           tileX -> cep.tileX
+           tileY -> cep.tileY
+         }
+     }
+query Qs_09 = literal : S -> S9 {
+     bindings
+        name_param = "A6A7DC"
+        servertime_param = "1494174900"
+
+     imports Qs_09pre
+  }
