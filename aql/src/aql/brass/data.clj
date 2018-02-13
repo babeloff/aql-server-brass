@@ -351,13 +351,8 @@ Same as query4 but no projection of column from joined table.
      or ce.cot_type = 'a-n-A-C-F-s'
 ")
 
-;; instance q5s_inst =
-;;   eval Qs_05s S_inst
-;;  ~=
-;;   eval Qt_05s T_inst
-
-(def sc-05
-  "schema S5 = literal : sql1 {
+(def sc-05 "
+  schema S5m = literal : sql {
     entities
           Qchan
           Qtype
@@ -373,8 +368,8 @@ Same as query4 but no projection of column from joined table.
           channel : Qtype -> Varchar
   }")
 
-(def qs-05
-  "query Qs_05 = literal : S -> S5 {
+(def qm-05 "
+  query Qm_05 = literal : S -> S5m {
     entity
       Qchan -> {
         from
@@ -404,6 +399,26 @@ Same as query4 but no projection of column from joined table.
        time -> ce.servertime
        }
   }")
+(def qn-05 "query Qn_05 = [ Qx ; Qm_05 ]")
+
+(def qs-05 "
+  query Qs_05 = simple : S {
+    from
+      \"(c,ce)\" : cot_event
+      \"(t,ce)\" : cot_event
+    where
+      \"(c,ce)\".servertime = \"(t,ce)\".servertime
+      \"(c,ce)\".source_id.name = \"(t,ce)\".source_id.name
+
+      \"(c,ce)\".source_id.channel = \"3\"
+      \"(t,ce)\".cot_type = \"a-n-A-C-F-m\"
+    attributes
+      channel -> \"(c,ce)\".source_id.channel
+      name -> \"(c,ce)\".source_id.name
+      time -> \"(c,ce)\".servertime
+      type -> \"(t,ce)\".cot_type
+  }")
+
 (def qt-05 "query Qt_05 = [ Qx ; Qs_05 ]")
 
 (def qs-06-doc  "
@@ -645,6 +660,7 @@ Samples:
    qs-03 qt-03
    qs-04 qt-04
    sc-05
+   qm-05 qn-05
    qs-05 qt-05
    qs-06s qt-06s
    qs-07s qt-07s

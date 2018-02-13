@@ -198,7 +198,8 @@ query Qs_04 = simple : S {
        time -> ce.servertime
   }
 query Qt_04 = [ Qx ; Qs_04 ]
-schema S5 = literal : sql1 {
+
+  schema S5m = literal : sql {
     entities
           Qchan
           Qtype
@@ -213,7 +214,8 @@ schema S5 = literal : sql1 {
           type : Qtype -> Varchar
           channel : Qtype -> Varchar
   }
-query Qs_05 = literal : S -> S5 {
+
+  query Qm_05 = literal : S -> S5m {
     entity
       Qchan -> {
         from
@@ -242,6 +244,24 @@ query Qs_05 = literal : S -> S5 {
        channel -> s.channel
        time -> ce.servertime
        }
+  }
+query Qn_05 = [ Qx ; Qm_05 ]
+
+  query Qs_05 = simple : S {
+    from
+      "(c,ce)" : cot_event
+      "(t,ce)" : cot_event
+    where
+      "(c,ce)".servertime = "(t,ce)".servertime
+      "(c,ce)".source_id.name = "(t,ce)".source_id.name
+
+      "(c,ce)".source_id.channel = "3"
+      "(t,ce)".cot_type = "a-n-A-C-F-m"
+    attributes
+      channel -> "(c,ce)".source_id.channel
+      name -> "(c,ce)".source_id.name
+      time -> "(c,ce)".servertime
+      type -> "(t,ce)".cot_type
   }
 query Qt_05 = [ Qx ; Qs_05 ]
 query Qs_06s = simple : S {

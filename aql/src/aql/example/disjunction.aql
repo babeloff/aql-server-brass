@@ -1,0 +1,106 @@
+
+
+schema S = literal : sql {
+  entities
+    cot_position
+    cot_event
+    source
+  foreign_keys
+    source_id : cot_event -> source
+    has_cot_event : cot_position -> cot_event
+  attributes
+    tileY : cot_position -> Integer
+    point_ce : cot_position -> Integer
+    servertime : cot_event -> Bigint
+    longitude : cot_position -> Real
+    cot_type : cot_event -> Varchar
+    detail : cot_event -> Text
+    latitude : cot_position -> Real
+    name : source -> Varchar
+    tileX : cot_position -> Integer
+    point_le : cot_position -> Integer
+    how : cot_event -> Varchar
+    channel : source -> Varchar
+    point_hae : cot_position -> Integer
+}
+
+schema S5m = literal : sql {
+    entities
+          Qchan
+          Qtype
+      attributes
+          name : Qchan -> Varchar
+          time : Qchan -> Bigint
+          type : Qchan -> Varchar
+          channel : Qchan -> Varchar
+
+          name : Qtype -> Varchar
+          time : Qtype -> Bigint
+          type : Qtype -> Varchar
+          channel : Qtype -> Varchar
+  }
+
+query Qi_05 = literal : S -> S5m {
+    entity
+      Qchan -> {
+        from
+          s : source
+          ce : cot_event
+        where
+          s = ce.source_id
+          s.channel = "3"
+        attributes
+          name -> s.name
+          type -> ce.cot_type
+          channel -> s.channel
+          time -> ce.servertime
+        }
+    entity
+     Qtype -> {
+       from
+         s : source
+         ce : cot_event
+       where
+         s = ce.source_id
+         ce.cot_type = "a-n-A-C-F-m"
+       attributes
+       name -> s.name
+       type -> ce.cot_type
+       channel -> s.channel
+       time -> ce.servertime
+       }
+  }
+
+query Qs_05 = simple : S5m  {
+  from
+    c : Qchan
+    t : Qtype
+  where
+    // c = t
+    c.name = t.name
+    c.time = t.time
+  attributes
+    name -> c.name
+    type -> t.type
+    channel -> c.channel
+    time -> c.time
+  }
+
+query Qy_05 = [ Qi_05 ; Qs_05 ]
+
+query Qz_05 = simple : S {
+	from
+		"(c,ce)" : cot_event
+		"(t,ce)" : cot_event
+	where
+		"(c,ce)" = "(t,ce)"
+		"(c,ce)".servertime = "(t,ce)".servertime
+		"(c,ce)".source_id.channel = "3"
+		"(t,ce)".cot_type = "a-n-A-C-F-m"
+		"(c,ce)".source_id.name = "(t,ce)".source_id.name
+	attributes
+		channel -> "(c,ce)".source_id.channel
+		name -> "(c,ce)".source_id.name
+		time -> "(c,ce)".servertime
+		type -> "(t,ce)".cot_type
+}
