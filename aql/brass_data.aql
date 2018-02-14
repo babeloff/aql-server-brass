@@ -249,20 +249,17 @@ query Qn_05 = [ Qx ; Qm_05 ]
 
   query Qs_05 = simple : S {
     from
-      "(c,ce)" : cot_event
-      "(t,ce)" : cot_event
+      s : source
+      ce : cot_event
     where
-      "(c,ce)".servertime = "(t,ce)".servertime
-      "(c,ce)".source_id.name = "(t,ce)".source_id.name
-
-      "(c,ce)".source_id.channel = "3"
-      "(t,ce)".cot_type = "a-n-A-C-F-m"
+       s = ce.source_id
+       OrBool(EqualVc(s.channel,"3"),
+              EqualVc(ce.cot_type,"a-n-A-C-F-m")) = true
     attributes
-      channel -> "(c,ce)".source_id.channel
-      name -> "(c,ce)".source_id.name
-      time -> "(c,ce)".servertime
-      type_c -> "(c,ce)".cot_type
-      type_t -> "(t,ce)".cot_type
+      channel -> s.channel
+      name -> s.name
+      time -> ce.servertime
+      type -> ce.cot_type
   }
 query Qt_05 = [ Qx ; Qs_05 ]
 query Qs_06s = simple : S {
@@ -271,7 +268,7 @@ query Qs_06s = simple : S {
       s : source
     where
       s = ce.source_id
-      OrBool(EqualVc(s.channel,"5"),
+      OrBool(EqualVc(s.channel,"3"),
              EqualVc(ce.cot_type,"a-n-A-C-F-m")) = true
     attributes
       name -> s.name
@@ -327,14 +324,14 @@ query Qs_08pre = literal : S -> S8 {
            tileY -> cep.tileY
        }
     } 
-// FIXME query Qt_08pre = [ Qx ; Qs_08pre ]
+query Qt_08pre = [ Qx ; Qs_08pre ]
 query Qs_08 = literal : S -> S8 {
      bindings
         name_parm = "A6A7DC"
         servertime_parm = "1494174900"
      imports Qs_08pre
   }
-// FIXME query Qt_08 = [ Qx ; Qs_08 ]
+query Qt_08 = [ Qx ; Qs_08 ]
 schema S9 = literal : sql1 {
      entities
            Q
@@ -366,7 +363,7 @@ query Qs_09pre = literal : S -> S9 {
            tileY -> cep.tileY
          }
      }
-// FIXME query Qt_09pre = [ Qx ; Qs_09pre ]
+query Qt_09pre = [ Qx ; Qs_09pre ]
 query Qs_09 = literal : S -> S9 {
      bindings
         name_param = "A6A7DC"
@@ -374,4 +371,4 @@ query Qs_09 = literal : S -> S9 {
 
      imports Qs_09pre
   }
-// FIXME query Qt_09 = [ Qx ; Qs_09 ]
+query Qt_09 = [ Qx ; Qs_09 ]

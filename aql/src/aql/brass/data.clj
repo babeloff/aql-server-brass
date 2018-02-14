@@ -348,6 +348,15 @@ Same as query4 but no projection of column from joined table.
 	join cot_event as ce on s.id = ce.source_id
 	where s.channel = 5
      or ce.cot_type = 'a-n-A-C-F-s'
+
+ alternately
+
+  select s.name, ce.cot_type, ce.servertime
+  from source as s, cot_event as ce
+  where
+     s.id = ce.source_id
+        s.channel = 5
+     or ce.cot_type = 'a-n-A-C-F-s'
 ")
 
 (def sc-05 "
@@ -403,22 +412,18 @@ Same as query4 but no projection of column from joined table.
 (def qs-05 "
   query Qs_05 = simple : S {
     from
-      \"(c,ce)\" : cot_event
-      \"(t,ce)\" : cot_event
+      s : source
+      ce : cot_event
     where
-      \"(c,ce)\".servertime = \"(t,ce)\".servertime
-      \"(c,ce)\".source_id.name = \"(t,ce)\".source_id.name
-
-      \"(c,ce)\".source_id.channel = \"3\"
-      \"(t,ce)\".cot_type = \"a-n-A-C-F-m\"
+       s = ce.source_id
+       OrBool(EqualVc(s.channel,\"3\"),
+              EqualVc(ce.cot_type,\"a-n-A-C-F-m\")) = true
     attributes
-      channel -> \"(c,ce)\".source_id.channel
-      name -> \"(c,ce)\".source_id.name
-      time -> \"(c,ce)\".servertime
-      type_c -> \"(c,ce)\".cot_type
-      type_t -> \"(t,ce)\".cot_type
+      channel -> s.channel
+      name -> s.name
+      time -> ce.servertime
+      type -> ce.cot_type
   }")
-
 (def qt-05 "query Qt_05 = [ Qx ; Qs_05 ]")
 
 (def qs-06-doc  "
@@ -439,7 +444,7 @@ Same as query5 except join across tables.
       s : source
     where
       s = ce.source_id
-      OrBool(EqualVc(s.channel,\"5\"),
+      OrBool(EqualVc(s.channel,\"3\"),
              EqualVc(ce.cot_type,\"a-n-A-C-F-m\")) = true
     attributes
       name -> s.name
@@ -538,8 +543,8 @@ Simple parameterized query.
      imports Qs_08pre
   }")
 
-(def qt-08pre "// FIXME query Qt_08pre = [ Qx ; Qs_08pre ]")
-(def qt-08 "// FIXME query Qt_08 = [ Qx ; Qs_08 ]")
+(def qt-08pre "query Qt_08pre = [ Qx ; Qs_08pre ]")
+(def qt-08 "query Qt_08 = [ Qx ; Qs_08 ]")
 ;; instance q8a_inst = eval Qs_08p S_inst
 ;; instance q8a_inst = eval Qt_08p T_inst
 
@@ -647,8 +652,8 @@ Samples:
      imports Qs_09pre
   }")
 
-(def qt-09pre "// FIXME query Qt_09pre = [ Qx ; Qs_09pre ]")
-(def qt-09 "// FIXME query Qt_09 = [ Qx ; Qs_09 ]")
+(def qt-09pre "query Qt_09pre = [ Qx ; Qs_09pre ]")
+(def qt-09 "query Qt_09 = [ Qx ; Qs_09 ]")
 ;; instance q9_inst = eval Qt_09p T_inst
 ;; instance q9_inst = eval Qt_09p T_inst
 
