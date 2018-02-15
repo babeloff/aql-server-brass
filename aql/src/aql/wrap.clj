@@ -22,11 +22,17 @@
         "cannot generate sql for schema"))))
 
 (defn query->sql [query]
+  "a slightly modified version of catdata.aql.AqlCmdLine/queryToSql
+   notably the removal of create view"
   (when query
     (try
-      (AqlCmdLine/queryToSql query)
+      (let [qs (.second (.toSQLViews (.unnest query) "" "" "ID" "char"))]
+        (->> (.ens (.dst query))
+             (reduce #(str %1 (.get qs %2) "\n\n") "")
+             st/trim))
       (catch Exception ex
-        "cannot generate sql for query"))))
+        (log/error "cannot generate sql for query" ex)))))
+
 
 (defn env->maps [env]
   (let [env-defs (.-defs env)]
@@ -44,14 +50,16 @@
 
 (defn xform-result [reqs gen]
   (log/debug "extract-result" reqs)
-  (let [env-map (env->maps (sr/select-one [:env] gen))]
+  (let [env-map (env->maps (sr/select-one [:env] gen))
+        query-fn (partial get (::query env-map))
+        schema-fn (partial get (::schema env-map))]
     {:query (->>
              (sr/select-one [:query] reqs)
-             (map #(vector % (query->sql (get (::query env-map) %))))
+             (map #(vector % (->> % query-fn query->sql)))
              (into []))
      :schema (->>
               (sr/select-one [:schema] reqs)
-              (map #(vector % (schema->sql (get (::query env-map) %))))
+              (map #(vector % (schema->sql (schema-fn %))))
               (into []))
      :error (->>
              (sr/select-one [:err] gen)

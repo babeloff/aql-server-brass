@@ -22,6 +22,17 @@
 (def gen (aql-wrap/generate model))
 (def env (sr/select-one [:env] gen))
 (def reqs (merge brass-data/query-demo-attributes))
+(def env-map (aql-wrap/env->maps (sr/select-one [:env] gen)))
+(def query-fn (partial get (::aql-wrap/query env-map)))
+; (def schema-fn (partial get (::aql-wrap/schema env-map)))
+(sr/select-one [:query] reqs)
+(def query (->> "Qt_01" query-fn))
+(def qs (.second (.toSQLViews (.unnest query) "" "" "ID" "char")))
+(def query-names (.ens (.dst query)))
+(reduce #(str %1 (.get qs %2) "\n\n") "" query-names)
+
+(aql-wrap/query->sql query)
+
 (def result (aql-wrap/xform-result reqs gen))
 (aql-util/log-info-echo "result " result)
 
