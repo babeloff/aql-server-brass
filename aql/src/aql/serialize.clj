@@ -148,7 +148,7 @@
      ::in
      (comment)
      (when-let [fks (::aql-spec/reference-map entity-value)]
-       (when fks
+       (when (seq fks)
          ["foreign_keys "
           ::in
           (map
@@ -163,7 +163,7 @@
           ::out]))
      (comment)
      (when-let [attrs (::aql-spec/attribute-map entity-value)]
-       (when attrs
+       (when (seq attrs)
          ["attributes "
           ::in
           (map

@@ -24,8 +24,10 @@
    "Position_Longitude" {:ent "cot_event_position" :col "longitude"}
    "Position_Latitude" {:ent "cot_event_position" :col "latitude"}})
 
+(s/def ::reference (s/tuple string? string? string?))
+(s/def ::references (s/coll-of ::reference :kind vector? :distinct true))
 (s/def ::column (s/coll-of string? :kind vector? :distinct true))
 (s/def ::columns (s/coll-of ::column :kind vector? :distinct true))
 (s/def ::table (s/keys :req [::aql/name ::columns]))
 (s/def ::tables (s/coll-of ::table :kind vector? :distinct true))
-(s/def ::schema-perturbation (s/keys :req [::tables]))
+(s/def ::schema-perturbation (s/keys :req [::tables ::references]))

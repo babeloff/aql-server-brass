@@ -66,13 +66,22 @@
              (map #(.getMessage %))
              (into []))}))
 
+(defn private-field
+  [field-name obj]
+  (doto (-> obj (.getClass) (.getDeclaredField field-name))
+    (.setAccessible true)
+    (.get obj)))
+
+(defn make-driver [model]
+  (-> (AqlParser/getParser)
+      (.parseProgram model)
+      (AqlMultiDriver. (make-array String 1)  nil)))
+
 (defn generate [model]
-  (let [parser (AqlParser/getParser)
-        prog (.parseProgram parser model)
-        drvr (AqlMultiDriver. prog (make-array String 1)  nil)]
-    (.start drvr)
-    {:status (.toString drvr)
-     :env (.-env drvr)
-     :err (->> (.-exn drvr)
+  (let [driver (make-driver model)]
+    (.start driver)
+    {:status (.toString driver)
+     :env (.-env driver)
+     :err (->> (.exn driver)
                (filter #(instance? LineException %))
                (into []))}))

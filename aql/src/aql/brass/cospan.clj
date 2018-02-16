@@ -30,38 +30,39 @@
 (defn provide-references [tables permute]
   [::brass-spec/references nil])
 
-;(defn target-ent->fk [references]
-;   (into #{} (map (fn [[key [from to]]] to)) tef
-;                   (merge ())])
-
-(defn target-ent->fk []
-  [["source_id" "cot_action" "source"]
-   ["has_cot_action" "cot_detail" "cot_action"]
-   ["has_cot_detail" "cot_action" "cot_detail"]])
-
-(defn target-ent->fk-mapping [ent-name]
-   (get {"source" nil
-         "cot_action" {"source_id" nil
-                       "has_cot_detail" nil}
-         "cot_detail" {"has_cot_action" nil}}
-        ent-name))
+(defn target-ent->fk-mapping
+  [references ent-name]
+  (into {}
+    (comp
+     (filter (fn [[_ b _]] (= b ent-name)))
+     (map (fn [[a _ _]] [a nil])))
+    references))
 
 (defn convert-perturbation
   [sample-submission-json]
-  (let [init-source [{::aql-spec/name "source"
-                      ::brass-spec/columns
-                      [["source" "name"]
-                       ["source" "channel"]]}]]
+  (let [tables (->> sample-submission-json
+                    (sr/select-one
+                      ["martiServerModel"
+                       "requirements"
+                       "postgresqlPerturbation"
+                       "tables"]))]
     {::brass-spec/tables
-     (->>
-       sample-submission-json
-       (sr/select-one
-         ["martiServerModel"
-          "requirements"
-          "postgresqlPerturbation"
-          "tables"])
-       (map convert-permute-entity)
-       (into init-source))}))
+     (into [{::aql-spec/name "source"
+             ::brass-spec/columns
+                             [["source" "name"]
+                              ["source" "channel"]]}]
+          (map convert-permute-entity)
+          tables)
+     ::brass-spec/references
+     (let [tabv (into [] (into #{} (map (fn [{tab "table"}] tab)) tables))
+           pairs (partition 2 1 tabv)]
+       (into [["source_id" (first tabv) "source"]]
+          (comp
+              (map (fn [[lhs rhs]]
+                     [[(str "has_" lhs) rhs lhs]
+                      [(str "has_" rhs) lhs rhs]]))
+              cat)
+          pairs))}))
 
 (defn perturb->col-lookup<-name
   "construct an sequence of tuples [new-entity old-entity column]"
@@ -104,6 +105,7 @@
     ftor-f ::brass-spec/f}]
   (let [ent-lookup (schema->col-lookup<-name base)
         perturb-lookup (perturb->col-lookup<-name perturb)
+        references (::brass-spec/references perturb)
         col-lookup (merge-with #(conj %1 [::pert %2])
                                ent-lookup perturb-lookup)
         attr-lookup (filter<-type ::aql-spec/attributes col-lookup)
@@ -135,8 +137,7 @@
           (fn [[col-name {[_ new-ent] ::pert, col-type ::col-ent}]]
             [col-name new-ent col-type]))
          (into []))
-      :references
-      (target-ent->fk)}
+      :references references}
 
      ::g
      #::aql-spec
@@ -155,5 +156,5 @@
                   (into {}))
                  :reference-map
                  (->> ent-name
-                      target-ent->fk-mapping)}]))
+                      (target-ent->fk-mapping references))}]))
         (into {}))}}))

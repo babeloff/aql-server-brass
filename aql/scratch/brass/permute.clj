@@ -38,6 +38,10 @@
        (sr/select [sr/MAP-VALS sr/LAST])
        distinct))
 
+(def references [["source_id" "cot_action" "source"]
+                 ["has_cot_action" "cot_detail" "cot_action"]
+                 ["has_cot_detail" "cot_action" "cot_detail"]])
+
 (s/explain ::aql-spec/schema brass-data/schema-s)
 (s/explain ::aql-spec/schema brass-data/schema-x)
 (s/explain ::aql-spec/schema brass-data/schema-t)

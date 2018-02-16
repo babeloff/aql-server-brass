@@ -20,6 +20,8 @@
 (def model (slurp "brass_data.aql"))
 
 (def gen (aql-wrap/generate model))
+; (def drvr (aql-wrap/make-driver model)) (.start drvr)
+; (def exn (aql-wrap/private-field "exn" drvr))
 (def env (sr/select-one [:env] gen))
 (def reqs (merge brass-data/query-demo-attributes))
 (def env-map (aql-wrap/env->maps (sr/select-one [:env] gen)))
