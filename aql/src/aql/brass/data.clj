@@ -12,27 +12,6 @@
 ;;  docs/CP/Immortals-Phase2-cp1-SchemaMigration.md
 ;;  "Sample SubmissionModel value"
 
-(def sample-submission-json
-  {"martiServerModel"
-   {"requirements"
-    {"postgresqlPerturbation"
-     {"tables"
-      [{"table"  "cot_action"
-        "columns"
-         ["CotEvent_How"
-          "CotEvent_ServerTime"
-          "Position_PointCE"
-          "Position_PointLE"
-          "Position_TileX"
-          "Position_Longitude"
-          "Position_Latitude"]}
-       {"table" "cot_detail"
-        "columns"
-        ["Position_PointHae"
-         "CotEvent_Detail"
-         "Position_TileY"
-         "CotEvent_CotType"]}]}}}})
-
 
 ;; The schema-mapping is supplied and the...
 ;;  X, F, T, and G

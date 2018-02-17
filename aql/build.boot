@@ -55,6 +55,6 @@
 (deftask uberjar
   [] (comp (aot) (uber) (jar) (sift :include #{(re-pattern exec-jar)}) (target)))
 
-(require '[aql.brass.server :as abs])
-(defn -main [& args]
-  (abs/-main args))
+;(require '[aql.brass.server :as abs])
+;(defn -main [& args]
+;  (abs/-main args))

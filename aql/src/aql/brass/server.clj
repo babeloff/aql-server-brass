@@ -31,11 +31,7 @@
         (svr/run-server
          (hdlr/site #'routes/brass-routes)
          {:port PORT :ip IP}))
-  (reset! state ::running)
-
-  (while (= ::running @state)
-    ; (println @state)
-    (Thread/sleep 2000)))
+  (reset! state ::running))
 
 (defn stop []
   (reset! state ::stopped)
@@ -48,4 +44,10 @@
   (init (.getArguments context)))
 (defn -start [this] (future (start)))
 (defn -stop [this] (stop))
-(defn -main [& args] (init args) (start))
+(defn -main [& args]
+  ; (let [signal (java.util.concurrent.CountDownLatch. 1)])
+  (init args) (start))
+  ;(.await signal)
+  ;(while (= ::running @state)
+    ; (println @state)
+;    (Thread/sleep 2000))

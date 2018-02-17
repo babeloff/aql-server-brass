@@ -10,8 +10,9 @@
 (require '[aql.brass.data :as brass-data] :reload)
 (require '[aql.brass.cospan :as brass-cospan] :reload)
 (require '[aql.serialize :as aql-serial] :reload)
+(require '[aql.brass.client :as brass-client] :reload)
 
-(def perturb (brass-cospan/convert-perturbation brass-data/sample-submission-json))
+(def perturb (brass-cospan/convert-perturbation brass-client/sample-submission-json))
 (s/explain ::brass-spec/schema-perturbation perturb)
 ;; (pp/pprint perturb)
 

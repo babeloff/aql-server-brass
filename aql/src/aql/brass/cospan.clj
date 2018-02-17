@@ -39,8 +39,8 @@
     references))
 
 (defn convert-perturbation
-  [sample-submission-json]
-  (let [tables (->> sample-submission-json
+  [permutation-json]
+  (let [tables (->> permutation-json
                     (sr/select-one
                       ["martiServerModel"
                        "requirements"
