@@ -16,14 +16,6 @@ Start the server.
 clj -m aql.server
 ```
 
-#### BRASS client
-
-Run the brass client demo from the command line.
-
-clj -m aql.brass.client
-
-This will submit a sample migration command from which the migrated queries will be extracted.
-
 #### AQL client
 
 Run the client demo from the command line.
