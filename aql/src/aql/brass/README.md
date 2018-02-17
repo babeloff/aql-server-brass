@@ -34,6 +34,29 @@ clj -m aql.brass.client
 
 This will submit a sample migration command from which the migrated queries will be extracted.
 
+The content of the JSON passed should look something like this...
+
+```json
+{"martiServerModel"
+   {"requirements"
+    {"postgresqlPerturbation"
+     {"tables"
+      [{"table"  "cot_action"
+        "columns"
+         ["CotEvent_How"
+          "CotEvent_ServerTime"
+          "Position_PointCE"
+          "Position_PointLE"
+          "Position_TileX"
+          "Position_Longitude"
+          "Position_Latitude"]}
+       {"table" "cot_detail"
+        "columns"
+        ["Position_PointHae"
+         "CotEvent_Detail"
+         "Position_TileY"
+         "CotEvent_CotType"]}]}}}}) 
+```
 
 ## Files
 
