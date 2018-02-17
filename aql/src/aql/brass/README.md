@@ -8,11 +8,23 @@ This server responds to BRASS AQL permutation requests.
 There are several ways to use these functions.
 
 ### Server
-Start the server.
+Start the service.
+The service can be run directly from the source via the clojure tooling.
 
 ```clj
 clj -m aql.server
 ```
+
+A precompiled [uber-jar is available here](https://github.com/babeloff/mvn-repo). 
+The easiest way to run the service is from the command line.
+```bash
+java -jar ./<where-ever>/brass-aql-server-<version>.jar
+```
+
+It is also configured to run as a daemon proces.
+Both Win32 and UNIX like platforms are supported. 
+For Win32 platforms use [procrun](http://commons.apache.org/proper/commons-daemon/procrun.html). 
+For UNIX like platforms use [jsvc](http://commons.apache.org/proper/commons-daemon/jsvc.html). 
 
 #### BRASS client
 
@@ -22,27 +34,6 @@ clj -m aql.brass.client
 
 This will submit a sample migration command from which the migrated queries will be extracted.
 
-#### AQL client
-
-Run the client demo from the command line.
-
-clj -m aql.demo.client
-
-This will submit an aql input.
-
-### REPL
-
-This is for testing the functions.
-
-clj
-
-Look in the respective scratch directories for studies of various types.
-Each scratch file contains comments explaining what is being examined.
-
-It is based on http://www.http-kit.org/
-
-https://drive.google.com/open?id=1WWsJp0n2LscyhV_HdJF9wWfquaT1hkU74iiDeJLnl7M
-Sample Cospan Mapping
 
 ## Files
 
@@ -58,21 +49,14 @@ Used by 'clj' and 'clojure' to initialize the environment.
 
 The source code.
 
-### aql/src/aql/scratch.clj
+### aql/scratch/ 
 
 Contains my noodling about mosting interaction with the aql server.
 
-### aql/src/aql/server.clj
+### aql/src/aql/brass/server.clj
 
-The main chunk of code.
+The main entry point for the service.
 It provides an AQL server which may be called as part of the BRASS/DAS.
-
-### aql/src/aql/demo.clj
-
-A sample provided by Ryan Wisnesky to demonstrate some interesting points.
-
-* query migration
-* command execution
 
 ### aql/src/aql/brass/data.clj
 
@@ -91,3 +75,5 @@ The schema definition is in:
 One suggestion was to wrap the command line jar as...
 <svn>/das/das-service/src/main/java/mil/darpa/immortals/core/das/AdaptationManger.java
  :: performDFUDSLCheck()
+ 
+Daemon http://commons.apache.org/proper/commons-daemon/index.html
