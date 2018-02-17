@@ -1,6 +1,45 @@
 # AQL Server
 
-This server responds to AQL requests.
+This server responds to BRASS AQL permutation requests.
+
+
+## Usage
+
+There are two main ways to use these functions.
+One way is as a server which may be exercised by the client.
+The other way is from the repl.
+
+### Server
+Start the server.
+
+```clj
+clj -m aql.server
+```
+
+#### BRASS client
+
+Run the brass client demo from the command line.
+
+clj -m aql.brass.client
+
+This will submit a sample migration command from which the migrated queries will be extracted.
+
+#### AQL client
+
+Run the client demo from the command line.
+
+clj -m aql.demo.client
+
+This will submit an aql input.
+
+### REPL
+
+This is for testing the functions.
+
+clj
+
+Look in the respective scratch directories for studies of various types.
+Each scratch file contains comments explaining what is being examined.
 
 It is based on http://www.http-kit.org/
 
@@ -40,43 +79,6 @@ A sample provided by Ryan Wisnesky to demonstrate some interesting points.
 ### aql/src/aql/brass/data.clj
 
 The data used for the BRASS demonstration.
-
-## Usage
-
-There are two main ways to use these functions.
-One way is as a server which may be exercised by the client.
-The other way is from the repl.
-
-### Server
-Start the server.
-
-clj -m aql.server
-
-#### BRASS client
-
-Run the brass client demo from the command line.
-
-clj -m aql.brass.client
-
-This will submit a sample migration command from which the migrated queries will be extracted.
-
-#### AQL client
-
-Run the client demo from the command line.
-
-clj -m aql.demo.client
-
-This will submit an aql input.
-
-### REPL
-
-This is for testing the functions.
-
-clj
-
-Look in the respective scratch directories for studies of various types.
-Each scratch file contains comments explaining what is being examined.
-
 
 ## References
 
