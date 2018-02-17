@@ -6,7 +6,7 @@ This project contains a BRASS specific server and a general AQL compiler.
 
 ## BRASS AQL Server 
 
-The documentation for the [brass-aql-server is here](aql/brass/README.md)
+The documentation for the [brass-aql-server is here](aql/src/aql/brass/README.md)
 
 ## AQL Server 
 
