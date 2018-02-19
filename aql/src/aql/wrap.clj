@@ -23,13 +23,15 @@
 
 (defn query->sql [query]
   "a slightly modified version of catdata.aql.AqlCmdLine/queryToSql
-   notably the removal of create view"
+   * does not include 'create view'
+   * replaces whitespace characters with blanks."
   (when query
     (try
-      (let [qs (.second (.toSQLViews (.unnest query) "" "" "ID" "char"))]
-        (->> (.ens (.dst query))
-             (reduce #(str %1 (.get qs %2) "\n\n") "")
-             st/trim))
+      (let [qs (.second (.toSQLViews (.unnest query) "" "" "ID" "char"))
+            qm (.ens (.dst query))]
+        (-> (reduce #(str %1 (.get qs %2) "  ") "" qm)
+            (st/replace #"[\n\t\r]" " ")
+            st/trim))
       (catch Exception ex
         (log/error "cannot generate sql for query" ex)))))
 

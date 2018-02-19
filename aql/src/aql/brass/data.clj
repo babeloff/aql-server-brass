@@ -225,7 +225,7 @@
     ([] (xf))
     ([res] (xf res))
     ([res [k v]]
-     (xf res (vector (get query-class-names k k) v)))))
+     (xf res (vector (get query-class-names k k) v k)))))
 
 
 (def query-demo-attributes
