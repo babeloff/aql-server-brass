@@ -52,16 +52,18 @@
   "the tweeker is an optional transducer that gets
   applied to the result immediately before being
   placed into the vector. "
-  [reqs gen tweeker]
+  [reqs tweeker gen]
   (log/debug "extract-result" reqs)
   (let [env-map (env->maps (sr/select-one [:env] gen))
-        query-fn (partial get (::query env-map))
-        schema-fn (partial get (::schema env-map))]
+        query-fn (comp query->sql (partial get (::query env-map)))
+        schema-fn (comp schema->sql (partial get (::schema env-map)))]
     {:query (into []
-             (map #(vector % (query->sql (query-fn %))))
+              (comp
+                (map #(vector % (query-fn %)))
+                tweeker)
              (sr/select-one [:query] reqs))
      :schema (into []
-              (map #(vector % (schema->sql (schema-fn %))))
+              (map #(vector % (schema-fn %)))
               (sr/select-one [:schema] reqs))
      :error (into []
              (map #(.getMessage %))

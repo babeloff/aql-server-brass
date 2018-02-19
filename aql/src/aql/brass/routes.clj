@@ -60,7 +60,7 @@
             (->> gen
               (aql-wrap/xform-result
                 brass-data/query-demo-attributes
-                identity)
+                brass-data/query-tweeker)
               (aql-util/log-info-echo "result ")
               json/write-str))
           (catch Exception ex

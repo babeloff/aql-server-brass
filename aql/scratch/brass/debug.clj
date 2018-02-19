@@ -35,7 +35,7 @@
 
 (aql-wrap/query->sql query)
 
-(def result (aql-wrap/xform-result reqs gen identity))
+(def result (aql-wrap/xform-result reqs identity gen))
 (aql-util/log-info-echo "result " result)
 
 (def env-map (aql-wrap/env->maps (sr/select-one [:env] gen)))

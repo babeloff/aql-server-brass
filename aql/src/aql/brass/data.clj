@@ -217,6 +217,17 @@
     "Qt_08pre" (::dq/qname dq/qs-08)
     "Qt_09pre" (::dq/qname dq/qs-09)})
 
+(defn query-tweeker
+  "a transducer that 'tweeks' the key value
+  to be the qname for the class."
+  [xf]
+  (fn
+    ([] (xf))
+    ([res] (xf res))
+    ([res [k v]]
+     (xf res (vector (get query-class-names k k) v)))))
+
+
 (def query-demo-attributes
   "a list of the queries to return"
   {:query ["Qs_01" "Qt_01"
