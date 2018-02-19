@@ -10,27 +10,27 @@
   (:gen-class
    :implements [org.apache.commons.daemon.Daemon]))
 
-(def IP "127.0.0.1")
-(def PORT 9090)
-(def NREPL_PORT 7888)
+(defonce IP (atom "127.0.0.1"))
+(defonce PORT (atom 9090))
+(defonce NREPL_PORT (atom 7888))
 
 (defonce state (atom ::stopped))
 (defonce nrepl-server (atom nil))
 (defonce main-server (atom nil))
 
 (defn init [args]
-  ; (reset! nrepl-server (nrs/start-server :port NREPL_PORT))
+  ; (reset! nrepl-server (nrs/start-server :port @NREPL_PORT))
 
   ; (log/info "nrepl server "
   ;          (str (get nrepl-server :ss))
   (reset! state ::initialized))
 
 (defn start []
-  (log/info "aql server starting. " IP ":" PORT)
+  (log/info "aql server starting. " @IP ":" @PORT)
   (reset! main-server
         (svr/run-server
          (hdlr/site #'routes/brass-routes)
-         {:port PORT :ip IP}))
+         {:port @PORT :ip @IP}))
   (reset! state ::running))
 
 (defn stop []

@@ -22,7 +22,7 @@
         [serialize :as aql-serial])))
 
 (defn brass-p2c1-handler [request]
-  (log/debug "brass-p2c1-handler")
+  (log/info "brass-p2c1-handler" request)
   (if-let [action (sr/select-one [:body] request)]
     (let [p-json (get action "permutation")]
       (log/debug "payload " p-json)
