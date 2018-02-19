@@ -26,7 +26,7 @@ Both Win32 and UNIX like platforms are supported.
 For Win32 platforms use [procrun](http://commons.apache.org/proper/commons-daemon/procrun.html). 
 For UNIX like platforms use [jsvc](http://commons.apache.org/proper/commons-daemon/jsvc.html). 
 
-#### BRASS client
+#### BRASS client https://github.com/babeloff/aql-server-brass/blob/master/aql/src/aql/brass/client.clj
 
 Run the brass client demo from the command line.
 
