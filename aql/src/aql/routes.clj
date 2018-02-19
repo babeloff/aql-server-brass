@@ -57,7 +57,7 @@
           return-objs (sr/select-one ["return"] action)]
       (log/info "aql-handler:" return-objs)
       (->> aql-env
-           (aql-wrap/xform-result return-objs)
+           (aql-wrap/xform-result return-objs identity)
            json/write-str))))
 
 ;; https://weavejester.github.io/compojure/compojure.core.html#var-routes

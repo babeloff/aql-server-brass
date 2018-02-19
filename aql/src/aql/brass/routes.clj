@@ -58,8 +58,9 @@
         (try
           (let [gen (aql-wrap/generate cmd)]
             (->> gen
-              (aql-wrap/xform-result brass-data/query-demo-attributes)
-              ;;(fn [brass-cospan/add-class-names])
+              (aql-wrap/xform-result
+                brass-data/query-demo-attributes
+                identity)
               (aql-util/log-info-echo "result ")
               json/write-str))
           (catch Exception ex

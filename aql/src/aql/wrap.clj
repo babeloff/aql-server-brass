@@ -48,7 +48,11 @@
      ::schema-colimit (-> env-defs .-scs .-map)
      ::constraint (-> env-defs .-eds .-map)}))
 
-(defn xform-result [reqs gen]
+(defn xform-result
+  "the tweeker is an optional transducer that gets
+  applied to the result immediately before being
+  placed into the vector. "
+  [reqs gen tweeker]
   (log/debug "extract-result" reqs)
   (let [env-map (env->maps (sr/select-one [:env] gen))
         query-fn (partial get (::query env-map))
