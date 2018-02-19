@@ -184,28 +184,6 @@
           OrBool : Bool, Bool -> Bool = \"return input[0] || input[1]\"
         }")
 
-(def ts-sql2
-  "typeside sql2 = literal {
-     imports sql
-     java_types
-       Geo = \"java.lang.Long\"
-     java_constants
-       Geo = \"return java.lang.Long.decode(input[0])\"
-     java_functions
-       int_to_real : Bigint -> Real = \"return 0.0 + input[0]\"
-       real_to_int : Real -> Bigint = \"return Math.round(input[0]).longValue()\"
-       date_to_int : Timestamp -> Bigint = \"return input[0].getTime()\"
-       int_to_date : Bigint -> Timestamp = \"return new java.util.Date(input[0])\"
-       txt_to_vc : Text -> Varchar = \"return input[0]\"
-       vc_to_txt : Varchar -> Text = \"return input[0]\"
-       real_to_geo : Real -> Geo = \"return Math.round(input[0] * 1E6).longValue()\"
-       geo_to_real : Geo -> Real = \"return input[0] / 1E6\"
-       now : -> Timestamp = \"return java.util.Date.from(java.time.Instant.now())\"
-       eqVc : Varchar, Varchar -> Boolean = \"return input[0].equals(input[1])\"
-       eqInt : Bigint, Bigint -> Boolean = \"return input[0] == input[1]\"
-       // or : Boolean, Boolean -> Boolean = \"return input[0] || input[1]\")
-     }
-  ")
 
 (def qgf "query Qx = [ toCoQuery G ; toQuery F ]")
 
@@ -227,6 +205,17 @@
    dq/sc-09
    (::dq/source-pre dq/qs-09) (::dq/target-pre dq/qs-09)
    (::dq/source dq/qs-09) (::dq/target dq/qs-09)])
+
+(def query-class-names
+  { "Qt_01" (::dq/qname dq/qs-01)
+    "Qt_02" (::dq/qname dq/qs-02)
+    "Qt_03" (::dq/qname dq/qs-03)
+    "Qt_04" (::dq/qname dq/qs-04)
+    "Qt_05" (::dq/qname dq/qs-05)
+    "Qt_06s" (::dq/qname dq/qs-06)
+    "Qt_07s" (::dq/qname dq/qs-07)
+    "Qt_08pre" (::dq/qname dq/qs-08)
+    "Qt_09pre" (::dq/qname dq/qs-09)})
 
 (def query-demo-attributes
   "a list of the queries to return"

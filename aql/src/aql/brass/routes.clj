@@ -32,8 +32,7 @@
                       ::brass-spec/x brass-data/schema-x
                       ::brass-spec/f brass-data/mapping-s->x
                       ::brass-spec/schema-perturbation perturb})
-            typeside [brass-data/ts-sql1
-                      brass-data/ts-sql2]
+            typeside [brass-data/ts-sql1]
             model [(->> factory
                         ::brass-cospan/s
                         aql-serial/to-aql)
@@ -60,6 +59,7 @@
           (let [gen (aql-wrap/generate cmd)]
             (->> gen
               (aql-wrap/xform-result brass-data/query-demo-attributes)
+              ;;(fn [brass-cospan/add-class-names])
               (aql-util/log-info-echo "result ")
               json/write-str))
           (catch Exception ex

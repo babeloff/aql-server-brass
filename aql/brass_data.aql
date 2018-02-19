@@ -10,27 +10,6 @@ typeside sql1 = literal {
           EqualInt : Integer, Integer -> Bool = "return input[0].equals(input[1])"
           OrBool : Bool, Bool -> Bool = "return input[0] || input[1]"
         }
-typeside sql2 = literal {
-     imports sql
-     java_types
-       Geo = "java.lang.Long"
-     java_constants
-       Geo = "return java.lang.Long.decode(input[0])"
-     java_functions
-       int_to_real : Bigint -> Real = "return 0.0 + input[0]"
-       real_to_int : Real -> Bigint = "return Math.round(input[0]).longValue()"
-       date_to_int : Timestamp -> Bigint = "return input[0].getTime()"
-       int_to_date : Bigint -> Timestamp = "return new java.util.Date(input[0])"
-       txt_to_vc : Text -> Varchar = "return input[0]"
-       vc_to_txt : Varchar -> Text = "return input[0]"
-       real_to_geo : Real -> Geo = "return Math.round(input[0] * 1E6).longValue()"
-       geo_to_real : Geo -> Real = "return input[0] / 1E6"
-       now : -> Timestamp = "return java.util.Date.from(java.time.Instant.now())"
-       eqVc : Varchar, Varchar -> Boolean = "return input[0].equals(input[1])"
-       eqInt : Bigint, Bigint -> Boolean = "return input[0] == input[1]"
-       // or : Boolean, Boolean -> Boolean = "return input[0] || input[1]")
-     }
-  
 schema S = literal : sql1 {
   entities 
     cot_position
@@ -231,9 +210,59 @@ query Qx = [ toCoQuery G ; toQuery F ]
           channel : Qtype -> Varchar
   }
 
+     query Qm_05 = literal : S -> S5m {
+       entity
+         Qchan -> {
+           from
+             s : source
+             ce : cot_event
+           where
+             s = ce.source_id
+             s.channel = "3"
+           attributes
+             name -> s.name
+             type -> ce.cot_type
+             channel -> s.channel
+             time -> ce.servertime
+           }
+       entity
+        Qtype -> {
+          from
+            s : source
+            ce : cot_event
+          where
+            s = ce.source_id
+            ce.cot_type = "a-n-A-C-F-m"
+          attributes
+          name -> s.name
+          type -> ce.cot_type
+          channel -> s.channel
+          time -> ce.servertime
+          }
+     }
+   
 
+   query Qn_05 = [ Qx ; Qm_05 ]
+   
 
+     query Qs_05 = simple : S {
+       from
+         s : source
+         ce : cot_event
+       where
+          s = ce.source_id
+          OrBool(EqualVc(s.channel,"3"),
+                 EqualVc(ce.cot_type,"a-n-A-C-F-m")) = true
+       attributes
+         channel -> s.channel
+         name -> s.name
+         time -> ce.servertime
+         type -> ce.cot_type
+     }
+   
 
+   query Qt_05 = [ Qx ; Qs_05 ]
+   
 
    query Qs_06s = simple : S {
      from
@@ -253,7 +282,26 @@ query Qx = [ toCoQuery G ; toQuery F ]
    query Qt_06s = [ Qx ; Qs_06s ]
    
 
+   query Qs_07s = simple : S {
+     from
+       ce : cot_event
+       cep : cot_position
+       s : source
+     where
+       s = ce.source_id
+       ce = cep.has_cot_event
+       s.channel = 3
+       cep.tileX = 18830
+       cep.tileY = 25704
+     attributes
+       name -> s.name
+       cot_type -> ce.cot_type
+       time -> ce.servertime
+     }
+   
 
+   query Qt_07s = [ Qx ; Qs_07s ]
+   
 
   schema S8 = literal : sql1 {
      entities
@@ -266,9 +314,42 @@ query Qx = [ toCoQuery G ; toQuery F ]
    }
   
 
+   query Qs_08pre = literal : S -> S8 {
+      params
+         name_parm : Varchar
+         servertime_parm : Bigint
+      entity
+        Q -> {
+          from
+            s : source
+            ce : cot_event
+            cep : cot_position
+          where
+            s = ce.source_id
+            ce = cep.has_cot_event
+            s.name = name_parm
+            ce.servertime = servertime_parm
+          attributes
+            name -> s.name
+            time -> ce.servertime
+            tileX -> cep.tileX
+            tileY -> cep.tileY
+        }
+     }
+   
 
+   query Qt_08pre = [ Qx ; Qs_08pre ]
+   
 
+   query Qs_08 = literal : S -> S8 {
+      bindings
+         name_parm = "A6A7DC"
+         servertime_parm = "1494174900"
+      imports Qs_08pre
+   }
 
+   query Qt_08 = [ Qx ; Qs_08 ]
+   
 
   schema S9 = literal : sql1 {
      entities

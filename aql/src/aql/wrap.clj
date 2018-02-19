@@ -53,18 +53,15 @@
   (let [env-map (env->maps (sr/select-one [:env] gen))
         query-fn (partial get (::query env-map))
         schema-fn (partial get (::schema env-map))]
-    {:query (->>
-             (sr/select-one [:query] reqs)
-             (map #(vector % (->> % query-fn query->sql)))
-             (into []))
-     :schema (->>
-              (sr/select-one [:schema] reqs)
+    {:query (into []
+             (map #(vector % (query->sql (query-fn %))))
+             (sr/select-one [:query] reqs))
+     :schema (into []
               (map #(vector % (schema->sql (schema-fn %))))
-              (into []))
-     :error (->>
-             (sr/select-one [:err] gen)
+              (sr/select-one [:schema] reqs))
+     :error (into []
              (map #(.getMessage %))
-             (into []))}))
+             (sr/select-one [:err] gen))}))
 
 (defn private-field
   [field-name obj]
