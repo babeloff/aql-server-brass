@@ -3,10 +3,9 @@
   :url "https://github.com/"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.9.0"]
-                 [proto-repl "0.3.1"]
-                 [proto-repl-charts "0.3.1"]]
-
+  :plugins [[lein-tools-deps "0.1.0-SNAPSHOT"]]
+  :tools/deps [:system :home :project "./deps.edn"]
   :profiles
   {:dev {:source-paths ["dev" "src" "test"]
+         :tools/deps ["./deps-dev-atom.edn"]
          :dependencies [[org.clojure/tools.namespace "0.2.11"]]}})
