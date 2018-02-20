@@ -24,7 +24,8 @@
       [ring/ring-json "0.4.0"]
       [javax.servlet/servlet-api "2.5"]
       [commons-daemon/commons-daemon "1.1.0"]
-      [org.clojure/tools.nrepl "0.2.12"]])
+      [org.clojure/tools.nrepl "0.2.12"]
+      [org.clojure/tools.cli "0.3.5"]])
 
 (task-options!
   pom {:project     (str group-id artifact-id)

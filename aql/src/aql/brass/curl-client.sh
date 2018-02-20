@@ -4,7 +4,7 @@
 ENDPOINT="http://localhost:9090/brass/p2/c1/json"
 HEADER="Content-Type: application/json; charset=UTF-8"
 
-cat << JR  | curl -d @- -H "${HEADER}"  ${ENDPOINT}  > ./retrieve.json
+cat << JR  | curl -d @- -H "${HEADER}"  ${ENDPOINT}
 {"permutation":
    {"martiServerModel":
      {"requirements":
