@@ -166,9 +166,6 @@ mapping G = literal : T -> X {
       cot_type -> cot_type
 }
 
-query Qz = toQuery F
-query Qy = toCoQuery G
-
 query Qx = [ toCoQuery G ; toQuery F ]
 
    query Qs_01 = simple : S  {
