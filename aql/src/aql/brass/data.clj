@@ -29,14 +29,19 @@
    :entities
    #{"source" "cot_event" "cot_position"}
    :attributes
-   [["name" "source" "Varchar"]
+   [["id" "source" "Integer"]
+    ["name" "source" "Varchar"]
     ["channel" "source" "Varchar"]
 
+    ["id" "cot_event" "Integer"]
+    ["source_id" "cot_event" "Integer"]
     ["cot_type" "cot_event" "Varchar"]
     ["how" "cot_event" "Varchar"]
     ["detail" "cot_event" "Text"]
     ["servertime" "cot_event" "Bigint"]
 
+    ["id" "cot_position" "Integer"]
+    ["cot_event_id" "cot_position" "Integer"]
     ["point_hae" "cot_position" "Integer"]
     ["point_ce" "cot_position" "Integer"]
     ["point_le" "cot_position" "Integer"]
@@ -45,8 +50,17 @@
     ["latitude" "cot_position" "Real"]
     ["longitude" "cot_position" "Real"]]
    :references
-   [["source_id" "cot_event" "source"]
-    ["has_cot_event" "cot_position" "cot_event"]]})
+   [["has_source" "cot_event" "source"]
+    ["has_cot_event" "cot_position" "cot_event"]]
+   :observations
+   [[["x" "cot_event"]
+     [::s/equal
+      ["source_id" "x"]
+      ["id" ["has_source" "x"]]]]
+    [["y" "cot_position"]
+     [::s/equal
+      ["cot_event_id" "y"]
+      ["id" ["has_cot_event" "y"]]]]]})
 
 (def schema-x
   #::s
@@ -56,14 +70,17 @@
    :entities
    #{"cot_cospan"}
    :attributes
-   [["name" "cot_cospan" "Varchar"]
+   [["id" "cot_cospan" "Integer"]
+    ["name" "cot_cospan" "Varchar"]
     ["channel" "cot_cospan" "Varchar"]
 
+    ["source_id" "cot_cospan" "Integer"]
     ["cot_type" "cot_cospan" "Varchar"]
     ["how" "cot_cospan" "Varchar"]
     ["detail" "cot_cospan" "Text"]
     ["servertime" "cot_cospan" "Bigint"]
 
+    ["cot_event_id" "cot_cospan" "Integer"]
     ["point_hae" "cot_cospan" "Integer"]
     ["point_ce" "cot_cospan" "Integer"]
     ["point_le" "cot_cospan" "Integer"]
@@ -82,14 +99,17 @@
    {[["source"] ["cot_cospan"]]
     #::s
     {:attribute-map
-     {"name" "name"
+     {"id" "source_id"
+      "name" "name"
       "channel" "channel"}}
 
     [["cot_event"] ["cot_cospan"]]
     #::s
-    {:reference-map {"source_id" nil}
+    {:reference-map {"has_source" nil}
      :attribute-map
-     {"cot_type" "cot_type"
+     {"id" "cot_event_id"
+      "source_id" "source_id"
+      "cot_type" "cot_type"
       "how" "how"
       "detail" "detail"
       "servertime" "servertime"}}
@@ -98,7 +118,9 @@
     #::s
     {:reference-map {"has_cot_event" nil}
      :attribute-map
-     {"point_hae" "point_hae"
+     {"id" "id"
+      "cot_event_id" "cot_event_id"
+      "point_hae" "point_hae"
       "point_ce" "point_ce"
       "point_le" "point_le"
       "tileX" "tileX"
@@ -130,9 +152,9 @@
     ["tileY" "cot_detail" "Integer"]
     ["point_hae" "cot_detail" "Integer"]]
    :references
-   [["source_id" "cot_action" "source"]
-    ["cot_action_idx" "cot_detail" "cot_action"]
-    ["cot_action_idy" "cot_action" "cot_detail"]]})
+   [["has_source" "cot_action" "source"]
+    ["has_cot_action_idx" "cot_detail" "cot_action"]
+    ["has_cot_action_idy" "cot_action" "cot_detail"]]})
 
 
 (def mapping-t->x

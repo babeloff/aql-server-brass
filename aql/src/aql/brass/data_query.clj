@@ -27,7 +27,7 @@
      where
       ce.cot_type = \"a-n-A-C-F-m\"
      attributes
-      // source_id -> ce.source_id
+      source_id -> ce.source_id
       cot_type -> ce.cot_type
      }
    "
@@ -52,7 +52,7 @@
      where
       ce.servertime = \"1494174900\"
      attributes
-      // source_id -> ce.source_id
+      source_id -> ce.source_id
       cot_type -> ce.cot_type
       how -> ce.how
      }
@@ -79,7 +79,7 @@
         ce.servertime = \"1494174900\"
         ce.cot_type = \"a-n-A-C-F-m\"
       attributes
-        // source_id -> ce.source_id
+        source_id -> ce.source_id
         cot_type -> ce.cot_type
         how -> ce.how
       }
@@ -105,7 +105,7 @@
         ce : cot_event
         s : source
       where
-        s = ce.source_id
+        s = ce.has_source
         s.channel = \"7\"
       attributes
         name -> s.name
@@ -154,7 +154,7 @@
              s : source
              ce : cot_event
            where
-             s = ce.source_id
+             s = ce.has_source
              s.channel = \"3\"
            attributes
              name -> s.name
@@ -168,7 +168,7 @@
             s : source
             ce : cot_event
           where
-            s = ce.source_id
+            s = ce.has_source
             ce.cot_type = \"a-n-A-C-F-m\"
           attributes
           name -> s.name
@@ -184,7 +184,7 @@
          s : source
          ce : cot_event
        where
-          s = ce.source_id
+          s = ce.has_source
           OrBool(EqualVc(s.channel,\"3\"),
                  EqualVc(ce.cot_type,\"a-n-A-C-F-m\")) = true
        attributes
@@ -219,7 +219,7 @@
        ce : cot_event
        s : source
      where
-       s = ce.source_id
+       s = ce.has_source
        OrBool(EqualVc(s.channel,\"3\"),
               EqualVc(ce.cot_type,\"a-n-A-C-F-m\")) = true
      attributes
@@ -251,7 +251,7 @@
        cep : cot_position
        s : source
      where
-       s = ce.source_id
+       s = ce.has_source
        ce = cep.has_cot_event
        s.channel = 3
        cep.tileX = 18830
@@ -303,7 +303,7 @@
             ce : cot_event
             cep : cot_position
           where
-            s = ce.source_id
+            s = ce.has_source
             ce = cep.has_cot_event
             s.name = name_parm
             ce.servertime = servertime_parm
@@ -370,7 +370,7 @@
             ce : cot_event
             cep : cot_position
           where
-            s = ce.source_id
+            s = ce.has_source
             ce = cep.has_cot_event
             s.name = name_param
             ce.servertime = servertime_param

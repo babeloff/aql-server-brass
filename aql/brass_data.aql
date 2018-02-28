@@ -11,20 +11,27 @@ typeside sql1 = literal {
           OrBool : Bool, Bool -> Bool = "return input[0] || input[1]"
         }
 schema S = literal : sql1 {
-  entities 
+  entities
     cot_position
     cot_event
     source
-  foreign_keys 
-    source_id : cot_event -> source
+  foreign_keys
+    has_source : cot_event -> source
     has_cot_event : cot_position -> cot_event
-  attributes 
+  attributes
+    id : source -> Integer
     name : source -> Varchar
     channel : source -> Varchar
+
+    id : cot_event -> Integer
+    source_id : cot_event -> Integer
     cot_type : cot_event -> Varchar
     how : cot_event -> Varchar
     detail : cot_event -> Text
     servertime : cot_event -> Bigint
+
+    id : cot_position -> Integer
+    cot_event_id : cot_position -> Integer
     point_hae : cot_position -> Integer
     point_ce : cot_position -> Integer
     point_le : cot_position -> Integer
@@ -32,18 +39,24 @@ schema S = literal : sql1 {
     tileY : cot_position -> Integer
     latitude : cot_position -> Real
     longitude : cot_position -> Real
+    observation_equations
+      forall x:cot_event . source_id(x) = id(has_source(x))
+      forall y:cot_position . cot_event_id(y) = id(has_cot_event(y))
 }
 
 schema X = literal : sql1 {
-  entities 
+  entities
     cot_cospan
-  attributes 
+  attributes
+    id : cot_cospan -> Integer
     name : cot_cospan -> Varchar
     channel : cot_cospan -> Varchar
+    source_id : cot_cospan -> Integer
     cot_type : cot_cospan -> Varchar
     how : cot_cospan -> Varchar
     detail : cot_cospan -> Text
     servertime : cot_cospan -> Bigint
+    cot_event_id : cot_cospan -> Integer
     point_hae : cot_cospan -> Integer
     point_ce : cot_cospan -> Integer
     point_le : cot_cospan -> Integer
@@ -55,69 +68,85 @@ schema X = literal : sql1 {
 
 mapping F = literal : S -> X {
   entity source -> cot_cospan
-    attributes 
+    attributes
+      id -> source_id
       name -> name
       channel -> channel
   entity cot_event -> cot_cospan
-    foreign_keys 
-      source_id -> cot_cospan
-    attributes 
+    foreign_keys
+      has_source -> cot_cospan
+    attributes
+      id -> cot_event_id
+      source_id -> source_id
       cot_type -> cot_type
       how -> how
       detail -> detail
       servertime -> servertime
   entity cot_position -> cot_cospan
-    foreign_keys 
+    foreign_keys
       has_cot_event -> cot_cospan
-    attributes 
-      point_hae -> point_hae
-      point_ce -> point_ce
-      point_le -> point_le
-      tileX -> tileX
+    attributes
       tileY -> tileY
-      latitude -> latitude
+      point_ce -> point_ce
       longitude -> longitude
+      cot_event_id -> cot_event_id
+      id -> id
+      latitude -> latitude
+      tileX -> tileX
+      point_le -> point_le
+      point_hae -> point_hae
 }
 
 schema T = literal : sql1 {
-  entities 
-    cot_action
+  entities
     source
+    cot_action
     cot_detail
-  foreign_keys 
-    source_id : cot_action -> source
+  foreign_keys
+    has_source : cot_action -> source
     has_cot_action : cot_detail -> cot_action
     has_cot_detail : cot_action -> cot_detail
-  attributes 
-    tileY : cot_detail -> Integer
+  attributes
+    id : source -> Integer
+    name : source -> Varchar
+    channel : source -> Varchar
+
+    id : cot_action -> Integer
+    source_id : cot_action -> Integer
     point_ce : cot_action -> Integer
     servertime : cot_action -> Bigint
     longitude : cot_action -> Real
-    cot_type : cot_detail -> Varchar
-    detail : cot_detail -> Text
     latitude : cot_action -> Real
-    name : source -> Varchar
     tileX : cot_action -> Integer
     point_le : cot_action -> Integer
     how : cot_action -> Varchar
-    channel : source -> Varchar
+
+    id : cot_detail -> Integer
+    cot_event_id : cot_detail -> Integer
+    tileY : cot_detail -> Integer
+    detail : cot_detail -> Text
     point_hae : cot_detail -> Integer
+    cot_type : cot_detail -> Varchar
+
+    observation_equations
+      forall x:cot_action . source_id(x) = id(has_source(x))
+      forall y:cot_detail . cot_event_id(y) = id(has_cot_action(y))
+
 }
 
 mapping G = literal : T -> X {
-  entity cot_detail -> cot_cospan
-    foreign_keys 
-      has_cot_action -> cot_cospan
-    attributes 
-      point_hae -> point_hae
-      detail -> detail
-      tileY -> tileY
-      cot_type -> cot_type
+  entity source -> cot_cospan
+    attributes
+      id -> source_id
+      name -> name
+      channel -> channel
   entity cot_action -> cot_cospan
-    foreign_keys 
-      source_id -> cot_cospan
+    foreign_keys
+      has_source -> cot_cospan
       has_cot_detail -> cot_cospan
-    attributes 
+    attributes
+      id -> cot_event_id
+      source_id -> source_id
       how -> how
       servertime -> servertime
       point_ce -> point_ce
@@ -125,11 +154,20 @@ mapping G = literal : T -> X {
       tileX -> tileX
       longitude -> longitude
       latitude -> latitude
-  entity source -> cot_cospan
-    attributes 
-      name -> name
-      channel -> channel
+  entity cot_detail -> cot_cospan
+    foreign_keys
+      has_cot_action -> cot_cospan
+    attributes
+      id -> id
+      cot_event_id -> cot_event_id
+      point_hae -> point_hae
+      detail -> detail
+      tileY -> tileY
+      cot_type -> cot_type
 }
+
+query Qz = toQuery F
+query Qy = toCoQuery G
 
 query Qx = [ toCoQuery G ; toQuery F ]
 
@@ -139,13 +177,13 @@ query Qx = [ toCoQuery G ; toQuery F ]
      where
       ce.cot_type = "a-n-A-C-F-m"
      attributes
-      // source_id -> ce.source_id
+      source_id -> ce.source_id
       cot_type -> ce.cot_type
      }
-   
+
 
    query Qt_01 = [ Qx ; Qs_01 ]
-   
+
 
    query Qs_02 = simple : S  {
      from
@@ -153,14 +191,14 @@ query Qx = [ toCoQuery G ; toQuery F ]
      where
       ce.servertime = "1494174900"
      attributes
-      // source_id -> ce.source_id
+      source_id -> ce.source_id
       cot_type -> ce.cot_type
       how -> ce.how
      }
-   
+
 
    query Qt_02 = [ Qx ; Qs_02 ]
-   
+
 
    query Qs_03 = simple : S {
       from ce : cot_event
@@ -168,31 +206,31 @@ query Qx = [ toCoQuery G ; toQuery F ]
         ce.servertime = "1494174900"
         ce.cot_type = "a-n-A-C-F-m"
       attributes
-        // source_id -> ce.source_id
+        source_id -> ce.source_id
         cot_type -> ce.cot_type
         how -> ce.how
       }
-   
+
 
    query Qt_03 = [ Qx ; Qs_03 ]
-   
+
 
    query Qs_04 = simple : S {
       from
         ce : cot_event
         s : source
       where
-        s = ce.source_id
+        s = ce.has_source
         s.channel = "7"
       attributes
         name -> s.name
         cot_type -> ce.cot_type
         time -> ce.servertime
    }
-   
+
 
    query Qt_04 = [ Qx ; Qs_04 ]
-   
+
 
   schema S5m = literal : sql {
     entities
@@ -217,7 +255,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
              s : source
              ce : cot_event
            where
-             s = ce.source_id
+             s = ce.has_source
              s.channel = "3"
            attributes
              name -> s.name
@@ -231,7 +269,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
             s : source
             ce : cot_event
           where
-            s = ce.source_id
+            s = ce.has_source
             ce.cot_type = "a-n-A-C-F-m"
           attributes
           name -> s.name
@@ -240,17 +278,17 @@ query Qx = [ toCoQuery G ; toQuery F ]
           time -> ce.servertime
           }
      }
-   
+
 
    query Qn_05 = [ Qx ; Qm_05 ]
-   
+
 
      query Qs_05 = simple : S {
        from
          s : source
          ce : cot_event
        where
-          s = ce.source_id
+          s = ce.has_source
           OrBool(EqualVc(s.channel,"3"),
                  EqualVc(ce.cot_type,"a-n-A-C-F-m")) = true
        attributes
@@ -259,17 +297,17 @@ query Qx = [ toCoQuery G ; toQuery F ]
          time -> ce.servertime
          type -> ce.cot_type
      }
-   
+
 
    query Qt_05 = [ Qx ; Qs_05 ]
-   
+
 
    query Qs_06s = simple : S {
      from
        ce : cot_event
        s : source
      where
-       s = ce.source_id
+       s = ce.has_source
        OrBool(EqualVc(s.channel,"3"),
               EqualVc(ce.cot_type,"a-n-A-C-F-m")) = true
      attributes
@@ -277,10 +315,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
        cot_type -> ce.cot_type
        time -> ce.servertime
    }
-   
+
 
    query Qt_06s = [ Qx ; Qs_06s ]
-   
+
 
    query Qs_07s = simple : S {
      from
@@ -288,7 +326,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
        cep : cot_position
        s : source
      where
-       s = ce.source_id
+       s = ce.has_source
        ce = cep.has_cot_event
        s.channel = 3
        cep.tileX = 18830
@@ -298,10 +336,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
        cot_type -> ce.cot_type
        time -> ce.servertime
      }
-   
+
 
    query Qt_07s = [ Qx ; Qs_07s ]
-   
+
 
   schema S8 = literal : sql1 {
      entities
@@ -312,7 +350,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
            tileX : Q -> Integer
            tileY : Q -> Integer
    }
-  
+
 
    query Qs_08pre = literal : S -> S8 {
       params
@@ -325,7 +363,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
             ce : cot_event
             cep : cot_position
           where
-            s = ce.source_id
+            s = ce.has_source
             ce = cep.has_cot_event
             s.name = name_parm
             ce.servertime = servertime_parm
@@ -336,10 +374,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
             tileY -> cep.tileY
         }
      }
-   
+
 
    query Qt_08pre = [ Qx ; Qs_08pre ]
-   
+
 
    query Qs_08 = literal : S -> S8 {
       bindings
@@ -349,7 +387,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
    }
 
    query Qt_08 = [ Qx ; Qs_08 ]
-   
+
 
   schema S9 = literal : sql1 {
      entities
@@ -373,7 +411,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
             ce : cot_event
             cep : cot_position
           where
-            s = ce.source_id
+            s = ce.has_source
             ce = cep.has_cot_event
             s.name = name_param
             ce.servertime = servertime_param
@@ -384,10 +422,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
             tileY -> cep.tileY
         }
      }
-   
+
 
    query Qt_09pre = [ Qx ; Qs_09pre ]
-   
+
 
    query Qs_09 = literal : S -> S9 {
       bindings
@@ -396,7 +434,6 @@ query Qx = [ toCoQuery G ; toQuery F ]
 
       imports Qs_09pre
    }
-   
+
 
    query Qt_09 = [ Qx ; Qs_09 ]
-   

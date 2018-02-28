@@ -2,7 +2,8 @@
 (ns aql.serialize
   (:require
    (clojure [pprint :as pp]
-            [string :as st])
+            [string :as st]
+            [walk :as w])
    (clojure.tools [logging :as log])
    (com.rpl [specter :as sr])
    (aql [spec :as aql-spec])))
@@ -31,52 +32,60 @@
     (cond
       (string? obj) ::string
       (contains? obj ::aql-spec/type) (::aql-spec/type obj)
-      :else ::defult)))
+      :else ::default)))
 
 (defmethod to-aql ::string [obj] obj)
 (defmethod to-aql ::default [obj] (str "// no " obj))
 
 (defmethod to-name ::string [name] name)
 (defmethod to-name ::vector [name] (st/join "__" name))
-(defmethod to-name ::default [name] "default")
+(defmethod to-name ::default [name] nil)
 
 (defn aql-format [base-indent & coll]
   (let [indent (atom base-indent)]
-    (letfn [(indentter [ax]
-              (log/debug "indent")
-              (swap! indent #(str "  " %))
-              ax)
-            (outdentter [ax]
-                        (log/debug "outdent")
-                        (swap! indent #(subs % (min (count %) 2)))
-                        ax)
-            (resetter [ax]
-                      (log/debug "reset")
-                      (reset! indent base-indent) ax)
-            (symboller [ax obj]
-                       (log/error "serialize a function? " obj)
-                       ax)
-            (stringger [ax obj]
-                       (log/debug "string" obj)
-                       (str ax "\n" @indent obj))
-            (helper
-             [ax obj]
-             (try
-               (cond
-                 (nil? obj) ax
-                 (symbol? obj) (symboller ax obj)
-                 (and (keyword? obj) (= ::in obj)) (indentter ax)
-                 (and (keyword? obj) (= ::out obj)) (outdentter ax)
-                 (and (keyword? obj) (= ::reset obj)) (resetter ax)
-                 (string? obj) (stringger ax obj)
-                 (seq obj) (do (log/debug "helper" obj)
-                             (reduce helper ax obj))
-                 :else (stringger ax obj))
-               (catch Throwable ex
-                 (log/error  "problem formatting: "
-                             (pr-str (take 10 obj))
-                             ex))))]
-      (reduce helper "" coll))))
+    (letfn
+     [(indentter
+        [ax]
+        (log/debug "indent")
+        (swap! indent #(str "  " %))
+        ax)
+      (outdentter
+       [ax]
+       (log/debug "outdent")
+       (swap! indent #(subs % (min (count %) 2)))
+       ax)
+      (resetter
+       [ax]
+       (log/debug "reset")
+       (reset! indent base-indent) ax)
+      (symboller
+       [ax obj]
+       (log/error "serialize a function? " obj)
+       ax)
+      (stringger
+       [ax obj]
+       (log/debug "string" obj)
+       (str ax "\n" @indent obj))
+      (xhelper
+       [ax obj]
+       (try
+         (cond
+           (nil? obj) ax
+           (symbol? obj) (symboller ax obj)
+           (keyword? obj) (case obj
+                            ::in (indentter ax)
+                            ::out (outdentter ax)
+                            ::reset (resetter ax)
+                            (stringger ax obj))
+           (string? obj) (stringger ax obj)
+           (seq obj) (do (log/debug "xhelper" obj)
+                         (reduce xhelper ax obj))
+           :else (stringger ax obj))
+         (catch Throwable ex
+           (log/error  "problem formatting: "
+                       (pr-str (take 10 obj))
+                       ex))))]
+      (reduce xhelper "" coll))))
 
 (defmethod wrap-literal
   ::aql-spec/schema
@@ -89,6 +98,34 @@
   ::aql-spec/schema
   [schema]
   (wrap-literal schema (to-literal schema)))
+
+(def relation-map
+  {::aql-spec/equal "="})
+
+(defn to-expr
+  [raw]
+  (w/postwalk
+   (fn [node]
+     (if (coll? node)
+       (let [[op & args] node]
+         (str op "(" (st/join "," args) ")"))
+       node))
+   raw))
+
+(defn forall
+  "write out the observation_equations"
+  [[bindings equation]]
+  (str "forall"
+       (reduce
+        (fn [acc [var ent]]
+          (str acc " " var ":" ent))
+        ""
+        (partition 2 bindings))
+       " . "
+       (let [[relation left-expr right-expr] equation]
+         (str (to-expr left-expr)
+              " "  (get relation-map relation "=") " "
+              (to-expr right-expr)))))
 
 (defmethod to-literal
   ::aql-spec/schema
@@ -107,19 +144,21 @@
       ::in
       (map
        (fn [[key src dst]]
-         (str key " : "
-              (to-name src) " -> "
-              (to-name dst)))
+         (let [src-name (to-name src)
+               dst-name (to-name dst)]
+           (if (and src-name dst-name)
+             (str key " : " src-name " -> " dst-name)
+             "")))
        references)
       ::out])
    (comment)
-   (when-let [equations (::aql-spec/equations schema)]
+   (when-let [paths (::aql-spec/paths schema)]
      ["path_equations "
       ::in
       (map
        (fn [[left right]]
          (str (st/join "." left) " = " (st/join "." right)))
-       equations)
+       paths)
       ::out])
    (comment)
    (when-let [attributes (::aql-spec/attributes schema)]
@@ -127,9 +166,18 @@
       ::in
       (map
        (fn [[key src type]]
-         (str key " : "
-              (to-name src) " -> " type))
-       attributes)])))
+         (let [src-name (to-name src)]
+           (if src-name
+             (str key " : "
+                  (to-name src) " -> " type)
+             "")))
+       attributes)])
+   (comment)
+   (when-let [observes (::aql-spec/observations schema)]
+     ["observation_equations "
+      ::in
+      (map forall observes)
+      ::out])))
 
 (defmethod wrap-literal
   ::aql-spec/mapping

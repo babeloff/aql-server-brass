@@ -14,6 +14,6 @@
 
 ;; (def init (try-parse prog0))
 
-;;(def start (System/currentTimeMillis))
-;;(def evn (make-env prog0 init))
-;;(def middle (System/currentTimeMillis))
+;; (def start (System/currentTimeMillis))
+;; (def evn (make-env prog0 init))
+;; (def middle (System/currentTimeMillis))
