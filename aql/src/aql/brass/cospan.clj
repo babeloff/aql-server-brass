@@ -5,7 +5,8 @@
    (aql.brass [spec :as brass-spec])
    (clojure [pprint :as pp]
             [string :as st])
-   (com.rpl [specter :as sr]))
+   (com.rpl [specter :as sr])
+   [net.cgrand.xforms :as gxf])
   (:import
    (catdata.aql
     AqlCmdLine)
@@ -97,19 +98,32 @@
       (sr/pred= type))]
    sr/NONE col-lookup))
 
+(def attributes-xform
+   (comp
+    (map
+      (fn [[col-name {[_ new-ent] ::pert, col-type ::col-ent}]]
+        [col-name new-ent col-type]))
+    (gxf/sort-by (fn [[col-name new-ent _]] [new-ent col-name]))))
+
+
 (defn entity-map-xform
+  "unpack the entity-map into the mapping object"
   [target-ent->col-lookup target-ent->fk-mapping references]
-  (map
+  (comp
+   (gxf/sort-by (fn [ent-name] ent-name))
+   (map
     (fn [ent-name]
-      [[[ent-name] ["cot_cospan"]]
-       #::aql-spec
-       {:attribute-map
-        (->> ent-name
-         target-ent->col-lookup
-         (map (fn [[_ col-name]] (vector col-name col-name)))
-         (into {}))
-        :reference-map
-        (target-ent->fk-mapping references ent-name)}])))
+      (let [entity (target-ent->col-lookup ent-name)
+            attr-map-xform
+            (comp
+             (map (fn [[_ col-name]]
+                    (vector col-name col-name)))
+             (gxf/sort-by (fn [[name _]] name)))]
+        [[[ent-name] ["cot_cospan"]]
+         #::aql-spec
+         {:attribute-map (into {} attr-map-xform entity)
+          :reference-map
+          (target-ent->fk-mapping references ent-name)}])))))
 
 (defn factory
   [{base ::brass-spec/s
@@ -153,12 +167,7 @@
       :type ::aql-spec/schema
       :extend "sql1"
       :entities (into #{} ent-t)
-      :attributes
-      (->> attr-lookup
-         (map
-          (fn [[col-name {[_ new-ent] ::pert, col-type ::col-ent}]]
-            [col-name new-ent col-type]))
-         (into []))
+      :attributes (into [] attributes-xform attr-lookup)
       :references references
       :observations observations}
 

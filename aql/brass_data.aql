@@ -116,7 +116,7 @@ schema T = literal : sql1 {
     servertime : cot_action -> Bigint
     source_id : cot_action -> Integer
     tileX : cot_action -> Integer
-
+    
     cot_event_id : cot_detail -> Integer
     cot_type : cot_detail -> Varchar
     detail : cot_detail -> Text
@@ -133,16 +133,6 @@ schema T = literal : sql1 {
 }
 
 mapping G = literal : T -> X {
-  entity cot_detail -> cot_cospan
-    foreign_keys 
-      has_cot_action -> cot_cospan
-    attributes 
-      id -> id
-      cot_event_id -> cot_event_id
-      point_hae -> point_hae
-      detail -> detail
-      tileY -> tileY
-      cot_type -> cot_type
   entity cot_action -> cot_cospan
     foreign_keys 
       has_source -> cot_cospan
@@ -151,17 +141,27 @@ mapping G = literal : T -> X {
       point_ce -> point_ce
       servertime -> servertime
       longitude -> longitude
-      id -> id
+      id -> cot_event_id
       latitude -> latitude
       tileX -> tileX
       point_le -> point_le
       how -> how
       source_id -> source_id
+  entity cot_detail -> cot_cospan
+    foreign_keys 
+      has_cot_action -> cot_cospan
+    attributes 
+      cot_event_id -> cot_event_id
+      cot_type -> cot_type
+      detail -> detail
+      id -> id
+      point_hae -> point_hae
+      tileY -> tileY
   entity source -> cot_cospan
     attributes 
+      channel -> channel
       id -> source_id
       name -> name
-      channel -> channel
 }
 
 query Qx = [ toCoQuery G ; toQuery F ]
