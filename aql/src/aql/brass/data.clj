@@ -70,17 +70,17 @@
     :entities
     #{"cot_cospan"}
     :attributes
-    [["id" "cot_cospan" "Integer"]
+    [["source_id" "cot_cospan" "Integer"]
      ["name" "cot_cospan" "Varchar"]
      ["channel" "cot_cospan" "Varchar"]
 
-     ["source_id" "cot_cospan" "Integer"]
+     ["cot_event_id" "cot_cospan" "Integer"]
      ["cot_type" "cot_cospan" "Varchar"]
      ["how" "cot_cospan" "Varchar"]
      ["detail" "cot_cospan" "Text"]
      ["servertime" "cot_cospan" "Bigint"]
 
-     ["cot_event_id" "cot_cospan" "Integer"]
+     ["cot_position_id" "cot_cospan" "Integer"]
      ["point_hae" "cot_cospan" "Integer"]
      ["point_ce" "cot_cospan" "Integer"]
      ["point_le" "cot_cospan" "Integer"]
@@ -118,7 +118,7 @@
      #::s
       {:reference-map {"has_cot_event" nil}
        :attribute-map
-       {"id" "id"
+       {"id" "cot_position_id"
         "cot_event_id" "cot_event_id"
         "point_hae" "point_hae"
         "point_ce" "point_ce"
@@ -136,9 +136,11 @@
     :entities
     #{"source" "cot_action" "cot_detail"}
     :attributes
-    [["name" "source" "Varchar"]
+    [["id" "source" "Integer"]
+     ["name" "source" "Varchar"]
      ["channel" "source" "Varchar"]
 
+     ["id" "cot_action" "Integer"]
      ["how" "cot_action" "Varchar"]
      ["servertime" "cot_action" "Bigint"]
      ["point_ce" "cot_action" "Integer"]
@@ -147,6 +149,7 @@
      ["latitude" "cot_action" "Real"]
      ["longitude" "cot_action" "Real"]
 
+     ["id" "cot_detail" "Integer"]
      ["detail" "cot_detail" "Text"]
      ["cot_type" "cot_detail" "Varchar"]
      ["tileY" "cot_detail" "Integer"]
