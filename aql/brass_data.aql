@@ -22,14 +22,12 @@ schema S = literal : sql1 {
     id : source -> Integer
     name : source -> Varchar
     channel : source -> Varchar
-
     id : cot_event -> Integer
     source_id : cot_event -> Integer
     cot_type : cot_event -> Varchar
     how : cot_event -> Varchar
     detail : cot_event -> Text
     servertime : cot_event -> Bigint
-
     id : cot_position -> Integer
     cot_event_id : cot_position -> Integer
     point_hae : cot_position -> Integer
@@ -48,15 +46,15 @@ schema X = literal : sql1 {
   entities 
     cot_cospan
   attributes 
-    id : cot_cospan -> Integer
+    source_id : cot_cospan -> Integer
     name : cot_cospan -> Varchar
     channel : cot_cospan -> Varchar
-    source_id : cot_cospan -> Integer
+    cot_event_id : cot_cospan -> Integer
     cot_type : cot_cospan -> Varchar
     how : cot_cospan -> Varchar
     detail : cot_cospan -> Text
     servertime : cot_cospan -> Bigint
-    cot_event_id : cot_cospan -> Integer
+    cot_position_id : cot_cospan -> Integer
     point_hae : cot_cospan -> Integer
     point_ce : cot_cospan -> Integer
     point_le : cot_cospan -> Integer
@@ -90,7 +88,7 @@ mapping F = literal : S -> X {
       point_ce -> point_ce
       longitude -> longitude
       cot_event_id -> cot_event_id
-      id -> id
+      id -> cot_position_id
       latitude -> latitude
       tileX -> tileX
       point_le -> point_le
@@ -116,14 +114,12 @@ schema T = literal : sql1 {
     servertime : cot_action -> Bigint
     source_id : cot_action -> Integer
     tileX : cot_action -> Integer
-    
     cot_event_id : cot_detail -> Integer
     cot_type : cot_detail -> Varchar
     detail : cot_detail -> Text
     id : cot_detail -> Integer
     point_hae : cot_detail -> Integer
     tileY : cot_detail -> Integer
-
     channel : source -> Varchar
     id : source -> Integer
     name : source -> Varchar
@@ -154,7 +150,7 @@ mapping G = literal : T -> X {
       cot_event_id -> cot_event_id
       cot_type -> cot_type
       detail -> detail
-      id -> id
+      id -> cot_position_id
       point_hae -> point_hae
       tileY -> tileY
   entity source -> cot_cospan
