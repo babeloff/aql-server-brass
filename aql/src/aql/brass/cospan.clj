@@ -56,7 +56,7 @@
      ::brass-spec/references
      (let [tabv (into [] (into #{} (map (fn [{tab "table"}] tab)) tables))
            pairs (partition 2 1 tabv)]
-       (into [["source_id" (first tabv) "source"]]
+       (into [["has_source" (first tabv) "source"]]
           (comp
               (map (fn [[lhs rhs]]
                      [[(str "has_" lhs) rhs lhs]
@@ -97,6 +97,19 @@
       (sr/pred= type))]
    sr/NONE col-lookup))
 
+(defn entity-map-xform
+  [target-ent->col-lookup target-ent->fk-mapping references]
+  (map
+    (fn [ent-name]
+      [[[ent-name] ["cot_cospan"]]
+       #::aql-spec
+       {:attribute-map
+        (->> ent-name
+         target-ent->col-lookup
+         (map (fn [[_ col-name]] (vector col-name col-name)))
+         (into {}))
+        :reference-map
+        (target-ent->fk-mapping references ent-name)}])))
 
 (defn factory
   [{base ::brass-spec/s
@@ -120,7 +133,16 @@
         ; ent-s (->> perturb-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
         ent-t (->> perturb-lookup
                    (sr/select [sr/MAP-VALS sr/LAST])
-                   distinct)]
+                   distinct)
+        observations
+        [[["x" "cot_action"]
+          [::aql-spec/equal
+           ["source_id" "x"]
+           ["id" ["has_source" "x"]]]]
+         [["y" "cot_detail"]
+          [::aql-spec/equal
+           ["cot_event_id" "y"]
+           ["id" ["has_cot_action" "y"]]]]]]
     {::s base
      ::x cospan
      ::f ftor-f
@@ -137,24 +159,16 @@
           (fn [[col-name {[_ new-ent] ::pert, col-type ::col-ent}]]
             [col-name new-ent col-type]))
          (into []))
-      :references references}
+      :references references
+      :observations observations}
 
      ::g
      #::aql-spec
      {:name "G"
       :type ::aql-spec/mapping
       :schema-map ["T" "X"]
-      :entity-map
-      (->> ent-t
-        (map (fn [ent-name]
-               [[[ent-name] ["cot_cospan"]]
-                #::aql-spec
-                {:attribute-map
-                 (->> ent-name
-                  target-ent->col-lookup
-                  (map (fn [[_ col-name]] (vector col-name col-name)))
-                  (into {}))
-                 :reference-map
-                 (->> ent-name
-                      (target-ent->fk-mapping references))}]))
-        (into {}))}}))
+      :entity-map (into {} (entity-map-xform
+                            target-ent->col-lookup
+                            target-ent->fk-mapping
+                            references)
+                        ent-t)}}))

@@ -16,7 +16,9 @@
      {"tables"
       [{"table"  "cot_action"
         "columns"
-         ["CotEvent_How"
+         ["CotEvent_Id"
+          "CotEvent_SourceId"
+          "CotEvent_How"
           "CotEvent_ServerTime"
           "Position_PointCE"
           "Position_PointLE"
@@ -25,7 +27,9 @@
           "Position_Latitude"]}
        {"table" "cot_detail"
         "columns"
-        ["Position_PointHae"
+        ["Position_Id"
+         "Position_EventId"
+         "Position_PointHae"
          "CotEvent_Detail"
          "Position_TileY"
          "CotEvent_CotType"]}]}}}})

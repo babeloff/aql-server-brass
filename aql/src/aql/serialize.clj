@@ -85,7 +85,7 @@
            (log/error  "problem formatting: "
                        (pr-str (take 10 obj))
                        ex))))]
-      (reduce xhelper "" coll))))
+     (reduce xhelper "" coll))))
 
 (defmethod wrap-literal
   ::aql-spec/schema

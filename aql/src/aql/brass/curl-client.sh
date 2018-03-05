@@ -4,7 +4,7 @@
 ENDPOINT="http://localhost:9090/brass/p2/c1/json"
 HEADER="Content-Type: application/json; charset=UTF-8"
 
-cat << JR  | curl -d @- -H "${HEADER}"  ${ENDPOINT}
+cat << JSON  | curl -d @- -H "${HEADER}"  ${ENDPOINT}
 {"permutation":
    {"martiServerModel":
      {"requirements":
@@ -12,7 +12,9 @@ cat << JR  | curl -d @- -H "${HEADER}"  ${ENDPOINT}
        {"tables":
         [{"table":  "cot_action",
           "columns":
-           ["CotEvent_How",
+           ["CotEvent_Id",
+            "CotEvent_SourceId",
+            "CotEvent_How",
             "CotEvent_ServerTime",
             "Position_PointCE",
             "Position_PointLE",
@@ -21,8 +23,10 @@ cat << JR  | curl -d @- -H "${HEADER}"  ${ENDPOINT}
             "Position_Latitude"]},
          {"table": "cot_detail",
           "columns":
-          ["Position_PointHae",
+          ["Position_Id",
+           "Position_EventId",
+           "Position_PointHae",
            "CotEvent_Detail",
            "Position_TileY",
            "CotEvent_CotType"]}]}}}}}
-JR
+JSON
