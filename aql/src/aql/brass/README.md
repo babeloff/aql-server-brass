@@ -12,13 +12,30 @@ Start the service.
 The service can be run directly from the source via the clojure tooling.
 
 ```clj
-clj -m aql.server
+clj -m aql.brass.server
+```
+...and with command line arguments.
+
+```clj
+clj -m aql.brass.server --port 23456
 ```
 
 A precompiled [uber-jar is available here](https://github.com/babeloff/mvn-repo).
 The easiest way to run the service is from the command line.
 ```bash
 java -jar ./<where-ever>/brass-aql-server-<version>.jar
+```
+
+...and with command line arguments.
+
+```bash
+java -jar ./<where-ever>/brass-aql-server-<version>.jar -p 23456
+```
+
+In each case it writes a ready indicator to standard output.
+
+```bash
+STATE:[RUNNING]
 ```
 
 It is also configured to run as a daemon proces.

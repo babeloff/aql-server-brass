@@ -5,13 +5,15 @@
    (clojure.tools [logging :as log])
    (clojure.tools.nrepl [server :as nrs])
    (compojure [handler :as hdlr])
-   (clojure.tools [cli :as cli]))
+   (clojure.tools [cli :as cli])
+   (clojure [string :as string]))
   (:import [org.apache.commons.daemon
-            Daemon DaemonContext])
+            Daemon DaemonContext]
+           [java.net InetAddress])
   (:gen-class
    :implements [org.apache.commons.daemon.Daemon]))
 
-(defonce IPADDR (atom "127.0.0.1"))
+(defonce HOST (atom "localhost"))
 (defonce PORT (atom 9090))
 (defonce NREPL (atom 7888))
 
@@ -20,9 +22,10 @@
 (defonce main-server (atom nil))
 
 (def cli-options
-  [["-i" "--host IPADDR" "IP Address"
-    :id :host
-    :default "127.0.0.1"]
+  [["-i" "--hostname HOST" "IP host name"
+    :default (InetAddress/getByName "localhost")
+    :default-desc "localhost"
+    :parse-fn #(InetAddress/getByName %)]
    ["-p" "--port PORT" "Port number"
     :id :port
     :default 9090
@@ -40,26 +43,73 @@
    ["-h" "--help"
     :id :help]])
 
-(defn init [args]
-  (let [{:keys [options]}
-        (cli/parse-opts args cli-options)]
-    (reset! IPADDR (:host options))
-    (reset! PORT (:port options))
-    (reset! NREPL (:nrepl options))
-    (log/info "options" options)
+(defn usage [options-summary]
+  (->> ["This server handles brass specific aql perturbation requests."
+        ""
+        "Usage: java -jar program-jar [options]"
+        ""
+        "Options:"
+        options-summary
+        ""]
+       (string/join \newline)))
 
-    ; (reset! nrepl-server (nrs/start-server :port @NREPL_PORT))
-    ; (log/info "nrepl server "
-    ;          (str (get nrepl-server :ss))
-    (reset! state ::initialized)))
+(defn error-msg [errors]
+  (str "The following errors occurred while parsing your command:\n\n"
+       (string/join \newline errors)))
+
+(defn validate-args
+  "Validate command line arguments.
+  Either return a map indicating the program
+  should exit (with a error message, and optional ok status), or
+  a map indicating the options provided."
+  [args]
+  (let [{:keys [options arguments errors summary]}
+        (cli/parse-opts args cli-options)]
+    (cond
+      (:help options) ; help => exit OK with usage summary
+      {:exit-message (usage summary) :ok? true}
+
+      errors ; errors => exit with description of errors
+      {:exit-message (error-msg errors)}
+
+      ; failed custom validation => exit with usage summary
+      (< 1 (count arguments))
+      {:exit-message (usage summary)}
+
+      :else
+      {:options options})))
+
+(defn exit [status msg]
+  (println msg)
+  (System/exit status))
+
+(defn init [args]
+  (let [{:keys [options exit-message ok?]}
+        (validate-args args)]
+    (if exit-message
+      (exit (if ok? 0 1) exit-message)
+      (do
+        (reset! HOST (:hostname options))
+        (reset! PORT (:port options))
+        (reset! NREPL (:nrepl options))
+        (log/info "options" args options)
+
+        ; (reset! nrepl-server (nrs/start-server :port @NREPL_PORT))
+        ; (log/info "nrepl server "
+        ;          (str (get nrepl-server :ss))
+        (reset! state ::initialized)))))
 
 (defn start []
-  (log/info "aql server starting. " @IPADDR ":" @PORT)
-  (reset! main-server
-        (svr/run-server
-         (hdlr/site #'routes/brass-routes)
-         {:port @PORT :ip @IPADDR}))
-  (reset! state ::running))
+  (let [ipaddr (.getHostAddress @HOST)
+        port @PORT]
+    (log/info "aql server starting. " ipaddr ":" port)
+    (reset! main-server
+            (svr/run-server
+             (hdlr/site #'routes/brass-routes)
+             {:port port :ip ipaddr}))
+    (reset! state ::running)
+    (println "STATE:[RUNNING]")
+    (.flush *out*)))
 
 (defn stop []
   (reset! state ::stopped)

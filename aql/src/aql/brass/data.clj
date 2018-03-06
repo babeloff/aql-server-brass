@@ -89,7 +89,7 @@
      ["latitude" "cot_cospan" "Real"]
      ["longitude" "cot_cospan" "Real"]]})
 
-(def mapping-s->x
+(def mapping-f
   "A mapping between schema"
   #::s
    {:name "F"
@@ -168,7 +168,7 @@
        ["cot_event_id" "y"]
        ["id" ["has_cot_event" "y"]]]]]})
 
-(def mapping-t->x
+(def mapping-g
   "A mapping between schema"
   #::s
    {:name "G"

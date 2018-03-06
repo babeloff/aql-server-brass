@@ -30,7 +30,7 @@
             factory (brass-cospan/factory
                      {::brass-spec/s brass-data/schema-s
                       ::brass-spec/x brass-data/schema-x
-                      ::brass-spec/f brass-data/mapping-s->x
+                      ::brass-spec/f brass-data/mapping-f
                       ::brass-spec/schema-perturbation perturb})
             typeside [brass-data/ts-sql1]
             model [(->> factory
