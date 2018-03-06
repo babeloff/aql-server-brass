@@ -48,14 +48,14 @@
 (s/explain ::aql-spec/schema brass-data/schema-t)
 ;; (pp/pprint brass-data/schema-x)
 
-(s/explain ::aql-spec/mapping brass-data/mapping-s->x)
-(s/explain ::aql-spec/mapping brass-data/mapping-t->x)
-;; (pp/pprint brass-data/mapping-s->x)
+(s/explain ::aql-spec/mapping brass-data/mapping-f)
+(s/explain ::aql-spec/mapping brass-data/mapping-g)
+;; (pp/pprint brass-data/mapping-f)
 
 (def factory (brass-cospan/factory
               {::brass-spec/s brass-data/schema-s
                ::brass-spec/x brass-data/schema-x
-               ::brass-spec/f brass-data/mapping-s->x
+               ::brass-spec/f brass-data/mapping-f
                ::brass-spec/schema-perturbation perturb}))
 
 (->> factory
