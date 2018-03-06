@@ -18,7 +18,7 @@
 
 (defn- convert-permute-col-name
   [col-key]
-  (let [{ent :ent col :col}
+  (let [{ent :ent col :cscol}
         (sr/select-one [col-key]
             brass-spec/schema-permutation-mapping)]
     [ent col]))
@@ -130,7 +130,7 @@
     cospan ::brass-spec/x
     perturb ::brass-spec/schema-perturbation
     ftor-f ::brass-spec/f}]
-  (let [ent-lookup (schema->col-lookup<-name base)
+  (let [ent-lookup (schema->col-lookup<-name cospan)
         perturb-lookup (perturb->col-lookup<-name perturb)
         references (::brass-spec/references perturb)
         col-lookup (merge-with #(conj %1 [::pert %2])

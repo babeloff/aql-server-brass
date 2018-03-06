@@ -17,7 +17,7 @@
 ;; (pp/pprint perturb)
 
 ; (pp/pprint brass-data/schema-s)
-(def ent-lookup (brass-cospan/schema->col-lookup<-name brass-data/schema-s))
+(def ent-lookup (brass-cospan/schema->col-lookup<-name brass-data/schema-x))
 ; (pp/pprint ent-lookup)
 (def perturb-lookup (brass-cospan/perturb->col-lookup<-name perturb))
 ; (pp/pprint perturb-lookup)
