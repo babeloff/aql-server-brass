@@ -107,7 +107,9 @@
             (svr/run-server
              (hdlr/site #'routes/brass-routes)
              {:port port :ip ipaddr}))
-    (reset! state ::running)))
+    (reset! state ::running)
+    (println "STATE:[RUNNING]")
+    (.flush *out*)))
 
 (defn stop []
   (reset! state ::stopped)
