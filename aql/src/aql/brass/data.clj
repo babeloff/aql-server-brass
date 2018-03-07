@@ -68,26 +68,26 @@
     :type ::s/schema
     :extend "sql1"
     :entities
-    #{"cot_cospan"}
+    #{"cospan"}
     :attributes
-    [["source_id" "cot_cospan" "Integer"]
-     ["name" "cot_cospan" "Varchar"]
-     ["channel" "cot_cospan" "Varchar"]
+    [["source_id" "cospan" "Integer"]
+     ["name" "cospan" "Varchar"]
+     ["channel" "cospan" "Varchar"]
 
-     ["cot_event_id" "cot_cospan" "Integer"]
-     ["cot_type" "cot_cospan" "Varchar"]
-     ["how" "cot_cospan" "Varchar"]
-     ["detail" "cot_cospan" "Text"]
-     ["servertime" "cot_cospan" "Bigint"]
+     ["cot_event_id" "cospan" "Integer"]
+     ["cot_type" "cospan" "Varchar"]
+     ["how" "cospan" "Varchar"]
+     ["detail" "cospan" "Text"]
+     ["servertime" "cospan" "Bigint"]
 
-     ["cot_position_id" "cot_cospan" "Integer"]
-     ["point_hae" "cot_cospan" "Integer"]
-     ["point_ce" "cot_cospan" "Integer"]
-     ["point_le" "cot_cospan" "Integer"]
-     ["tileX" "cot_cospan" "Integer"]
-     ["tileY" "cot_cospan" "Integer"]
-     ["latitude" "cot_cospan" "Real"]
-     ["longitude" "cot_cospan" "Real"]]})
+     ["cot_position_id" "cospan" "Integer"]
+     ["point_hae" "cospan" "Integer"]
+     ["point_ce" "cospan" "Integer"]
+     ["point_le" "cospan" "Integer"]
+     ["tileX" "cospan" "Integer"]
+     ["tileY" "cospan" "Integer"]
+     ["latitude" "cospan" "Real"]
+     ["longitude" "cospan" "Real"]]})
 
 (def mapping-f
   "A mapping between schema"
@@ -96,14 +96,14 @@
     :type ::s/mapping
     :schema-map ["S" "X"]
     :entity-map
-    {[["source"] ["cot_cospan"]]
+    {[["source"] ["cospan"]]
      #::s
       {:attribute-map
        {"id" "source_id"
         "name" "name"
         "channel" "channel"}}
 
-     [["cot_event"] ["cot_cospan"]]
+     [["cot_event"] ["cospan"]]
      #::s
       {:reference-map {"has_source" nil}
        :attribute-map
@@ -114,7 +114,7 @@
         "detail" "detail"
         "servertime" "servertime"}}
 
-     [["cot_position"] ["cot_cospan"]]
+     [["cot_position"] ["cospan"]]
      #::s
       {:reference-map {"has_cot_event" nil}
        :attribute-map
@@ -175,13 +175,13 @@
     :type ::s/mapping
     :schema-map ["T" "X"]
     :entity-map
-    {[["entity source"] ["cot_cospan"]]
+    {[["entity source"] ["cospan"]]
      #::s
       {:attribute-map
        {"id" "source_id"
         "name" "name"
         "channel" "channel"}}
-     [["cot_action"] ["cot_cospan"]]
+     [["cot_action"] ["cospan"]]
      #::s
       {:reference-map
        {"has_cot_detail" nil
@@ -196,7 +196,7 @@
         "tileX" "tileX"
         "longitude" "longitude"
         "latitude" "latitude"}}
-     [["cot_detail"] ["cot_cospan"]]
+     [["cot_detail"] ["cospan"]]
      #::s
       {:reference-map
        {"has_cot_action" nil}

@@ -9,7 +9,7 @@
    (clojure.tools [logging :as log])
    (aql.brass [data :as brass-data])))
 
-(def sample-submission-json
+(def mutant-json
   {"martiServerModel"
    {"requirements"
     {"postgresqlPerturbation"
@@ -38,12 +38,12 @@
   {:method :post
    :headers {"content-type" "application/json; charset=UTF-8"}
    :body (->
-          {:permutation sample-submission-json}
+          {:permutation mutant-json}
           json/write-str
           ring-io/string-input-stream)})
 
 (defn -main [& args]
-  (pp/pprint {:permutation sample-submission-json})
+  (pp/pprint {:permutation mutant-json})
   (let [response (clt/post "http://localhost:9090/brass/p2/c1/json" options)]
     (-> @response
         :body

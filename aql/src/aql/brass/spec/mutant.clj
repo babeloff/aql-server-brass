@@ -1,5 +1,5 @@
 
-(ns aql.brass.spec
+(ns aql.brass.spec.mutant
   (:require [clojure.spec.alpha :as s]
             [aql.spec :as aql]))
 
@@ -7,13 +7,13 @@
 ;; target schema and the G mapping.
 ;;
 ;; The other relevant information is obtained by merging
-;; - this map [aql.brass.spec/schema-permutation-mapping]
+;; - this map [aql.brass.spec/lookup]
 ;;
 ;; :ent indicates the entity for which is the parent of the attribute
 ;; :cscol is the original name for that attribute
 ;; :ref indicates that this is morphism between entities.
 ;;
-;; - the permutation-json object [aql.brass.client/sample-submission-json]
+;; - the permutation-json object [aql.brass.client/mutant-json]
 ;;
 ;;   * the target entities
 ;;   * the assignment of attributes to target entites
@@ -25,7 +25,7 @@
 ;;   *
 ;;
 
-(def schema-permutation-mapping
+(def lookup
   {"Source_Id" {:ent "source" :cscol "source_id" :tgcol "id"}
    "Source_Name" {:ent "source" :cscol "name"}
    "Source_Channel" {:ent "source" :cscol "channel"}
@@ -59,4 +59,4 @@
 (s/def ::columns (s/coll-of ::column :kind vector? :distinct true))
 (s/def ::table (s/keys :req [::aql/name ::columns]))
 (s/def ::tables (s/coll-of ::table :kind vector? :distinct true))
-(s/def ::schema-perturbation (s/keys :req [::tables ::references]))
+(s/def ::schema-mutation (s/keys :req [::tables ::references]))

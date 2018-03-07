@@ -1,7 +1,7 @@
 (ns aql.brass.routes
   (:require
    (aql [routes :as aql-routes]
-        [util :as aql-util])
+        [service :as aql-util])
    (org.httpkit [server :as svr])
    (clojure.data [json :as json])
    (clojure.tools [logging :as log])
@@ -16,8 +16,9 @@
    (ring.util [response :refer [response]])
    (aql.brass
     [data :as brass-data]
-    [spec :as brass-spec]
-    [cospan :as brass-cospan])
+    [cospan :as brass-cospan]
+    [mutant :as brass-mutant])
+   (aql.brass.spec [mutant :as brass-spec])
    (aql [wrap :as aql-wrap]
         [serialize :as aql-serial])))
 
@@ -26,12 +27,12 @@
   (if-let [action (sr/select-one [:body] request)]
     (let [p-json (get action "permutation")]
       (log/debug "payload " p-json)
-      (let [perturb (brass-cospan/convert-perturbation p-json)
+      (let [mutant (brass-mutant/normalize p-json)
             factory (brass-cospan/factory
                      {::brass-spec/s brass-data/schema-s
                       ::brass-spec/x brass-data/schema-x
                       ::brass-spec/f brass-data/mapping-f
-                      ::brass-spec/schema-perturbation perturb})
+                      ::brass-spec/schema-mutation mutant})
             typeside [brass-data/ts-sql1]
             model [(->> factory
                         ::brass-cospan/s
@@ -61,7 +62,7 @@
               (aql-wrap/xform-result
                 brass-data/query-demo-attributes
                 brass-data/query-tweeker)
-              (aql-util/log-info-echo "result ")
+              (aql-util/echo log/info "result ")
               json/write-str))
           (catch Exception ex
             (log/error "aql fault " ex)

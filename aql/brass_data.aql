@@ -44,35 +44,35 @@ schema S = literal : sql1 {
 
 schema X = literal : sql1 {
   entities 
-    cot_cospan
+    cospan
   attributes 
-    source_id : cot_cospan -> Integer
-    name : cot_cospan -> Varchar
-    channel : cot_cospan -> Varchar
-    cot_event_id : cot_cospan -> Integer
-    cot_type : cot_cospan -> Varchar
-    how : cot_cospan -> Varchar
-    detail : cot_cospan -> Text
-    servertime : cot_cospan -> Bigint
-    cot_position_id : cot_cospan -> Integer
-    point_hae : cot_cospan -> Integer
-    point_ce : cot_cospan -> Integer
-    point_le : cot_cospan -> Integer
-    tileX : cot_cospan -> Integer
-    tileY : cot_cospan -> Integer
-    latitude : cot_cospan -> Real
-    longitude : cot_cospan -> Real
+    source_id : cospan -> Integer
+    name : cospan -> Varchar
+    channel : cospan -> Varchar
+    cot_event_id : cospan -> Integer
+    cot_type : cospan -> Varchar
+    how : cospan -> Varchar
+    detail : cospan -> Text
+    servertime : cospan -> Bigint
+    cot_position_id : cospan -> Integer
+    point_hae : cospan -> Integer
+    point_ce : cospan -> Integer
+    point_le : cospan -> Integer
+    tileX : cospan -> Integer
+    tileY : cospan -> Integer
+    latitude : cospan -> Real
+    longitude : cospan -> Real
 }
 
 mapping F = literal : S -> X {
-  entity source -> cot_cospan
+  entity source -> cospan
     attributes 
       id -> source_id
       name -> name
       channel -> channel
-  entity cot_event -> cot_cospan
+  entity cot_event -> cospan
     foreign_keys 
-      has_source -> cot_cospan
+      has_source -> cospan
     attributes 
       id -> cot_event_id
       source_id -> source_id
@@ -80,9 +80,9 @@ mapping F = literal : S -> X {
       how -> how
       detail -> detail
       servertime -> servertime
-  entity cot_position -> cot_cospan
+  entity cot_position -> cospan
     foreign_keys 
-      has_cot_event -> cot_cospan
+      has_cot_event -> cospan
     attributes 
       tileY -> tileY
       point_ce -> point_ce
@@ -114,9 +114,9 @@ schema T = literal : sql1 {
     source_id : cot_action -> Integer
     tileX : cot_action -> Integer
     cot_event_id : cot_detail -> Integer
+    cot_position_id : cot_detail -> Integer
     cot_type : cot_detail -> Varchar
     detail : cot_detail -> Text
-    id : cot_detail -> Integer
     point_hae : cot_detail -> Integer
     tileY : cot_detail -> Integer
     channel : source -> Varchar
@@ -127,31 +127,31 @@ schema T = literal : sql1 {
 }
 
 mapping G = literal : T -> X {
-  entity cot_action -> cot_cospan
+  entity cot_action -> cospan
     foreign_keys 
-      has_source -> cot_cospan
-      has_cot_detail -> cot_cospan
+      has_source -> cospan
+      has_cot_detail -> cospan
     attributes 
       point_ce -> point_ce
       servertime -> servertime
       longitude -> longitude
-      id -> id
+      cot_event_id -> cot_event_id
       latitude -> latitude
       tileX -> tileX
       point_le -> point_le
       how -> how
       source_id -> source_id
-  entity cot_detail -> cot_cospan
+  entity cot_detail -> cospan
     foreign_keys 
-      has_cot_action -> cot_cospan
+      has_cot_action -> cospan
     attributes 
       cot_event_id -> cot_event_id
+      cot_position_id -> cot_position_id
       cot_type -> cot_type
       detail -> detail
-      id -> id
       point_hae -> point_hae
       tileY -> tileY
-  entity source -> cot_cospan
+  entity source -> cospan
     attributes 
       channel -> channel
       name -> name

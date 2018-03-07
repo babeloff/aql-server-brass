@@ -6,22 +6,23 @@
 
 (require '[aql.spec :as aql-spec] :reload)
 (require '[aql.util :as aql-util] :reload)
-(require '[aql.brass.spec :as brass-spec] :reload)
+(require '[aql.brass.spec.mutant :as brass-spec] :reload)
 (require '[aql.brass.data :as brass-data] :reload)
 (require '[aql.brass.cospan :as brass-cospan] :reload)
+(require '[aql.brass.mutant :as brass-mutant] :reload)
 (require '[aql.serialize :as aql-serial] :reload)
 (require '[aql.brass.client :as brass-client] :reload)
 
-(def perturb (brass-cospan/convert-perturbation brass-client/sample-submission-json))
-(s/explain ::brass-spec/schema-perturbation perturb)
-;; (pp/pprint perturb)
+(def mutant (brass-mutant/normalize brass-client/mutant-json))
+(s/explain ::brass-spec/schema-mutation mutant)
+;; (pp/pprint mutant)
 
 ; (pp/pprint brass-data/schema-s)
 (def ent-lookup (brass-cospan/schema->col-lookup<-name brass-data/schema-x))
 ; (pp/pprint ent-lookup)
-(def perturb-lookup (brass-cospan/perturb->col-lookup<-name perturb))
-; (pp/pprint perturb-lookup)
-(def col-lookup (merge-with #(conj %1 [::pert %2]) ent-lookup perturb-lookup))
+(def mutant-lookup (brass-cospan/mutant->col-lookup<-name mutant))
+; (pp/pprint mutant-lookup)
+(def col-lookup (merge-with #(conj %1 [::pert %2]) ent-lookup mutant-lookup))
 ; (pp/pprint col-lookup)
 (def attr-lookup (brass-cospan/filter<-type ::aql-spec/attributes col-lookup))
 ; (pp/pprint al)
@@ -29,13 +30,13 @@
 (pp/pprint attr-lookup)
 
 (def target-ent->col-lookup
-  (->> perturb
+  (->> mutant
      (sr/select [::brass-spec/tables sr/ALL])
      (map (fn [{name ::aql-spec/name, cols ::brass-spec/columns}]
             [name cols]))
      (into {})))
 (def ent-t
-  (->> perturb-lookup
+  (->> mutant-lookup
        (sr/select [sr/MAP-VALS sr/LAST])
        distinct))
 
@@ -56,7 +57,7 @@
               {::brass-spec/s brass-data/schema-s
                ::brass-spec/x brass-data/schema-x
                ::brass-spec/f brass-data/mapping-f
-               ::brass-spec/schema-perturbation perturb}))
+               ::brass-spec/schema-mutation mutant}))
 
 (->> factory
      ::brass-cospan/s

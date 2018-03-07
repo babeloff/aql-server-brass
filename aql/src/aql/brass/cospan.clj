@@ -2,7 +2,7 @@
 (ns aql.brass.cospan
   (:require
    (aql [spec :as aql-spec])
-   (aql.brass [spec :as brass-spec])
+   (aql.brass.spec [mutant :as brass-spec])
    (clojure [pprint :as pp]
             [string :as st])
    (com.rpl [specter :as sr])
@@ -15,19 +15,6 @@
     AqlParser
     AqlMultiDriver)))
 
-
-(defn- convert-permute-col-name
-  [col-key]
-  (let [{ent :ent col :cscol}
-        (sr/select-one [col-key]
-            brass-spec/schema-permutation-mapping)]
-    [ent col]))
-
-(defn- convert-permute-entity
-  [{table "table" columns "columns"}]
-  {::aql-spec/name table
-   ::brass-spec/columns (mapv convert-permute-col-name columns)})
-
 (defn provide-references [tables permute]
   [::brass-spec/references nil])
 
@@ -39,33 +26,7 @@
      (map (fn [[a _ _]] [a nil])))
     references))
 
-(defn convert-perturbation
-  [permutation-json]
-  (let [tables (->> permutation-json
-                    (sr/select-one
-                      ["martiServerModel"
-                       "requirements"
-                       "postgresqlPerturbation"
-                       "tables"]))]
-    {::brass-spec/tables
-     (into [{::aql-spec/name "source"
-             ::brass-spec/columns
-                             [["source" "name"]
-                              ["source" "channel"]]}]
-          (map convert-permute-entity)
-          tables)
-     ::brass-spec/references
-     (let [tabv (into [] (into #{} (map (fn [{tab "table"}] tab)) tables))
-           pairs (partition 2 1 tabv)]
-       (into [["has_source" (first tabv) "source"]]
-          (comp
-              (map (fn [[lhs rhs]]
-                     [[(str "has_" lhs) rhs lhs]
-                      [(str "has_" rhs) lhs rhs]]))
-              cat)
-          pairs))}))
-
-(defn perturb->col-lookup<-name
+(defn mutant->col-lookup<-name
   "construct an sequence of tuples [new-entity old-entity column]"
   [pert]
   (->> pert
@@ -119,7 +80,7 @@
              (map (fn [[_ col-name]]
                     (vector col-name col-name)))
              (gxf/sort-by (fn [[name _]] name)))]
-        [[[ent-name] ["cot_cospan"]]
+        [[[ent-name] ["cospan"]]
          #::aql-spec
          {:attribute-map (into {} attr-map-xform entity)
           :reference-map
@@ -128,24 +89,24 @@
 (defn factory
   [{base ::brass-spec/s
     cospan ::brass-spec/x
-    perturb ::brass-spec/schema-perturbation
+    mutant ::brass-spec/schema-mutation
     ftor-f ::brass-spec/f}]
   (let [ent-lookup (schema->col-lookup<-name cospan)
-        perturb-lookup (perturb->col-lookup<-name perturb)
-        references (::brass-spec/references perturb)
+        mutant-lookup (mutant->col-lookup<-name mutant)
+        references (::brass-spec/references mutant)
         col-lookup (merge-with #(conj %1 [::pert %2])
-                               ent-lookup perturb-lookup)
+                               ent-lookup mutant-lookup)
         attr-lookup (filter<-type ::aql-spec/attributes col-lookup)
         ; refr-lookup (filter<-type ::aql-spec/references col-lookup)
         target-ent->col-lookup
-        (->> perturb
+        (->> mutant
              (sr/select [::brass-spec/tables sr/ALL])
              (map (fn [{name ::aql-spec/name, cols ::brass-spec/columns}]
                     [name cols]))
              (into {}))
-        ; ent-x (->> perturb-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
-        ; ent-s (->> perturb-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
-        ent-t (->> perturb-lookup
+        ; ent-x (->> mutant-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
+        ; ent-s (->> mutant-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
+        ent-t (->> mutant-lookup
                    (sr/select [sr/MAP-VALS sr/LAST])
                    distinct)
         observations

@@ -1,31 +1,18 @@
 (ns aql.server
   (:require
+   (aql [service :as util])
    (aql [routes :as routes])
-   (org.httpkit [server :as svr])
-   (clojure.tools [logging :as log])
-   (clojure.tools.nrepl [server :as nrs])
-   (compojure [handler :as hdlr]))
+   (clojure.tools [logging :as log]))
   (:import [org.apache.commons.daemon
             Daemon DaemonContext])
   (:gen-class
     :implements [org.apache.commons.daemon.Daemon]))
 
-(defonce nrepl-server (nrs/start-server :port 7888))
-(log/info "nrepl server "
-          (str (get nrepl-server :ss)))
-
-(defonce main-server (atom nil))
-
-(defn stop-server []
-  (when-not (nil? @main-server)
-    (@main-server :timeout 100)
-    (reset! main-server nil)))
-
-(def IP "127.0.0.1")
-(def PORT 9090)
+;; daemon implementation
+(defn -init [this ^DaemonContext context]
+  (util/init (.getArguments context)))
+(defn -start [this] (future (util/start)))
+(defn -stop [this] (util/stop))
 (defn -main [& args]
-  (log/info "aql server starting. " IP ":" PORT)
-  (reset! main-server
-          (svr/run-server
-           (hdlr/site #'routes/aql-routes)
-           {:port PORT :ip IP})))
+  ; (let [signal (java.util.concurrent.CountDownLatch. 1)])
+  (util/init args) (util/start #'routes/aql-routes))
