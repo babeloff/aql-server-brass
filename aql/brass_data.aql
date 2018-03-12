@@ -134,18 +134,18 @@ schema T = literal : sql1 {
 mapping G = literal : T -> X {
   entity cot_action -> cospan
     foreign_keys 
-      has_source -> cospan
       has_cot_detail -> cospan
+      has_source -> cospan
     attributes 
-      point_ce -> point_ce
-      id -> cot_event_id
-      servertime -> servertime
-      longitude -> longitude
-      latitude -> latitude
-      tileX -> tileX
-      point_le -> point_le
       how -> how
+      id -> cot_event_id
+      latitude -> latitude
+      longitude -> longitude
+      point_ce -> point_ce
+      point_le -> point_le
+      servertime -> servertime
       source_id -> source_id
+      tileX -> tileX
   entity cot_detail -> cospan
     foreign_keys 
       has_cot_action -> cospan

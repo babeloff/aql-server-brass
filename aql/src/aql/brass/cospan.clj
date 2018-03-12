@@ -20,7 +20,7 @@
 
 (defn target-ent->fk-mapping
   [references ent-name]
-  (into {}
+  (into (sorted-map)
     (comp
      (filter (fn [[_ b _]] (= b ent-name)))
      (map (fn [[a _ _]] [a nil])))
@@ -82,7 +82,8 @@
              (gxf/sort-by (fn [[name _]] name)))]
         [[[ent-name] ["cospan"]]
          #::aql-spec
-         {:attribute-map (into {} attr-map-xform entity)
+         {:attribute-map
+          (into (sorted-map) attr-map-xform entity)
           :reference-map
           (target-ent->fk-mapping references ent-name)}])))))
 
@@ -137,8 +138,9 @@
      {:name "G"
       :type ::aql-spec/mapping
       :schema-map ["T" "X"]
-      :entity-map (into {} (entity-map-xform
-                            target-ent->col-lookup
-                            target-ent->fk-mapping
-                            references)
-                        ent-t)}}))
+      :entity-map
+      (into {} (entity-map-xform
+                 target-ent->col-lookup
+                 target-ent->fk-mapping
+                 references)
+             ent-t)}}))
