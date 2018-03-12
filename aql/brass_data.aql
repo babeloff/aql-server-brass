@@ -106,6 +106,7 @@ schema T = literal : sql1 {
     has_cot_detail : cot_action -> cot_detail
   attributes 
     how : cot_action -> Varchar
+    id : cot_action -> Integer
     latitude : cot_action -> Real
     longitude : cot_action -> Real
     point_ce : cot_action -> Integer
@@ -113,13 +114,17 @@ schema T = literal : sql1 {
     servertime : cot_action -> Bigint
     source_id : cot_action -> Integer
     tileX : cot_action -> Integer
+    
     cot_event_id : cot_detail -> Integer
     cot_position_id : cot_detail -> Integer
     cot_type : cot_detail -> Varchar
     detail : cot_detail -> Text
+    id : cot_detail -> Integer
     point_hae : cot_detail -> Integer
     tileY : cot_detail -> Integer
+    
     channel : source -> Varchar
+    id : source -> Integer
     name : source -> Varchar
     observation_equations 
       forall x:cot_action . source_id(x) = id(has_source(x))
@@ -133,9 +138,9 @@ mapping G = literal : T -> X {
       has_cot_detail -> cospan
     attributes 
       point_ce -> point_ce
+      id -> cot_event_id
       servertime -> servertime
       longitude -> longitude
-      cot_event_id -> cot_event_id
       latitude -> latitude
       tileX -> tileX
       point_le -> point_le
@@ -149,11 +154,13 @@ mapping G = literal : T -> X {
       cot_position_id -> cot_position_id
       cot_type -> cot_type
       detail -> detail
+      id -> cot_event_id
       point_hae -> point_hae
       tileY -> tileY
   entity source -> cospan
     attributes 
       channel -> channel
+      id -> source_id
       name -> name
 }
 

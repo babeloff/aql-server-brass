@@ -8,4 +8,4 @@
      (->> :foo (fn [step] (do (log/info \"hello\" step) step) print)")
 
 (defmacro echo [action & args]
-  `(fn ([tru] (do (~action ~@args tru) tru))))
+  `(fn [tru#] (do (~action ~@args tru#) tru#)))

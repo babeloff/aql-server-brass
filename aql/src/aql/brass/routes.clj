@@ -1,7 +1,6 @@
 (ns aql.brass.routes
   (:require
-   (aql [routes :as aql-routes]
-        [service :as aql-util])
+   (aql [routes :as aql-routes])
    (org.httpkit [server :as svr])
    (clojure.data [json :as json])
    (clojure.tools [logging :as log])
@@ -14,13 +13,14 @@
     [core :as http])
    (ring.middleware [json :as middleware])
    (ring.util [response :refer [response]])
+   (aql [util :as aql-util]
+        [wrap :as aql-wrap]
+        [serialize :as aql-serial])
    (aql.brass
     [data :as brass-data]
     [cospan :as brass-cospan]
     [mutant :as brass-mutant])
-   (aql.brass.spec [mutant :as brass-spec])
-   (aql [wrap :as aql-wrap]
-        [serialize :as aql-serial])))
+   (aql.brass.spec [mutant :as brass-spec])))
 
 (defn brass-p2c1-handler [request]
   (log/info "brass-p2c1-handler" request)
