@@ -9,8 +9,8 @@
 ;; The other relevant information is obtained by merging
 ;; - this map [aql.brass.spec/lookup]
 ;;
-;; :ent indicates the entity for which is the parent of the attribute
-;; :cscol is the original name for that attribute
+;; ::entity indicates the entity for which is the parent of the attribute
+;; ::cospan is the original name for that attribute
 ;; :ref indicates that this is morphism between entities.
 ;;
 ;; - the permutation-json object [aql.brass.client/mutant-json]
@@ -26,32 +26,32 @@
 ;;
 
 (def lookup
-  {"Source_Id" {:ent "source" :cscol "source_id" :tgcol "id"}
-   "Source_Name" {:ent "source" :cscol "name"}
-   "Source_Channel" {:ent "source" :cscol "channel"}
+  {"Source_Id" {::entity "source" ::cospan "source_id" ::target "id"}
+   "Source_Name" {::entity "source" ::cospan "name"}
+   "Source_Channel" {::entity "source" ::cospan "channel"}
 
-   "Event_Id" {:ent "cot_event" :cscol "cot_event_id" :tgcol "id"}
-   "Event_SourceId" {:ent "cot_event"
-                     :cscol "source_id"
+   "Event_Id" {::entity "cot_event" ::cospan "cot_event_id" ::target "id"}
+   "Event_SourceId" {::entity "cot_event"
+                     ::cospan "source_id"
                      :ref "Source_Id"
                      :ref-name "has_source"}
-   "Event_CotType" {:ent "cot_event" :cscol "cot_type"}
-   "Event_How" {:ent "cot_event" :cscol "how"}
-   "Event_Detail" {:ent "cot_event" :cscol "detail"}
-   "Event_ServerTime" {:ent "cot_event" :cscol "servertime"}
+   "Event_CotType" {::entity "cot_event" ::cospan "cot_type"}
+   "Event_How" {::entity "cot_event" ::cospan "how"}
+   "Event_Detail" {::entity "cot_event" ::cospan "detail"}
+   "Event_ServerTime" {::entity "cot_event" ::cospan "servertime"}
 
-   "Position_Id" {:ent "cot_event_position" :cscol "cot_position_id" :tgcol "id"}
-   "Position_EventId" {:ent "cot_event_position"
-                       :cscol "cot_event_id"
+   "Position_Id" {::entity "cot_event_position" ::cospan "cot_position_id" ::target "id"}
+   "Position_EventId" {::entity "cot_event_position"
+                       ::cospan "cot_event_id"
                        :ref "Event_Id"
                        :ref-name "has_cot_event"}
-   "Position_PointHae" {:ent "cot_event_position" :cscol "point_hae"}
-   "Position_PointCE" {:ent "cot_event_position" :cscol "point_ce"}
-   "Position_PointLE" {:ent "cot_event_position" :cscol "point_le"}
-   "Position_TileX" {:ent "cot_event_position" :cscol "tileX"}
-   "Position_TileY" {:ent "cot_event_position" :cscol "tileY"}
-   "Position_Longitude" {:ent "cot_event_position" :cscol "longitude"}
-   "Position_Latitude" {:ent "cot_event_position" :cscol "latitude"}})
+   "Position_PointHae" {::entity "cot_event_position" ::cospan "point_hae"}
+   "Position_PointCE" {::entity "cot_event_position" ::cospan "point_ce"}
+   "Position_PointLE" {::entity "cot_event_position" ::cospan "point_le"}
+   "Position_TileX" {::entity "cot_event_position" ::cospan "tileX"}
+   "Position_TileY" {::entity "cot_event_position" ::cospan "tileY"}
+   "Position_Longitude" {::entity "cot_event_position" ::cospan "longitude"}
+   "Position_Latitude" {::entity "cot_event_position" ::cospan "latitude"}})
 
 (s/def ::reference (s/tuple string? string? string?))
 (s/def ::references (s/coll-of ::reference :kind vector? :distinct true))

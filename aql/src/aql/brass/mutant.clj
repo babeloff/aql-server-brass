@@ -8,7 +8,7 @@
 
 (defn norm-col-name
   [col-key]
-  (let [{ent :ent col :cscol}
+  (let [{ent ::entity col ::cospan}
         (sr/select-one [col-key]
             brass-spec/lookup)]
     [ent col]))
