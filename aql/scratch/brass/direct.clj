@@ -10,7 +10,7 @@
 (require '[clojure.string :as st])
 (require '[clojure.pprint :as pp])
 (require '(com.rpl [specter :as sr]))
-(def pert brass-data/schema-mutation)
+(def pert brass-data/mutant)
 
 (def ts-0 brass-data/sql1)
 
@@ -50,9 +50,9 @@
      print)
 
 (def ent-map (brass-cospan/schema-map-by-name brass-data/schema-s))
-(def arrows (brass-cospan/expand-mutation brass-data/schema-mutation))
+(def arrows (brass-cospan/expand-mutation brass-data/mutant))
 (def col-map (merge-with #(conj %1 [:move %2]) ent-map arrows))
 (pp/pprint col-map)
 (def ent-x (->> arrows (sr/select [sr/MAP-VALS]) distinct))
 (brass-cospan/schema-map-by-name brass-data/schema-s)
-(brass-cospan/make-central-schema brass-data/schema-s brass-data/schema-mutation)
+(brass-cospan/make-central-schema brass-data/schema-s brass-data/mutant)

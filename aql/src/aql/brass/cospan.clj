@@ -28,15 +28,16 @@
 
 (defn mutant->col-lookup<-name
   "construct an sequence of tuples [new-entity old-entity column]"
-  [pert]
-  (->> pert
-       (sr/select
-        [::brass-spec/tables sr/ALL (sr/collect-one ::aql-spec/name)
-         ::brass-spec/columns sr/ALL (sr/collect-one sr/FIRST)
-         sr/LAST])
-       (map (fn [[new-ent old-ent col-name]]
-              [col-name [old-ent new-ent]]))
-       (into {})))
+  [mutant]
+  (into
+    (sorted-map)
+    (map (fn [[new-ent old-ent col-name]]
+           [col-name [old-ent new-ent]]))
+    (sr/select
+     [::brass-spec/tables sr/ALL (sr/collect-one ::aql-spec/name)
+      ::brass-spec/columns sr/ALL (sr/collect-one sr/FIRST)
+      sr/LAST]
+     mutant)))
 
 (defn schema->col-lookup<-name
   [base]
@@ -90,7 +91,7 @@
 (defn factory
   [{base ::brass-spec/s
     cospan ::brass-spec/x
-    mutant ::brass-spec/schema-mutation
+    mutant ::brass-spec/mutant
     ftor-f ::brass-spec/f}]
   (let [ent-lookup (schema->col-lookup<-name cospan)
         mutant-lookup (mutant->col-lookup<-name mutant)
@@ -105,8 +106,6 @@
              (map (fn [{name ::aql-spec/name, cols ::brass-spec/columns}]
                     [name cols]))
              (into {}))
-        ; ent-x (->> mutant-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
-        ; ent-s (->> mutant-lookup (sr/select [sr/MAP-VALS sr/FIRST]) distinct)
         ent-t (->> mutant-lookup
                    (sr/select [sr/MAP-VALS sr/LAST])
                    distinct)

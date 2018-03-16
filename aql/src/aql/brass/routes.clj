@@ -32,7 +32,7 @@
                      {::brass-spec/s brass-data/schema-s
                       ::brass-spec/x brass-data/schema-x
                       ::brass-spec/f brass-data/mapping-f
-                      ::brass-spec/schema-mutation mutant})
+                      ::brass-spec/mutant mutant})
             typeside [brass-data/ts-sql1]
             model [(->> factory
                         ::brass-cospan/s

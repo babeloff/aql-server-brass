@@ -14,7 +14,7 @@
 (require '[aql.brass.client :as brass-client] :reload)
 
 (def mutant (brass-mutant/normalize brass-client/mutant-json))
-(s/explain ::brass-spec/schema-mutation mutant)
+(s/explain ::brass-spec/mutant mutant)
 ;; (pp/pprint mutant)
 
 ; (pp/pprint brass-data/schema-s)
@@ -57,7 +57,7 @@
               {::brass-spec/s brass-data/schema-s
                ::brass-spec/x brass-data/schema-x
                ::brass-spec/f brass-data/mapping-f
-               ::brass-spec/schema-mutation mutant}))
+               ::brass-spec/mutant mutant}))
 
 (->> factory
      ::brass-cospan/s
