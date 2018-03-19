@@ -58,11 +58,12 @@
         (spit "brass_data.aql" (str cmd "\n"))
         (try
           (let [gen (aql-wrap/generate cmd)]
+            (log/info "brass phase 2 results: " gen)
             (->> gen
               (aql-wrap/xform-result
                 brass-data/query-demo-attributes
                 brass-data/query-tweeker)
-              (aql-util/echo log/info "result ")
+              ;; (aql-util/echo log/info "result ")
               json/write-str))
           (catch Exception ex
             (log/error "aql fault " ex)
