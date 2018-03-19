@@ -3,6 +3,7 @@
 (require '(com.rpl [specter :as sr]))
 (require '[clojure.spec.alpha :as s])
 (require '(clojure.tools [logging :as log]))
+(require '[net.cgrand.xforms :as gxf])
 
 (require '[aql.spec :as aql-spec] :reload)
 (require '[aql.util :as aql-util] :reload)
@@ -15,34 +16,13 @@
 
 (def mutant (brass-mutant/normalize brass-client/mutant-json))
 (s/explain ::brass-spec/mutant mutant)
-;; (pp/pprint mutant)
+(pp/pprint mutant)
+(into [] brass-cospan/entity-names-xform [mutant])
 
-; (pp/pprint brass-data/schema-s)
-(def ent-lookup (brass-cospan/schema->col-lookup<-name brass-data/schema-x))
-; (pp/pprint ent-lookup)
-(def mutant-lookup (brass-cospan/mutant->col-lookup<-name mutant))
-; (pp/pprint mutant-lookup)
-(def col-lookup (merge-with #(conj %1 [::pert %2]) ent-lookup mutant-lookup))
-; (pp/pprint col-lookup)
-(def attr-lookup (brass-cospan/filter<-type ::aql-spec/attributes col-lookup))
-; (pp/pprint al)
-; (def refr-lookup (brass-cospan/filter<-type ::aql-spec/references col-lookup))
-(pp/pprint attr-lookup)
-
-(def target-ent->col-lookup
-  (->> mutant
-     (sr/select [::brass-spec/tables sr/ALL])
-     (map (fn [{name ::aql-spec/name, cols ::brass-spec/columns}]
-            [name cols]))
-     (into {})))
-(def ent-t
-  (->> mutant-lookup
-       (sr/select [sr/MAP-VALS sr/LAST])
-       distinct))
-
-(def references [["source_id" "cot_action" "source"]
-                 ["has_cot_action" "cot_detail" "cot_action"]
-                 ["has_cot_detail" "cot_action" "cot_detail"]])
+(def entity-name "cot_action")
+; (into (sorted-map) (brass-cospan/entity-map-attr-xform entity-name) [mutant])
+; (into (sorted-map) (brass-cospan/entity-map-ref-xform entity-name) [mutant])
+(pp/pprint (brass-cospan/entity-map-xform mutant entity-name))
 
 (s/explain ::aql-spec/schema brass-data/schema-s)
 (s/explain ::aql-spec/schema brass-data/schema-x)

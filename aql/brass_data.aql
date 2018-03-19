@@ -101,11 +101,12 @@ schema T = literal : sql1 {
     source
     cot_detail
   foreign_keys 
+    has_cot_action : source -> cot_action
     has_source : cot_action -> source
-    has_cot_action : cot_detail -> cot_action
-    has_cot_detail : cot_action -> cot_detail
+    has_source : cot_detail -> source
+    has_cot_detail : source -> cot_detail
   attributes 
-    
+    cot_event_id : cot_action -> Integer
     how : cot_action -> Varchar
     latitude : cot_action -> Real
     longitude : cot_action -> Real
@@ -115,25 +116,23 @@ schema T = literal : sql1 {
     source_id : cot_action -> Integer
     tileX : cot_action -> Integer
     cot_event_id : cot_detail -> Integer
+    cot_position_id : cot_detail -> Integer
     cot_type : cot_detail -> Varchar
     detail : cot_detail -> Text
     point_hae : cot_detail -> Integer
     tileY : cot_detail -> Integer
     channel : source -> Varchar
     name : source -> Varchar
-    observation_equations 
-      forall x:cot_action . source_id(x) = id(has_source(x))
-      forall y:cot_detail . cot_event_id(y) = id(has_cot_action(y))
+    source_id : source -> Integer
 }
 
 mapping G = literal : T -> X {
   entity cot_action -> cospan
     foreign_keys 
-      has_cot_detail -> cospan
       has_source -> cospan
     attributes 
+      cot_event_id -> cot_event_id
       how -> how
-      id -> id
       latitude -> latitude
       longitude -> longitude
       point_ce -> point_ce
@@ -143,18 +142,22 @@ mapping G = literal : T -> X {
       tileX -> tileX
   entity cot_detail -> cospan
     foreign_keys 
-      has_cot_action -> cospan
+      has_source -> cospan
     attributes 
       cot_event_id -> cot_event_id
+      cot_position_id -> cot_position_id
       cot_type -> cot_type
       detail -> detail
-      id -> id
       point_hae -> point_hae
       tileY -> tileY
   entity source -> cospan
+    foreign_keys 
+      has_cot_action -> cospan
+      has_cot_detail -> cospan
     attributes 
       channel -> channel
       name -> name
+      source_id -> source_id
 }
 
 query Qx = [ toCoQuery G ; toQuery F ]

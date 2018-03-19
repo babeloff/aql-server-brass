@@ -79,7 +79,7 @@
    "Event_Detail"
    {::entity "cot_event"
     ::cospan "detail"
-    ::type "Varchar"}
+    ::type "Text"}
    "Event_ServerTime"
    {::entity "cot_event"
     ::cospan "servertime"
@@ -119,8 +119,8 @@
    "Position_Longitude"
    {::entity "cot_event_position"
     ::cospan "longitude"
-    ::type "Bigint"}
+    ::type "Real"}
    "Position_Latitude"
    {::entity "cot_event_position"
     ::cospan "latitude"
-    ::type "Bigint"}})
+    ::type "Real"}})

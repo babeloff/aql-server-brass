@@ -15,131 +15,102 @@
     AqlParser
     AqlMultiDriver)))
 
-(defn provide-references [tables permute]
-  [::brass-spec/references nil])
-
-(defn target-ent->fk-mapping
-  [references ent-name]
-  (into (sorted-map)
-    (comp
-     (filter (fn [[_ b _]] (= b ent-name)))
-     (map (fn [[a _ _]] [a nil])))
-    references))
-
-(defn mutant->col-lookup<-name
-  "construct an sequence of tuples [new-entity old-entity column]"
-  [mutant]
-  (into
-    (sorted-map)
-    (map (fn [[new-ent old-ent col-name]]
-           [col-name [old-ent new-ent]]))
-    (sr/select
-     [::brass-spec/tables sr/ALL (sr/collect-one ::aql-spec/name)
-      ::brass-spec/columns sr/ALL (sr/collect-one sr/FIRST)
-      sr/LAST]
-     mutant)))
-
-(defn schema->col-lookup<-name
-  [base]
-  (->> base
-       (sr/select
-        [(sr/submap [::aql-spec/references ::aql-spec/attributes])
-         sr/ALL (sr/collect-one sr/FIRST) sr/LAST sr/ALL])
-       (map (fn [[arrow-type [col-name ent-name col-type]]]
-              [col-name {::atype arrow-type
-                         ::ent-name ent-name
-                         ::col-ent col-type}]))
-       (into {})))
-
-(defn filter<-type
-  [type col-lookup]
-  (sr/setval
-   [sr/MAP-VALS
-    (sr/not-selected?
-      ::atype
-      (sr/pred= type))]
-   sr/NONE col-lookup))
-
-(def attributes-xform
+(def entity-names-xform
    (comp
-    (map
-      (fn [[col-name {[_ new-ent] ::pert, col-type ::col-ent}]]
-        [col-name new-ent col-type]))
-    (gxf/sort-by (fn [[col-name new-ent _]] [new-ent col-name]))))
+    (sr/traverse-all
+     [::brass-spec/tables sr/ALL
+      :aql.spec/name])
+    (gxf/sort-by (fn [ent-name] ent-name))))
 
-
-(defn entity-map-xform
-  "unpack the entity-map into the mapping object"
-  [target-ent->col-lookup target-ent->fk-mapping references]
+(defn entity-map-attr-xform
+  [entity-name]
   (comp
-   (gxf/sort-by (fn [ent-name] ent-name))
-   (map
-    (fn [ent-name]
-      (let [entity (target-ent->col-lookup ent-name)
-            attr-map-xform
-            (comp
-             (map (fn [[_ col-name]]
-                    (vector col-name col-name)))
-             (gxf/sort-by (fn [[name _]] name)))]
-        [[[ent-name] ["cospan"]]
-         #::aql-spec
-         {:attribute-map
-          (into (sorted-map) attr-map-xform entity)
-          :reference-map
-          (target-ent->fk-mapping references ent-name)}])))))
+   (sr/traverse-all
+     [::brass-spec/tables sr/ALL
+      (sr/pred #(= (:aql.spec/name %) entity-name))
+      ::brass-spec/columns sr/ALL])
+   ; (gxf/sort-by (fn [[name _]] name))
+   (map (fn [{col-name ::brass-spec/cospan}]
+          (vector col-name col-name)))))
 
+(defn entity-map-ref-xform
+  [entity-name]
+  (comp
+   (sr/traverse-all
+    [::brass-spec/references sr/ALL
+     (sr/pred #(= (nth % 1) entity-name))
+     sr/VAL])
+   (map (fn [[[a _ _]]] [a nil]))))
+
+(defn entity-map
+  [mutant]
+  (fn [entity-name]
+    [[[entity-name] ["cospan"]]
+     #::aql-spec
+     {:attribute-map
+      (into (sorted-map)
+            (entity-map-attr-xform entity-name)
+            [mutant])
+      :reference-map
+      (into (sorted-map)
+            (entity-map-ref-xform entity-name)
+            [mutant])}]))
+
+;; mutant example can be produced via
+;; scratch/brass/mutant.clj
 (defn factory
   [{base ::brass-spec/s
     cospan ::brass-spec/x
-    mutant ::brass-spec/mutant
-    ftor-f ::brass-spec/f}]
-  (let [ent-lookup (schema->col-lookup<-name cospan)
-        mutant-lookup (mutant->col-lookup<-name mutant)
-        references (::brass-spec/references mutant)
-        col-lookup (merge-with #(conj %1 [::pert %2])
-                               ent-lookup mutant-lookup)
-        attr-lookup (filter<-type ::aql-spec/attributes col-lookup)
-        ; refr-lookup (filter<-type ::aql-spec/references col-lookup)
-        target-ent->col-lookup
-        (->> mutant
-             (sr/select [::brass-spec/tables sr/ALL])
-             (map (fn [{name ::aql-spec/name, cols ::brass-spec/columns}]
-                    [name cols]))
-             (into {}))
-        ent-t (->> mutant-lookup
-                   (sr/select [sr/MAP-VALS sr/LAST])
-                   distinct)
-        observations
-        [[["x" "cot_action"]
-          [::aql-spec/equal
-           ["source_id" "x"]
-           ["id" ["has_source" "x"]]]]
-         [["y" "cot_detail"]
-          [::aql-spec/equal
-           ["cot_event_id" "y"]
-           ["id" ["has_cot_action" "y"]]]]]]
-    {::s base
-     ::x cospan
-     ::f ftor-f
+    ftor-f ::brass-spec/f
+    mutant ::brass-spec/mutant}]
+  {::s base
+   ::x cospan
+   ::f ftor-f
 
-     ::t
-     #::aql-spec
-     {:name "T"
-      :type ::aql-spec/schema
-      :extend "sql1"
-      :entities (into #{} ent-t)
-      :attributes (into [] attributes-xform attr-lookup)
-      :references references
-      :observations observations}
+   ::t
+   #::aql-spec
+   {:name "T"
+    :type ::aql-spec/schema
+    :extend "sql1"
+    :entities
+    (into #{} entity-names-xform [mutant])
 
-     ::g
-     #::aql-spec
-     {:name "G"
-      :type ::aql-spec/mapping
-      :schema-map ["T" "X"]
-      :entity-map
-      (into {} (entity-map-xform
-                 target-ent->col-lookup
-                 target-ent->fk-mapping
-                 references)
-             ent-t)}}))
+    :attributes
+    ;; take mutant to this
+    ;; ["cot_event_id" "cot_action" "Integer"]
+    (into []
+      (comp
+       (sr/traverse-all
+        [::brass-spec/tables sr/ALL
+         (sr/collect-one :aql.spec/name)
+         ::brass-spec/columns sr/ALL
+         (sr/collect-one ::brass-spec/cospan)
+         ::brass-spec/type])
+       (gxf/sort-by (fn [[new-ent col-name _]] [new-ent col-name]))
+       (map (fn [[new-ent col-name col-type]] [col-name new-ent col-type])))
+      [mutant])
+
+    :references
+    (::brass-spec/references mutant)
+
+    :observations nil}
+    ;[[["x" "cot_action"]
+    ;  [::aql-spec/equal
+    ;   ["source_id" "x"]
+    ;   ["id" ["has_source" "x"]]
+    ; [["y" "cot_detail"]
+    ;  [::aql-spec/equal
+    ;   ["cot_event_id" "y"]
+    ;   ["id" ["has_cot_action" "y"]]}
+
+   ::g
+   #::aql-spec
+   {:name "G"
+    :type ::aql-spec/mapping
+    :schema-map ["T" "X"]
+    :entity-map
+    (into {}
+      (comp
+        entity-names-xform
+        (map (entity-map mutant)))
+     [mutant])}})
