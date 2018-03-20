@@ -5,7 +5,7 @@
 ;(require '[string :as st])
 (require '(com.rpl [specter :as sr]))
 (require '(aql.brass [data :as brass-data]))
-(require '(aql [wrap :as aql-wrap]))
+(require '(aql [wrap :as aql-wrap]) :reload)
 (require '(aql [util :as aql-util]))
 ;; working with the p2 cp1 brass demo
 ;; (require '[aql.serialize :as ser] :reload)
@@ -30,6 +30,8 @@
 
 (aql-wrap/query->sql query)
 
+(into [] (comp (sr/traverse-all [:err])) [gen])
+(into [] (comp (map #(.getMessage %))) (sr/traverse [:err sr/ALL] gen))
 (def result (aql-wrap/xform-result reqs identity gen))
 ((aql-util/echo log/info "result ") result)
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env boot
 
 (def group-id "brass-immortals")
-(def artifact-id "brass-aql-server")
+(def artifact-id "aql-brass-server")
 (def version "2018.03.16")
 (def main-entry 'aql.brass.server)
 (def exec-jar (str artifact-id "-" version ".jar"))
@@ -25,7 +25,11 @@
       [javax.servlet/servlet-api "2.5"]
       [commons-daemon/commons-daemon "1.1.0"]
       [org.clojure/tools.nrepl "0.2.12"]
-      [org.clojure/tools.cli "0.3.5"]])
+      [org.clojure/tools.cli "0.3.5"]
+      [net.cgrand/xforms "0.16.0"]])
+    ;; '[[seancorfield/boot-tools-deps "0.4.3"]])
+
+;; (require '[boot-tools-deps.core :refer [deps]])
 
 (task-options!
   pom {:project     (str group-id artifact-id)
@@ -44,14 +48,6 @@
   push {}
   uber {}
   target {:dir #{"target"}})
-
-(deftask build
-  "Build and install the project locally."
-  [] (comp (pom) (jar) (target) (install)))
-
-(deftask deploy
-  "Build and deploy the project."
-  [] (comp (pom) (jar) (push)))
 
 (deftask uberjar
   [] (comp (aot) (uber) (jar) (sift :include #{(re-pattern exec-jar)}) (target)))

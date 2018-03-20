@@ -63,7 +63,6 @@
               (aql-wrap/xform-result
                 brass-data/query-demo-attributes
                 brass-data/query-tweeker)
-              ;; ((aql-util/echo log/info "result "))
               json/write-str))
           (catch Exception ex
             (log/error "aql fault " ex)

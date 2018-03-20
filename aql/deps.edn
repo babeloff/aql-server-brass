@@ -1,7 +1,9 @@
 ;; http://www.functionalbytes.nl/clojure/nodejs/figwheel/repl/clojurescript/cli/2017/12/20/tools-deps-figwheel.html
 ;;
 {:paths ["src"]
- :deps {org.clojure/tools.nrepl {:mvn/version "0.2.12"}
+ :deps {org.clojure/clojure {:mvn/version "1.9.0"}
+        org.clojure/tools.deps.alpha {:mvn/version "0.5.410"}
+        org.clojure/tools.nrepl {:mvn/version "0.2.12"}
         proto-repl {:mvn/version "0.3.1"}
         http-kit {:mvn/version "2.2.0"}
         javax.xml.bind/jaxb-api {:mvn/version "2.3.0"}
@@ -16,16 +18,7 @@
         javax.servlet/servlet-api {:mvn/version "2.5"}
         org.clojure/tools.cli {:mvn/version "0.3.5"}
         net.cgrand/xforms {:mvn/version "0.16.0"}}
- :aliases
- {:repl {:extra-deps
-         {;; Figwheel ClojureScript REPL
-          com.cemerick/piggieback {:mvn/version "0.2.2"
-                                   :exclusions  [com.google.javascript/closure-compiler]}
-          figwheel-sidecar        {:mvn/version "0.5.14"
-                                   :exclusions  [com.google.javascript/closure-compiler]}
-
-                   ;; nREPL
-          org.clojure/tools.nrepl {:mvn/version "0.2.12"}
-          refactor-nrepl          {:mvn/version "2.3.1"}}}}
  :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
-             "clojars" {:url "https://clojars.org/repo/"}}}
+             "clojars" {:url "https://clojars.org/repo/"}
+             "babeloff" "https://github.com/babeloff/mvn-repo/raw/master/releases"
+             "babeloff-snapshots" "https://github.com/babeloff/mvn-repo/raw/master/snapshots"}}
