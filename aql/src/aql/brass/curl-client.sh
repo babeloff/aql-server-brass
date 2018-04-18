@@ -12,10 +12,10 @@ cat << JSON  | curl -d @- -H "${HEADER}"  ${ENDPOINT}
        {"tables":
         [{"table":  "cot_action",
           "columns":
-           ["CotEvent_Id",
-            "CotEvent_SourceId",
-            "CotEvent_How",
-            "CotEvent_ServerTime",
+           ["Event_Id",
+            "Event_SourceId",
+            "Event_How",
+            "Event_ServerTime",
             "Position_PointCE",
             "Position_PointLE",
             "Position_TileX",
@@ -26,7 +26,7 @@ cat << JSON  | curl -d @- -H "${HEADER}"  ${ENDPOINT}
           ["Position_Id",
            "Position_EventId",
            "Position_PointHae",
-           "CotEvent_Detail",
+           "Event_Detail",
            "Position_TileY",
-           "CotEvent_CotType"]}]}}}}}
+           "Event_CotType"]}]}}}}}
 JSON

@@ -20,16 +20,17 @@ clj -m aql.brass.server
 clj -m aql.brass.server --port 23456
 ```
 
+
 A precompiled [uber-jar is available here](https://github.com/babeloff/mvn-repo).
 The easiest way to run the service is from the command line.
 ```bash
-java -jar ./<where-ever>/brass-aql-server-<version>.jar
+java -jar ./<where-ever>/aql-server-brass-<version>.jar
 ```
 
 ...and with command line arguments.
 
 ```bash
-java -jar ./<where-ever>/brass-aql-server-<version>.jar -p 23456
+java -jar ./<where-ever>/aql-server-brass-<version>.jar -p 23456
 ```
 
 In each case it writes a ready indicator to standard output.
@@ -47,7 +48,9 @@ For UNIX like platforms use [jsvc](http://commons.apache.org/proper/commons-daem
 
 Run the brass client demo from the command line.
 
+```bash
 clj -m aql.brass.client
+```
 
 This will submit a sample migration command from which the migrated queries will be extracted.
 

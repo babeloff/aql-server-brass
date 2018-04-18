@@ -42,7 +42,7 @@
 ;; - [aql.brass.spec.mutant/source]
 ;; by [aql.brass.mutant/normalize]
 
-(def lookup
+(def base-lookup
   {"Source_Id"
    {::entity "source"
     ::cospan "source_id"
@@ -124,3 +124,12 @@
    {::entity "cot_event_position"
     ::cospan "latitude"
     ::type "Real"}})
+
+(def lookup
+  (assoc base-lookup
+         "CotEvent_Id" (get base-lookup "Event_Id")
+         "CotEvent_SourceId" (get base-lookup "Event_SourceId")
+         "CotEvent_CotType" (get base-lookup "Event_CotType")
+         "CotEvent_How" (get base-lookup "Event_How")
+         "CotEvent_Detail" (get base-lookup "Event_Detail")
+         "CotEvent_ServerTime" (get base-lookup "Event_ServerTime")))

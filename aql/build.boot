@@ -2,7 +2,7 @@
 
 (def group-id "brass-immortals")
 (def artifact-id "aql-brass-server")
-(def version "2018.03.20")
+(def version "2018.04.18")
 (def main-entry 'aql.brass.server)
 (def exec-jar (str artifact-id "-" version ".jar"))
 
