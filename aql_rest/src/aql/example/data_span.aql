@@ -1,0 +1,104 @@
+schema S = literal : sql {
+ entities 
+    a b
+ foreign_keys 
+    has_a : b -> a
+ attributes 
+    i : a -> Varchar
+    j : a -> Varchar
+    k : b -> Varchar
+    m : b -> Varchar
+}
+
+
+schema T = literal : sql {
+ entities 
+    c d
+ foreign_keys 
+    has_c : d -> c
+ attributes 
+    i : c -> Varchar
+    j : d -> Varchar
+    k : c -> Varchar
+    m : d -> Varchar
+}
+
+
+schema X = literal : sql {
+ entities 
+    ac ad bc bd
+ foreign_keys 
+ 	a_has_c : ad -> ac
+ 	b_has_c : bd -> bc
+ 	has_a_c : bc -> ac
+ 	has_a_d : bd -> ad
+ attributes 
+    i : ac -> Varchar
+    j : ad -> Varchar
+    k : bc -> Varchar
+    m : bd -> Varchar
+}
+
+
+mapping F = literal : X -> S {
+ entity ac -> a
+    attributes i -> i
+ entity ad -> a
+ 	foreign_keys a_has_c -> b
+    attributes j -> j
+ entity bc -> b
+  	foreign_keys has_a_c -> has_a
+    attributes k -> k
+ entity bd -> b
+ 	foreign_keys has_a_d -> has_a
+ 	             b_has_c -> b
+    attributes m -> m
+}
+
+
+mapping G = literal : X -> T {
+ entity ac -> c
+    attributes i -> i
+ entity ad -> d
+ 	foreign_keys a_has_c -> has_c 
+    attributes j -> j
+ entity bc -> c
+  	foreign_keys has_a_c -> c
+    attributes k -> k
+ entity bd -> d
+ 	foreign_keys has_a_d -> c
+ 	             b_has_c -> has_c
+    attributes m -> m
+}
+
+
+instance Js = literal : S {
+ generators 
+    a1 a2 : a
+    b1 : b
+ equations 
+    a1.i = "a1i" a1.j = "a1j" 
+    b1.has_a = a1 b1.k = "b1k" b1.m = "b1m"
+    a2.i = "a2i" a2.j = "a2j" 
+}
+
+
+instance Jx = delta F Js
+
+
+instance Jt = sigma G Jx
+
+
+instance Jt_goal = literal : T {
+ generators 
+    c1 c2 : c
+    d1 d2 : d
+ equations 
+    c1.i = "a1i" c1.k = "b1k" 
+    d1.has_c = c1 d1.j = "a1j" d1.m = "d1m"
+ 
+    c2.i = "a2i" // c2.k = "null" 
+    d2.has_c = c2 d2.j = "a2j"// d2.m = "null"
+}
+
+

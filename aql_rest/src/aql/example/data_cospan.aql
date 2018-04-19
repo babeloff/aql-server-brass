@@ -1,0 +1,245 @@
+
+schema S = literal : sql {
+ entities
+   a b
+ foreign_keys
+   has : b -> a
+ attributes
+   i : a -> Varchar
+   j : a -> Varchar
+   k : b -> Varchar
+   m : b -> Varchar
+}
+
+
+schema T = literal : sql {
+ entities
+   c d
+ foreign_keys
+   has_c : d -> c
+   has_d : c -> d
+ attributes
+   i : c -> Varchar
+   j : d -> Varchar
+   k : c -> Varchar
+   m : d -> Varchar
+}
+
+schema R = T
+
+schema X = literal : sql {
+ entities
+   n
+ foreign_keys
+
+ attributes
+   i : n -> Varchar
+   j : n -> Varchar
+   k : n -> Varchar
+   m : n -> Varchar
+}
+
+
+mapping F = literal : S -> X {
+ entity a -> n
+   attributes
+     i -> i
+     j -> j
+ entity b -> n
+   foreign_keys has -> n
+   attributes
+     k -> k
+     m -> m
+}
+
+
+mapping G = literal : T -> X {
+ entity c -> n
+   foreign_keys has_d -> n
+   attributes
+     i -> i
+     k -> k
+ entity d -> n
+   foreign_keys has_c -> n
+   attributes
+     j -> j
+     m -> m
+}
+
+
+instance Js = literal : S {
+ generators
+   a1 a2 a3 a4 a5 : a
+   b1 b2 b3 b4 b5a b5b : b
+ equations
+  a1.i = "a1i" a1.j = "a1j"
+  b1.has = a1 b1.k = "b1k" b1.m = "b1m"
+  a2.i = "a2i" a2.j = "a2j"
+  b2.has = a2 // b2.k = "b2k" b2.m = "b2m"
+
+  a3.i = "a3i" a3.j = "a3j"
+  b3.has = a3 b3.k = "b3k" b3.m = "b3m"
+  a4.i = "a4i" a4.j = "a4j"
+  b4.has = a4 // b4.k = "b4k" b4.m = "b4m"
+
+  a5.i = "a5i" a5.j = "a5j"
+  b5a.has = a5 b5a.k = "b5ak" b5a.m = "b5am"
+  b5b.has = a5 b5b.k = "b5bk" b5b.m = "b5bm"
+}
+
+instance Jx = pi F Js
+instance Jy = sigma F Js
+  { options require_consistency=false allow_java_eqs_unsafe=true }
+
+instance JxGoal = literal : X {
+  generators
+    x1 x2 x3 x4 x5a x5b : n
+  equations
+    x1.i = "a1i" x1.j = "a1j" x1.k = "b1k" x1.m = "b1m"
+    x2.i = "a2i" x2.j = "a2j"
+    x3.i = "a3i" x3.j = "a3j" x3.k = "b2k" x3.m = "b2m"
+    x4.i = "a4i" x4.j = "a4j"
+
+    x5a.i = "a5i" x5a.j = "a3j" x5a.k = "b3k" x5a.m = "b3m"
+    x5b.i = "a5i" x5b.j = "a3j" x5b.k = "b4k" x5b.m = "b4m"
+  }
+
+instance Jt = delta G Jx // JxGoal
+// instance Jt = delta G sigma F Js
+//  { options require_consistency=false allow_java_eqs_unsafe=true }
+
+// the JtSigma is isomorphic with the target JtGoal
+instance JtGoal = literal : T {
+  generators
+    c1 c2 c3 c4 : c
+    d1 d2 d3 d4 : d
+  equations
+    c1.i = "a1i" c1.k = "b1k" c1.has_d = d1
+    c2.i = "a2i"              c2.has_d = d2
+    c3.i = "a3i" c3.k = "b2k" c3.has_d = d3
+    c4.i = "a4i"              c4.has_d = d4
+
+    d1.j = "a1j" d1.m = "b1m" d1.has_c = c1
+    d2.j = "a2j"              d2.has_c = c2
+    d3.j = "a3j" d3.m = "b2m" d3.has_c = c3
+    d4.j = "a4j"              d4.has_c = c4
+  }
+
+query QF = toQuery F
+query QG = toCoQuery G
+query Qx = [ QG ; QF ]
+
+instance JsRT = eval Qx JtGoal
+// JsRT should be isomorphic with Js
+
+
+query Qs_a = literal : S -> R {
+  entity c -> {
+  	from B1: b
+    attributes
+  	  i -> B1.has.i
+  	  k -> B1.k
+
+    foreign_keys
+  	  has_d -> {
+  	    B2 -> B1
+  	  }
+  }
+  entity d -> {
+  	from
+	   B2 : b
+    attributes
+  	  j -> B2.has.j
+  	  m -> B2.m
+    foreign_keys
+  	  has_c -> {
+  	    B1 -> B2
+  	  }
+  }
+}
+
+instance Ks_a = eval Qs_a Js
+query Qt_a = [ Qx ; Qs_a ]
+instance Kt_a = eval Qt_a JtGoal
+
+query Qs_b = literal : S -> R {
+ entity c -> {
+   from ca:a cb:b
+   attributes
+     i -> i(ca)
+     k -> k(cb)
+   foreign_keys
+     // has_d : c -> d
+     has_d -> {da -> ca   db -> cb}
+    }
+ entity d -> {
+   from da:a db:b
+   attributes
+     j -> j(da)
+     m -> m(db)
+   foreign_keys
+     // has_c : d -> c
+     has_c -> {ca -> da   cb -> db}
+ }
+}
+
+instance Ks_b = eval Qs_b Js
+query Qt_b = [ Qx ; Qs_b ]
+instance Kt_b = eval Qt_b JtGoal
+
+// instance Kt_b_std = relationalize Kt_b
+// This reminds me of working with the hyper-reals.
+// When converting a hyper-real to a real only
+// the "standard" portion of the value is retained.
+
+schema R2 = literal : sql {
+ entities
+   c
+ attributes
+   i : c -> Varchar
+   j : c -> Varchar
+   k : c -> Varchar
+   m : c -> Varchar
+}
+
+query Qs_1 = literal : S -> R2 {
+  entity c -> {
+  	from B1: b
+    where
+      B1.k  = "b1k"
+    attributes
+      i -> B1.has.i
+      j -> B1.has.j
+      k -> B1.k
+      m -> B1.m
+  }
+}
+
+instance Ks_1 = eval Qs_1 Js
+
+query Qs_2pre = literal : S -> R2 {
+  params
+    kay : Varchar
+
+  entity c -> {
+  	from B1: b
+    where
+     B1.k = kay
+    attributes
+      i -> B1.has.i
+      j -> B1.has.j
+      k -> B1.k
+      m -> B1.m
+  }
+}
+
+
+query Qs_2 = literal : S -> R2 {
+  bindings
+    kay = "b1k"
+  imports
+    Qs_2pre
+}
+
+instance Ks_2 = eval Qs_2 Js
+
