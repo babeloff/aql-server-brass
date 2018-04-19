@@ -6,10 +6,10 @@
    (clojure.tools
     [logging :as log]
     [cli :as cli])
-   (clojure.tools.nrepl [server :as nrs])
-   (org.httpkit [server :as svr])
-   (compojure [handler :as hdlr]))
-  (:import [java.net InetAddress]))
+   (clojure.tools.nrepl [server :as nrs]))
+  (:import [java.net InetAddress]
+           [org.zeromq ZMQ Utils]
+           [org.zeromq.ZMQ Socket]))
 
 (defonce HOST (atom "localhost"))
 (defonce PORT (atom 9090))
@@ -99,13 +99,21 @@
 
 (defn start [router]
   (let [ipaddr (.getHostAddress @HOST)
-        port @PORT]
-    (log/info "aql server starting. " ipaddr ":" port)
+        port @PORT
+        context (ZMQ/context 1)
+        address (str "tcp://localhost:" port)
+        subscriber (.socket context ZMQ/SUB)]
+    (log/info "aql server starting. " address)
+    (doto subscriber
+          (.connect address)
+          (.subscribe ZMQ/SUBSCRIPTION_ALL))
+    subscriber.recv();
     (reset! MAIN-SERVER
             (svr/run-server
              (hdlr/site router)
              {:port port :ip ipaddr}))
-    (reset! STATE ::running)
+    (.close subscriber)
+    (.close context)
     (println "STATE:[RUNNING]")
     (.flush *out*)))
 

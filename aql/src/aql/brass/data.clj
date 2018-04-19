@@ -98,35 +98,35 @@
     :entity-map
     {[["source"] ["cospan"]]
      #::s
-      {:attribute-map
-       {"id" "source_id"
-        "name" "name"
-        "channel" "channel"}}
+     {:attribute-map
+      {"id" "source_id"
+       "name" "name"
+       "channel" "channel"}}
 
      [["cot_event"] ["cospan"]]
      #::s
-      {:reference-map {"has_source" nil}
-       :attribute-map
-       {"id" "cot_event_id"
-        "source_id" "source_id"
-        "cot_type" "cot_type"
-        "how" "how"
-        "detail" "detail"
-        "servertime" "servertime"}}
+     {:reference-map {"has_source" nil}
+      :attribute-map
+      {"id" "cot_event_id"
+       "source_id" "source_id"
+       "cot_type" "cot_type"
+       "how" "how"
+       "detail" "detail"
+       "servertime" "servertime"}}
 
      [["cot_position"] ["cospan"]]
      #::s
-      {:reference-map {"has_cot_event" nil}
-       :attribute-map
-       {"id" "cot_position_id"
-        "cot_event_id" "cot_event_id"
-        "point_hae" "point_hae"
-        "point_ce" "point_ce"
-        "point_le" "point_le"
-        "tileX" "tileX"
-        "tileY" "tileY"
-        "latitude" "latitude"
-        "longitude" "longitude"}}}})
+     {:reference-map {"has_cot_event" nil}
+      :attribute-map
+      {"id" "cot_position_id"
+       "cot_event_id" "cot_event_id"
+       "point_hae" "point_hae"
+       "point_ce" "point_ce"
+       "point_le" "point_le"
+       "tileX" "tileX"
+       "tileY" "tileY"
+       "latitude" "latitude"
+       "longitude" "longitude"}}}})
 
 (def schema-t
   #::s
@@ -177,36 +177,36 @@
     :entity-map
     {[["entity source"] ["cospan"]]
      #::s
-      {:attribute-map
-       {"id" "source_id"
-        "name" "name"
-        "channel" "channel"}}
+     {:attribute-map
+      {"id" "source_id"
+       "name" "name"
+       "channel" "channel"}}
      [["cot_action"] ["cospan"]]
      #::s
-      {:reference-map
-       {"has_cot_detail" nil
-        "has_source" nil}
-       :attribute-map
-       {"id" "cot_event_id"
-        "source_id" "source_id"
-        "how" "how"
-        "servertime" "servertime"
-        "point_ce" "point_ce"
-        "point_le" "point_le"
-        "tileX" "tileX"
-        "longitude" "longitude"
-        "latitude" "latitude"}}
+     {:reference-map
+      {"has_cot_detail" nil
+       "has_source" nil}
+      :attribute-map
+      {"id" "cot_event_id"
+       "source_id" "source_id"
+       "how" "how"
+       "servertime" "servertime"
+       "point_ce" "point_ce"
+       "point_le" "point_le"
+       "tileX" "tileX"
+       "longitude" "longitude"
+       "latitude" "latitude"}}
      [["cot_detail"] ["cospan"]]
      #::s
-      {:reference-map
-       {"has_cot_action" nil}
-       :attribute-map
-       {"id" "id"
-        "cot_event_id" "cot_event_id"
-        "point_hae" "point_hae"
-        "detail" "detail"
-        "tileY" "tileY"
-        "cot_type" "cot_type"}}}})
+     {:reference-map
+      {"has_cot_action" nil}
+      :attribute-map
+      {"id" "id"
+       "cot_event_id" "cot_event_id"
+       "point_hae" "point_hae"
+       "detail" "detail"
+       "tileY" "tileY"
+       "cot_type" "cot_type"}}}})
 
 (def ts-sql1
   "typeside sql1 = literal {
