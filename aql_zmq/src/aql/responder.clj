@@ -8,33 +8,11 @@
     [cli :as cli])
    (clojure.data [json :as json])
    (com.rpl [specter :as sr])
-   (aql [wrap :as aql-wrap])
+   (aql [wrap :as aql-wrap]
+        [copts :as copts])
    (clojure.tools.nrepl [server :as nrs]))
-  (:import [java.net InetAddress]
-           [org.zeromq ZMQ Utils]
+  (:import [org.zeromq ZMQ Utils]
            [org.zeromq.ZMQ Socket]))
-
-(def cli-options
-  [["-i" "--hostname HOST" "IP host name"
-    :default (InetAddress/getByName "localhost")
-    :default-desc "localhost"
-    :parse-fn #(InetAddress/getByName %)]
-   ["-p" "--port PORT" "Port number"
-    :id :port
-    :default 9090
-    :parse-fn #(Integer/parseInt %)
-    :validate [#(< 0 % 0x10000) "A number between 0 and 65536"]]
-   ["-n" "--nrepl NREPL" "Port number"
-    :id :nrepl
-    :default 7888
-    :parse-fn #(Integer/parseInt %)
-    :validate [#(< 0 % 0x10000) "A number between 0 and 65536"]]
-   ["-v" nil "Verbosity level"
-    :id :verbosity
-    :default 0
-    :assoc-fn (fn [m k _] (update-in m [k] inc))]
-   ["-h" "--help"
-    :id :help]])
 
 (defn usage [options-summary]
   (->> ["This server handles brass specific aql mutation requests."
@@ -57,7 +35,7 @@
   a map indicating the options provided."
   [args]
   (let [{:keys [options arguments errors summary]}
-        (cli/parse-opts args cli-options)]
+        (cli/parse-opts args copts/cli-options)]
     (cond
       (:help options) ; help => exit OK with usage summary
       (throw (ex-info (usage summary) {:ok? true}))
@@ -91,24 +69,25 @@
   (println request)
   true)
 
+;; http://zguide.zeromq.org/java:hwserver
 (defn -main [& args]
   (try
-    (let [more-req? (atom true)
-          [host port] (validate-args [args])
+    (let [[host port] (validate-args [args])
           ipaddr (.getHostAddress host)
-          address (str "tcp://" ipaddr ":" port)]
+          address (str "tcp://" ipaddr ":" port)
+          thread (Thread/currentThread)]
       (with-open [context (ZMQ/context 1)
                   responder (.socket context ZMQ/REP)]
         (log/info "aql server starting. " address)
         (doto responder
-              (.bind address))
+             (.bind address))
         (println "STATE:[RUNNING]")
         (.flush *out*)
-        (while @more-req?
+        (while (not (.isInterrupted thread))
           (let [req-str (.recvStr responder)
                 request (json/read-str req-str)
                 response (dummy-handler request)
-                status (.send responder ())]
+                status (.send responder response)]
             (println status)))))
 
     (catch Exception ex (ex-data ex))))
