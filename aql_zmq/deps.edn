@@ -3,7 +3,8 @@
 {:paths ["src"]
  :deps {aql {:local/root "./aql"}
         org.clojure/core.async {:mvn/version "0.4.474"}
-        org.zeromq/jeromq {:mvn/version "0.4.4-SNAPSHOT"}}
+        org.zeromq/jeromq {:mvn/version "0.4.4-SNAPSHOT"}
+        org.clojure/data.json {:mvn/version "0.2.6"}}
  :mvn/repos { "central" {:url "https://repo1.maven.org/maven2/"}
               "clojars" {:url "https://clojars.org/repo/"}
               "sonatype-nexus-snapshots"

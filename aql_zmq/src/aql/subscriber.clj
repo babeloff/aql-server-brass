@@ -1,4 +1,4 @@
-(ns aql.service
+(ns aql.subscriber
   (:require
    (clojure
     [pprint :as pp]
@@ -6,18 +6,13 @@
    (clojure.tools
     [logging :as log]
     [cli :as cli])
+   (clojure.data [json :as json])
+   (com.rpl [specter :as sr])
+   (aql [wrap :as aql-wrap])
    (clojure.tools.nrepl [server :as nrs]))
   (:import [java.net InetAddress]
            [org.zeromq ZMQ Utils]
            [org.zeromq.ZMQ Socket]))
-
-(defonce HOST (atom "localhost"))
-(defonce PORT (atom 9090))
-(defonce NREPL (atom 7888))
-
-(defonce STATE (atom ::stopped))
-(defonce NREPL-SERVER (atom nil))
-(defonce MAIN-SERVER (atom nil))
 
 (def cli-options
   [["-i" "--hostname HOST" "IP host name"
@@ -65,60 +60,49 @@
         (cli/parse-opts args cli-options)]
     (cond
       (:help options) ; help => exit OK with usage summary
-      {:exit-message (usage summary) :ok? true}
+      (throw (ex-info (usage summary) {:ok? true}))
 
       errors ; errors => exit with description of errors
-      {:exit-message (error-msg errors)}
+      (throw (ex-info (error-msg errors) {:ok? false}))
 
       ; failed custom validation => exit with usage summary
       (< 1 (count arguments))
-      {:exit-message (usage summary)}
+      (throw (ex-info (usage summary) {:ok? false}))
 
       :else
-      {:options options})))
+      [(:hostname options) (:port options)])))
 
 (defn exit [status msg]
   (println msg)
   (System/exit status))
 
-(defn init [args]
-  (let [{:keys [options exit-message ok?]}
-        (validate-args args)]
-    (if exit-message
-      (exit (if ok? 0 1) exit-message)
-      (do
-        (reset! HOST (:hostname options))
-        (reset! PORT (:port options))
-        (reset! NREPL (:nrepl options))
-        (log/info "options" args options)
+(defn aql-handler [request]
+  (log/info "aql-handler")
+  (if-let [action (sr/select-one [:body] request)]
+    (let [model (sr/select-one ["model"] action)
+          aql-env (aql-wrap/generate (str model))
+          return-objs (sr/select-one ["return"] action)]
+      (log/info "aql-handler:" return-objs)
+      (->> aql-env
+           (aql-wrap/xform-result return-objs identity)
+           json/write-str))))
 
-        ; (reset! NREPL-SERVER (nrs/start-server :port @NREPL_PORT))
-        ; (log/info "nrepl server "
-        ;          (str (get NREPL-SERVER :ss))
-        (reset! STATE ::initialized)))))
-
-(defn start [router]
-  (let [ipaddr (.getHostAddress @HOST)
-        port @PORT
-        context (ZMQ/context 1)
-        address (str "tcp://localhost:" port)
-        subscriber (.socket context ZMQ/SUB)]
-    (log/info "aql server starting. " address)
-    (doto subscriber
-          (.connect address)
-          (.subscribe ZMQ/SUBSCRIPTION_ALL))
-    subscriber.recv();
-    (reset! MAIN-SERVER
-            (svr/run-server
-             (hdlr/site router)
-             {:port port :ip ipaddr}))
-    (.close subscriber)
-    (.close context)
-    (println "STATE:[RUNNING]")
-    (.flush *out*)))
-
-(defn stop []
-  (reset! STATE ::stopped)
-  (when-not (nil? @MAIN-SERVER)
-    (@MAIN-SERVER :timeout 1000)
-    (reset! MAIN-SERVER nil)))
+(defn -main [& args]
+  (try
+    (let [more-req? (atom true)
+          [host port] (validate-args [args])
+          ipaddr (.getHostAddress host)
+          address (str "tcp://" ipaddr ":" port)]
+      (with-open [context (ZMQ/context 1)
+                  subscriber (.socket context ZMQ/SUB)]
+        (log/info "aql server starting. " address)
+        (doto subscriber
+              (.connect address)
+              (.subscribe ZMQ/SUBSCRIPTION_ALL))
+        (println "STATE:[RUNNING]")
+        (.flush *out*)
+        (while @more-req?
+          (let [req-str (.recvStr subscriber)
+                request (json/read-str req-str)]
+            (println request)))))
+    (catch Exception ex (ex-data ex))))

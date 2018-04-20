@@ -7,9 +7,9 @@
     [pprint :as pp])
    (clojure.tools [logging :as log])
    (ring.util [io :as ring-io])
-   (aql.demo [data :as data])
-   (aql [data :as aql-data])
-   (aql [serialize :as serialize])))
+   (aql [data :as aql-data]
+        [serialize :as serialize])
+   (aql.demo [data :as data])))
 
 (def schema-mapping
   {:model (st/join "\n"
