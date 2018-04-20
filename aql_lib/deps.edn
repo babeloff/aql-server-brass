@@ -5,7 +5,6 @@
         org.clojure/tools.deps.alpha {:mvn/version "0.5.418-SNAPSHOT"
                                       :exclusions [org.slf4j/slf4j-nop]}
         org.clojure/tools.nrepl {:mvn/version "0.2.12"}
-        http-kit {:mvn/version "2.2.0"}
         javax.xml.bind/jaxb-api {:mvn/version "2.3.0"}
         com.rpl/specter {:mvn/version "1.1.0"}
         aql {:local/root "/home/fred/projects/fql/target/fql-0.9-SNAPSHOT-maven-jar-with-dependencies.jar"}
