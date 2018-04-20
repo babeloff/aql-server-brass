@@ -1,7 +1,7 @@
 ;;
 ;; http://www.functionalbytes.nl/clojure/nodejs/figwheel/repl/clojurescript/cli/2017/12/20/tools-deps-figwheel.html?__s=yhz5o8ifr78csip51uq9
 {:paths ["src"]
- :deps {aql {:local/root "./aql"}
+ :deps {aql_lib {:local/root "../aql_lib"}
         org.clojure/core.async {:mvn/version "0.4.474"}
         org.zeromq/jeromq {:mvn/version "0.4.4-SNAPSHOT"}
         org.clojure/data.json {:mvn/version "0.2.6"}}

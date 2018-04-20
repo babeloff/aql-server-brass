@@ -1,4 +1,4 @@
-(ns aql.requestor
+(ns aql.requester
   (:require
    (clojure
     [pprint :as pp]
@@ -12,11 +12,11 @@
         [serialize :as serialize]
         [copts :as copts])
    (aql.demo [data :as data]))
-  (:import [org.zeromq ZMQ Utils]
-           [org.zeromq.ZMQ Socket]))
+  (:import [org.zeromq ZMQ Utils]))
 
 (def schema-mapping
-  {:model (st/join "\n"
+  {:topic "aql/program/eval"
+   :model (st/join "\n"
                    [aql-data/ts0
                     (serialize/to-aql data/schema-s)
                     data/qu0])
@@ -27,15 +27,16 @@
 (defn -main [& args]
     (let [parse-out (cli/parse-opts args copts/cli-options)
           {:keys [options arguments errors summary]} parse-out
-          _ (println arguments errors summary)
-          host (:hostname options)
+          _ (if errors (log/warn arguments errors summary))
+          host (.getCanonicalHostName (:hostname options))
           port (:port options)]
-      (pp/pprint schema-mapping)
+      (log/debug schema-mapping)
       (let [address (str "tcp://" host ":" port)
-            msg (.getBytes (json/write-str schema-mapping))]
+            msg-str (json/write-str schema-mapping)]
+        (log/info "aql requester starting: " address)
         (with-open [context (ZMQ/context 1)
                     requester (.socket context ZMQ/REQ)]
           (.connect requester address)
-          (.send requester msg)
+          (.send requester (.getBytes msg-str))
           (let [reply (.recvStr requester)]
             (println "received " reply))))))

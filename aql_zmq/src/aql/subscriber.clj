@@ -11,8 +11,7 @@
    (aql [wrap :as aql-wrap])
    (clojure.tools.nrepl [server :as nrs]))
   (:import [java.net InetAddress]
-           [org.zeromq ZMQ Utils]
-           [org.zeromq.ZMQ Socket]))
+           [org.zeromq ZMQ Utils]))
 
 (def cli-options
   [["-i" "--hostname HOST" "IP host name"

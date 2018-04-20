@@ -12,8 +12,7 @@
         [serialize :as serialize])
    (aql.demo [data :as data]))
   (:import [java.net InetAddress]
-           [org.zeromq ZMQ Utils]
-           [org.zeromq.ZMQ Socket]))
+           [org.zeromq ZMQ Utils]))
 
 (def cli-options
   ;; An option with a required argument
