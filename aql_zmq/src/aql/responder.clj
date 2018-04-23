@@ -27,8 +27,9 @@
   (fn [request] (get request "topic")))
 
 (defmethod aql-handler "aql/program/eval" [request]
-  (log/info "aql-handler")
+  (log/info "aql-handler aql/program/eval")
   (let [model (sr/select-one ["model"] request)
+        _ (spit "eval_data.aql" (str model "\n"))
         aql-env (aql-wrap/generate (str model))
         return-objs (sr/select-one ["return"] request)]
     (log/info "aql-handler:" return-objs)

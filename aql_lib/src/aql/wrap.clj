@@ -56,22 +56,22 @@
   [reqs tweeker gen]
   (log/debug "extract-result" reqs)
   (let [env-map (env->maps (sr/select-one [:env] gen))
-        query-fn (comp query->sql (partial get (::query env-map)))
-        schema-fn (comp schema->sql (partial get (::schema env-map)))]
+        query-fn (fn [name] (query->sql (get (::query env-map) name)))
+        schema-fn (fn [name] (schema->sql (get (::schema env-map) name)))]
     {:query
      (into []
            (comp
             (map #(vector % (query-fn %)))
             tweeker)
-           (sr/select-one [:query] reqs))
+           (sr/select-one ["query"] reqs))
      :schema
      (into []
            (map #(vector % (schema-fn %)))
-           (sr/select-one [:schema] reqs))
+           (sr/select-one ["schema"] reqs))
      :error
      (into []
            (map #(.getMessage %))
-           (sr/select-one [:err] gen))}))
+           (sr/select-one ["err"] gen))}))
 
 (defn private-field
   [field-name obj]

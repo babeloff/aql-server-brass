@@ -9,18 +9,21 @@
    :entities
    #{"Employee" "Department"}
    :attributes
-   {"first" ["Employee" "Varchar"]
-    "last" ["Employee" "Varchar"]
-    "age"  ["Employee" "Integer"]
-    "name"  ["Department" "Varchar"]}
+   [["first" "Employee" "Varchar"]
+    ["last" "Employee" "Varchar"]
+    ["age"  "Employee" "Integer"]
+    ["name"  "Department" "Varchar"]]
    :references
-   {"manager" ["Employee" "Employee"]
-    "worksIn"   ["Employee" "Department"]
-    "secretary" ["Department" "Employee"]}
-   :equations
-   [[["manager" "worksIn"] ["worksIn"]]
-    [["secretary" "worksIn"] ["Department"]]
-    [["manager" "manager"] ["manager"]]]})
+   [["manager" "Employee" "Employee"]
+    ["worksIn"  "Employee" "Department"]
+    ["secretary" "Department" "Employee"]]
+   :observations
+   [[["x" "Employee"]
+     [::s/equal
+      ["worksIn" ["manager" "x"]] ["worksIn" "x"]]
+     [::s/equal
+      ["secretary" "worksIn" "x"] ["Department" "x"]]
+     [::s/equal ["manager" "manager" "x"] ["manager" "x"]]]]})
 
 (def qu0 "query Q = literal : S -> S {
     entity

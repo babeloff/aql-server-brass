@@ -1,0 +1,58 @@
+typeside TypeSide = literal {
+    java_types
+        Varchar = "java.lang.String"
+        Bool = "java.lang.Boolean"
+    java_constants
+        Varchar = "return input[0]"
+        Bool = "return java.lang.Boolean.parseBoolean(input[0])"
+    java_functions
+        Matches : Varchar, Varchar -> Bool = "return input[0].matches(input[1])"
+}
+schema S = literal : sql {
+  entities 
+    Department
+    Employee
+  foreign_keys 
+    manager : Employee -> Employee
+    worksIn : Employee -> Department
+    secretary : Department -> Employee
+  attributes 
+    first : Employee -> Varchar
+    last : Employee -> Varchar
+    age : Employee -> Integer
+    name : Department -> Varchar
+    observation_equations 
+      forall x:Employee . worksIn(manager(x)) = worksIn(x)
+}
+
+query Q = literal : S -> S {
+    entity
+        Employee ->
+        {
+            from e:Employee d:Department
+            where e.worksIn = d
+            attributes
+                first -> e.manager.first
+                last -> d.name
+                age -> e.age
+            foreign_keys
+                manager ->
+                    {
+                        e -> e.manager
+                        d -> e.manager.worksIn
+                    }
+                worksIn ->
+                    {d -> e.worksIn}
+        }
+    entity
+        Department ->
+        {
+            from d:Department
+            attributes name -> d.name
+            foreign_keys secretary ->
+                {
+                    e -> d.secretary
+                    d -> d
+                }
+        }
+}
