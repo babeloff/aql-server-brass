@@ -38,13 +38,13 @@
   {:query (into []
                 (comp
                  (sr/traverse-all ["query"])
-                 (map #(vector % (query-fn %)))
+                 (mapcat #(vector % (query-fn %)))
                  identity)
-                return-objs)
+                [return-objs])
    :schema (into []
                  (comp
                   (sr/traverse-all ["schema"])
-                  (map #(vector % (schema-fn %))))
-                 return-objs)})
+                  (mapcat #(vector % (schema-fn %))))
+                 [return-objs])})
 
 (aql-wrap/xform-result return-objs identity gen)

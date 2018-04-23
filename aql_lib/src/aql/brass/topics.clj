@@ -1,13 +1,10 @@
 (ns aql.brass.topics
   (:require
-   (aql [topics :as aql-topics])
+   (clojure [string :as st])
    (clojure.data [json :as json])
    (clojure.tools [logging :as log])
-   (clojure [pprint :as pp]
-            [string :as st])
    (com.rpl [specter :as sr])
-   (aql [util :as aql-util]
-        [wrap :as aql-wrap]
+   (aql [wrap :as aql-wrap]
         [serialize :as aql-serial])
    (aql.brass
     [data :as brass-data]
@@ -44,7 +41,7 @@
               (sequence cat [typeside
                              model
                              brass-data/query-demo]))]
-    (log/info "brass phase 2 demo: " cmd)
+    (log/info "see file 'brass_data.aql': ")
     (spit "brass_data.aql" (str cmd "\n"))
     (try
       (let [gen (aql-wrap/generate cmd)]

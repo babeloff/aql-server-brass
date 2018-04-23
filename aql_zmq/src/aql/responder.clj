@@ -8,8 +8,10 @@
     [cli :as cli])
    (clojure.data [json :as json])
    (com.rpl [specter :as sr])
-   (aql [wrap :as aql-wrap]
-        [copts :as copts])
+   (aql [topics :as topics]
+        [wrap :as aql-wrap]
+        [copts :as copts]
+        [handler :as handler])
    (clojure.tools.nrepl [server :as nrs]))
   (:import [org.zeromq ZMQ Utils]))
 
@@ -22,24 +24,6 @@
         options-summary
         ""]
        (string/join \newline)))
-
-(defmulti aql-handler
-  (fn [request] (get request "topic")))
-
-(defmethod aql-handler "aql/program/eval" [request]
-  (log/info "aql-handler aql/program/eval")
-  (let [model (sr/select-one ["model"] request)
-        _ (spit "eval_data.aql" (str model "\n"))
-        aql-env (aql-wrap/generate (str model))
-        return-objs (sr/select-one ["return"] request)]
-    (log/info "aql-handler:" return-objs)
-    (->> aql-env
-         (aql-wrap/xform-result return-objs identity)
-         json/write-str)))
-
-(defmethod aql-handler :default [request]
-  (log/info request)
-  "the aql-handler in echo mode ran: look at the responder log")
 
 ;; http://zguide.zeromq.org/java:hwserver
 (defn -main [& args]
@@ -56,7 +40,7 @@
           (let [req-str (.recvStr responder)
                 request (json/read-str req-str)]
             (try
-              (let [reply (aql-handler request)
+              (let [reply (handler/aql request)
                     status (.send responder (.getBytes reply) 0)]
                 (log/debug "sent reply status" status))
               (catch Exception ex

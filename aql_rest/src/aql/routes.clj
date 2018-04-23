@@ -13,7 +13,7 @@
     [core :as http])
    (ring.middleware [json :as middleware])
    (ring.util [response :refer [response]])
-   [aql.wrap :as aql-wrap]))
+   [aql.topics :as topics]))
 
 (defn usage [req]
   (log/info "usage:" (keys req))
@@ -52,13 +52,7 @@
 (defn aql-handler [request]
   (log/info "aql-handler")
   (if-let [action (sr/select-one [:body] request)]
-    (let [model (sr/select-one ["model"] action)
-          aql-env (aql-wrap/generate (str model))
-          return-objs (sr/select-one ["return"] action)]
-      (log/info "aql-handler:" return-objs)
-      (->> aql-env
-           (aql-wrap/xform-result return-objs identity)   
-           json/write-str))))
+    (topics/aql-eval action)))
 
 ;; https://weavejester.github.io/compojure/compojure.core.html#var-routes
 (def aql-handlers

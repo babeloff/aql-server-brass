@@ -10,7 +10,8 @@
    (com.rpl [specter :as sr])
    (aql [wrap :as aql-wrap]
         [copts :as copts]
-        [responder :as aql-api])
+        [responder :as aql-api]
+        [handler :as handler])
    (aql.brass [topics :as topics])
    (clojure.tools.nrepl [server :as nrs]))
   (:import [org.zeromq ZMQ Utils]))
@@ -24,10 +25,6 @@
         options-summary
         ""]
        (string/join \newline)))
-
-(defmethod aql-api/aql-handler "brass/p2/c1/json" [request]
-  (if-let [action (sr/select-one ["payload"] request)]
-    (topics/brass-p2c1 action)))
 
 ;; http://zguide.zeromq.org/java:hwserver
 (defn -main [& args]
@@ -44,7 +41,7 @@
           (let [req-str (.recvStr responder)
                 request (json/read-str req-str)]
             (try
-              (let [reply (aql-api/aql-handler request)
+              (let [reply (handler/aql request)
                     status (.send responder (.getBytes reply) 0)]
                 (log/debug "sent reply status" status))
               (catch Exception ex

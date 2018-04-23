@@ -49,6 +49,24 @@
      ::schema-colimit (-> env-defs .-scs .-map)
      ::constraint (-> env-defs .-eds .-map)}))
 
+(sr/declarepath IS-QUERY)
+(sr/providepath IS-QUERY
+        (sr/cond-path
+         (sr/must "query") "query"
+         (sr/must :query) :query))
+
+(sr/declarepath IS-SCHEMA)
+(sr/providepath IS-SCHEMA
+        (sr/cond-path
+         (sr/must "schema") "schema"
+         (sr/must :schema) :schema))
+
+(sr/declarepath IS-ERR)
+(sr/providepath IS-ERR
+        (sr/cond-path
+         (sr/must "err") "err"
+         (sr/must :err) :err))
+
 (defn xform-result
   "the tweeker is an optional transducer that gets
   applied to the result immediately before being
@@ -63,15 +81,15 @@
            (comp
             (map #(vector % (query-fn %)))
             tweeker)
-           (sr/select-one ["query"] reqs))
+           (sr/select-one [IS-QUERY] reqs))
      :schema
      (into []
            (map #(vector % (schema-fn %)))
-           (sr/select-one ["schema"] reqs))
+           (sr/select-one [IS-SCHEMA] reqs))
      :error
      (into []
            (map #(.getMessage %))
-           (sr/select-one ["err"] gen))}))
+           (sr/select-one [IS-ERR] gen))}))
 
 (defn private-field
   [field-name obj]
