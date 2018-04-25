@@ -258,7 +258,8 @@
 
 (defn query-tweeker
   "a transducer that 'tweeks' the key value
-  to be the nspace for the class."
+  to be the qname for the class if one has
+  been supplied."
   [xf]
   (fn
     ([] (xf))
