@@ -7,7 +7,6 @@
   :tools/deps [:project]
   :profiles
   {:dev {:source-paths ["dev" "src" "test"]
-         :tools/deps ["./deps-dev-atom.edn"]
          :dependencies [[org.clojure/tools.namespace "0.2.11"]]}}
   :main aql.brass.server
   :aot [aql.brass.server])

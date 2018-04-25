@@ -2,12 +2,13 @@
 ;;
 {:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.9.0"}
-        org.clojure/tools.deps.alpha {:mvn/version "0.5.418-SNAPSHOT"
+        org.clojure/tools.deps.alpha {:mvn/version "0.5.425"
                                       :exclusions [org.slf4j/slf4j-nop]}
         org.clojure/tools.nrepl {:mvn/version "0.2.12"}
         javax.xml.bind/jaxb-api {:mvn/version "2.3.0"}
         com.rpl/specter {:mvn/version "1.1.0"}
-        aql {:local/root "/home/fred/projects/fql/target/fql-0.9-SNAPSHOT-maven-jar-with-dependencies.jar"}
+        net.catdata/fql {:mvn/version "0.9-SNAPSHOT"
+                         :classifier "jar-with-deps"}
         org.clojure/data.json {:mvn/version "0.2.6"}
         com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider {:mvn/version "2.9.5"}
         org.clojure/tools.logging {:mvn/version "0.2.3"}
@@ -16,5 +17,5 @@
         net.cgrand/xforms {:mvn/version "0.16.0"}}
  :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
              "clojars" {:url "https://clojars.org/repo/"}
-             "babeloff" "https://github.com/babeloff/mvn-repo/raw/master/releases"
-             "babeloff-snapshots" "https://github.com/babeloff/mvn-repo/raw/master/snapshots"}}
+             "nexus" {:url "http://immortals.isis.vanderbilt.edu:8081/repository/maven-releases"}
+             "nexus-snapshot" {:url "http://immortals.isis.vanderbilt.edu:8081/repository/maven-snapshots"}}}

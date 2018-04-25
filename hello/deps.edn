@@ -1,9 +1,7 @@
-;; 
+;;
 ;; http://www.functionalbytes.nl/clojure/nodejs/figwheel/repl/clojurescript/cli/2017/12/20/tools-deps-figwheel.html?__s=yhz5o8ifr78csip51uq9
 {:paths ["src"]
- :deps 
-    {time-lib
-        {:local/root 
-            "/home/fred/projects/immortals/cp2/time_lib"}}
+ :deps
+    {time-lib {:local/root "../time_lib"}}
  :mvn/repos { "central" {:url "https://repo1.maven.org/maven2/"}
-              "clojars" {:url "https://clojars.org/repo/"}}} 
+              "clojars" {:url "https://clojars.org/repo/"}}}

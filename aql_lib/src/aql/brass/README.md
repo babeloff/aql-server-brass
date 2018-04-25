@@ -2,7 +2,6 @@
 
 This library is intended for use with AQL BRASS servers.
 
-
 ## Usage
 
 This will submit a sample migration command from which the migrated queries will be extracted.
