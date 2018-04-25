@@ -21,13 +21,62 @@
       (catch Exception ex
         "cannot generate sql for schema"))))
 
+(defn sk [h id-col ty]
+  (h ty))
+
+(defn query->sql-ent-helper [schema ents ent-key attrs refs]
+  "Expand the query entity [there may be more than one].
+   see fql :: src/catdata/aql/Query.java :: toSQLViews()"
+  (let [b (.get ents ent-key)
+        ent-name (.str ent-key)
+        gens (.gens b)
+        eqns (.eqs b)
+        is-empty? (.isEmpty gens)]
+    (if is-empty?
+      (throw (RuntimeException. "empty from clause invalid sql")))
+
+    (let [from
+          (into []
+                (map (fn [ent] (str (.get gens ent) " as " ent)))
+                (.keySet gens))
+
+          select-attr
+          (into []
+                (map (fn [attr] (str (.get attrs attr) " as " attr)))
+                (.attsFrom schema ent-key))
+
+          select-ref
+          (into []
+                (map (fn [ref] (str (.get refs ref) " as " ref)))
+                (.fksFrom schema ent-key))]
+      ;; skip ID column (.add select (.)))))
+      (str " select " (st/join ", " select-attr)
+           " from " (st/join ", " from)))))
+           ;" where " (st/join " and " eqns)))))
+
+(defn query->sql-helper [full-query]
+  "Expand the query .
+   see fql :: src/catdata/aql/Query.java"
+  (let [schema (.dst full-query)
+        ents (.ens full-query)
+        atts (.atts full-query)
+        refs (.fks full-query)
+        ent-keys (.keySet ents)]
+    (into {}
+          (map (fn [ent-key]
+                 (vector ent-key
+                         (query->sql-ent-helper schema ents ent-key atts refs))))
+          ent-keys)))
+
 (defn query->sql [query]
-  "a slightly modified version of catdata.aql.AqlCmdLine/queryToSql
+  "a modified version of catdata.aql.AqlCmdLine/queryToSql
    * does not include 'create view'
    * replaces whitespace characters with blanks."
   (when query
     (try
-      (let [qs (.second (.toSQLViews (.unnest query) "" "" "ID" "char"))
+      (let [full-query (.unnest query)
+            ;; qs (.second (.toSQLViews full-query "" "" "ID" "char"))
+            qs (query->sql-helper full-query)
             qm (.ens (.dst query))]
         (-> (reduce #(str %1 (.get qs %2) "  ") "" qm)
             (st/replace #"[\n\t\r]" " ")

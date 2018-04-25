@@ -1,12 +1,13 @@
-
+(require '(clojure [pprint :as pp] [string :as st]))
 (require '(clojure.data [json :as json]))
 (require '(clojure.tools [logging :as log]))
-(require '(clojure [pprint :as pp]))
 ;(require '[string :as st])
 (require '(com.rpl [specter :as sr]))
 (require '(aql.brass [data :as brass-data]))
-(require '(aql [wrap :as aql-wrap]) :reload)
 (require '(aql [util :as aql-util]))
+
+(require '(aql [wrap :as aql-wrap]) :reload)
+
 ;; working with the p2 cp1 brass demo
 ;; (require '[aql.serialize :as ser] :reload)
 
@@ -24,7 +25,40 @@
 ; (def schema-fn (partial get (::aql-wrap/schema env-map)))
 (sr/select-one [:query] reqs)
 (def query (->> "Qt_01" query-fn))
-(def qs (.second (.toSQLViews (.unnest query) "" "" "ID" "char")))
+(def full-query (.unnest query))
+(def qs (.second (.toSQLViews full-query "" "" "ID" "char")))
+
+(def ents (.ens full-query))
+(def schema (.dst full-query))
+(def ents (.ens full-query))
+(def attrs (.atts full-query))
+(def refs (.fks full-query))
+(def ent-names (map #(.str %) (.keySet ents)))
+(def ent-keys (.keySet ents))
+(def ent-key (first ent-keys))
+(def ent-name (.str ent-key))
+(def b (.get ents ent-key))
+(def gens (.gens b))
+(def eqns (.eqs b))
+(def is-empty? (.isEmpty gens))
+(def from
+      (into []
+            (map (fn [ent] (str (.get gens ent) " as " ent)))
+            (.keySet gens)))
+
+(def select-attr
+      (into []
+            (map (fn [attr] (str (.get attrs attr) " as " attr)))
+            (.attsFrom schema ent-key)))
+
+(def select-ref
+      (into []
+            (map (fn [ref] (str (.get refs ref) " as " ref)))
+            (.fksFrom schema ent-key)))
+(aql-wrap/to-sql-helper schema ents ent-key attrs refs)
+
+(aql-wrap/to-sql full-query)
+
 (def query-names (.ens (.dst query)))
 (reduce #(str %1 (.get qs %2) "\n\n") "" query-names)
 
