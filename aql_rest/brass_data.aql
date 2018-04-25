@@ -7,7 +7,7 @@ typeside sql1 = literal {
         java_functions
           EqualStr : String, String -> Bool = "return input[0].equals(input[1])"
           EqualVc : Varchar, Varchar -> Bool = "return input[0].equals(input[1])"
-          EqualInt : Integer, Integer -> Bool = "return input[0].equals(input[1])"
+          EqualInt : Varchar, Varchar -> Bool = "return input[0].equals(input[1])"
           OrBool : Bool, Bool -> Bool = "return input[0] || input[1]"
         }
 schema S = literal : sql1 {
@@ -19,24 +19,24 @@ schema S = literal : sql1 {
     has_source : cot_event -> source
     has_cot_event : cot_position -> cot_event
   attributes 
-    id : source -> Integer
+    source_id : source -> Varchar
     name : source -> Varchar
     channel : source -> Varchar
-    id : cot_event -> Integer
-    source_id : cot_event -> Integer
+    id : cot_event -> Varchar
+    source_id : cot_event -> Varchar
     cot_type : cot_event -> Varchar
     how : cot_event -> Varchar
     detail : cot_event -> Text
     servertime : cot_event -> Bigint
-    id : cot_position -> Integer
-    cot_event_id : cot_position -> Integer
-    point_hae : cot_position -> Integer
-    point_ce : cot_position -> Integer
-    point_le : cot_position -> Integer
-    tileX : cot_position -> Integer
-    tileY : cot_position -> Integer
-    latitude : cot_position -> Real
-    longitude : cot_position -> Real
+    id : cot_position -> Varchar
+    cot_event_id : cot_position -> Varchar
+    point_hae : cot_position -> Varchar
+    point_ce : cot_position -> Varchar
+    point_le : cot_position -> Varchar
+    tileX : cot_position -> Varchar
+    tileY : cot_position -> Varchar
+    latitude : cot_position -> Varchar
+    longitude : cot_position -> Varchar
     observation_equations 
       forall x:cot_event . source_id(x) = id(has_source(x))
       forall y:cot_position . cot_event_id(y) = id(has_cot_event(y))
@@ -46,22 +46,22 @@ schema X = literal : sql1 {
   entities 
     cospan
   attributes 
-    source_id : cospan -> Integer
+    source_id : cospan -> Varchar
     name : cospan -> Varchar
     channel : cospan -> Varchar
-    cot_event_id : cospan -> Integer
+    cot_event_id : cospan -> Varchar
     cot_type : cospan -> Varchar
     how : cospan -> Varchar
     detail : cospan -> Text
     servertime : cospan -> Bigint
-    cot_position_id : cospan -> Integer
-    point_hae : cospan -> Integer
-    point_ce : cospan -> Integer
-    point_le : cospan -> Integer
-    tileX : cospan -> Integer
-    tileY : cospan -> Integer
-    latitude : cospan -> Real
-    longitude : cospan -> Real
+    cot_position_id : cospan -> Varchar
+    point_hae : cospan -> Varchar
+    point_ce : cospan -> Varchar
+    point_le : cospan -> Varchar
+    tileX : cospan -> Varchar
+    tileY : cospan -> Varchar
+    latitude : cospan -> Varchar
+    longitude : cospan -> Varchar
 }
 
 mapping F = literal : S -> X {
@@ -168,6 +168,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
      where
       ce.cot_type = "a-n-A-C-F-m"
      attributes
+      event_id -> ce.id
       source_id -> ce.source_id
       cot_type -> ce.cot_type
      }
@@ -180,8 +181,9 @@ query Qx = [ toCoQuery G ; toQuery F ]
      from
       ce:cot_event
      where
-      ce.servertime = "1494174900"
+      ce.servertime = "201705071635"
      attributes
+      event_id -> ce.id
       source_id -> ce.source_id
       cot_type -> ce.cot_type
       how -> ce.how
@@ -194,9 +196,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
    query Qs_03 = simple : S {
       from ce : cot_event
       where
-        ce.servertime = "1494174900"
+        ce.servertime = "201705071635"
         ce.cot_type = "a-n-A-C-F-m"
       attributes
+        event_id -> ce.id
         source_id -> ce.source_id
         cot_type -> ce.cot_type
         how -> ce.how
@@ -215,6 +218,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
         s.channel = "7"
       attributes
         name -> s.name
+        event_id -> ce.id
         cot_type -> ce.cot_type
         time -> ce.servertime
    }
@@ -223,70 +227,18 @@ query Qx = [ toCoQuery G ; toQuery F ]
    query Qt_04 = [ Qx ; Qs_04 ]
    
 
-  schema S5m = literal : sql {
-    entities
-          Qchan
-          Qtype
-      attributes
-          name : Qchan -> Varchar
-          time : Qchan -> Bigint
-          type : Qchan -> Varchar
-          channel : Qchan -> Varchar
-
-          name : Qtype -> Varchar
-          time : Qtype -> Bigint
-          type : Qtype -> Varchar
-          channel : Qtype -> Varchar
-  }
-
-     query Qm_05 = literal : S -> S5m {
-       entity
-         Qchan -> {
-           from
-             s : source
-             ce : cot_event
-           where
-             s = ce.has_source
-             s.channel = "3"
-           attributes
-             name -> s.name
-             type -> ce.cot_type
-             channel -> s.channel
-             time -> ce.servertime
-           }
-       entity
-        Qtype -> {
-          from
-            s : source
-            ce : cot_event
-          where
-            s = ce.has_source
-            ce.cot_type = "a-n-A-C-F-m"
-          attributes
-          name -> s.name
-          type -> ce.cot_type
-          channel -> s.channel
-          time -> ce.servertime
-          }
-     }
-   
-
-   query Qn_05 = [ Qx ; Qm_05 ]
-   
-
      query Qs_05 = simple : S {
-       from
-         s : source
-         ce : cot_event
-       where
-          s = ce.has_source
-          OrBool(EqualVc(s.channel,"3"),
-                 EqualVc(ce.cot_type,"a-n-A-C-F-m")) = true
-       attributes
-         channel -> s.channel
-         name -> s.name
-         time -> ce.servertime
-         type -> ce.cot_type
+            from
+              s : source
+              ce : cot_event
+            where
+              s = ce.has_source
+              s.channel = "7"
+            attributes
+              event_id -> ce.id
+              type -> ce.cot_type
+              channel -> s.channel
+              time -> ce.servertime
      }
    
 
@@ -299,10 +251,11 @@ query Qx = [ toCoQuery G ; toQuery F ]
        s : source
      where
        s = ce.has_source
-       OrBool(EqualVc(s.channel,"3"),
-              EqualVc(ce.cot_type,"a-n-A-C-F-m")) = true
+       OrBool(EqualVc(s.channel,"5"),
+              EqualVc(ce.cot_type,"a-n-A-C-F-s")) = true
      attributes
        name -> s.name
+       event_id -> ce.id
        cot_type -> ce.cot_type
        time -> ce.servertime
    }
@@ -319,9 +272,9 @@ query Qx = [ toCoQuery G ; toQuery F ]
      where
        s = ce.has_source
        ce = cep.has_cot_event
-       s.channel = 3
-       cep.tileX = 18830
-       cep.tileY = 25704
+       s.channel = "6"
+       cep.tileX = "18830"
+       cep.tileY = "25704"
      attributes
        name -> s.name
        cot_type -> ce.cot_type
@@ -359,7 +312,9 @@ query Qx = [ toCoQuery G ; toQuery F ]
             s.name = name_parm
             ce.servertime = servertime_parm
           attributes
+            source_id -> s.source_id
             name -> s.name
+            event_id -> ce.id
             time -> ce.servertime
             tileX -> cep.tileX
             tileY -> cep.tileY
@@ -407,7 +362,9 @@ query Qx = [ toCoQuery G ; toQuery F ]
             s.name = name_param
             ce.servertime = servertime_param
           attributes
+            source_id -> s.source_id
             name -> s.name
+            event_id -> ce.id
             time -> ce.servertime
             tileX -> cep.tileX
             tileY -> cep.tileY

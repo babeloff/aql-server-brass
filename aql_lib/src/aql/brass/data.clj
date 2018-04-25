@@ -29,26 +29,26 @@
     :entities
     #{"source" "cot_event" "cot_position"}
     :attributes
-    [["id" "source" "Integer"]
+    [["source_id" "source" "Varchar"]
      ["name" "source" "Varchar"]
      ["channel" "source" "Varchar"]
 
-     ["id" "cot_event" "Integer"]
-     ["source_id" "cot_event" "Integer"]
+     ["id" "cot_event" "Varchar"]
+     ["source_id" "cot_event" "Varchar"]
      ["cot_type" "cot_event" "Varchar"]
      ["how" "cot_event" "Varchar"]
      ["detail" "cot_event" "Text"]
      ["servertime" "cot_event" "Bigint"]
 
-     ["id" "cot_position" "Integer"]
-     ["cot_event_id" "cot_position" "Integer"]
-     ["point_hae" "cot_position" "Integer"]
-     ["point_ce" "cot_position" "Integer"]
-     ["point_le" "cot_position" "Integer"]
-     ["tileX" "cot_position" "Integer"]
-     ["tileY" "cot_position" "Integer"]
-     ["latitude" "cot_position" "Real"]
-     ["longitude" "cot_position" "Real"]]
+     ["id" "cot_position" "Varchar"]
+     ["cot_event_id" "cot_position" "Varchar"]
+     ["point_hae" "cot_position" "Varchar"]
+     ["point_ce" "cot_position" "Varchar"]
+     ["point_le" "cot_position" "Varchar"]
+     ["tileX" "cot_position" "Varchar"]
+     ["tileY" "cot_position" "Varchar"]
+     ["latitude" "cot_position" "Varchar"]
+     ["longitude" "cot_position" "Varchar"]]
     :references
     [["has_source" "cot_event" "source"]
      ["has_cot_event" "cot_position" "cot_event"]]
@@ -70,24 +70,24 @@
     :entities
     #{"cospan"}
     :attributes
-    [["source_id" "cospan" "Integer"]
+    [["source_id" "cospan" "Varchar"]
      ["name" "cospan" "Varchar"]
      ["channel" "cospan" "Varchar"]
 
-     ["cot_event_id" "cospan" "Integer"]
+     ["cot_event_id" "cospan" "Varchar"]
      ["cot_type" "cospan" "Varchar"]
      ["how" "cospan" "Varchar"]
      ["detail" "cospan" "Text"]
      ["servertime" "cospan" "Bigint"]
 
-     ["cot_position_id" "cospan" "Integer"]
-     ["point_hae" "cospan" "Integer"]
-     ["point_ce" "cospan" "Integer"]
-     ["point_le" "cospan" "Integer"]
-     ["tileX" "cospan" "Integer"]
-     ["tileY" "cospan" "Integer"]
-     ["latitude" "cospan" "Real"]
-     ["longitude" "cospan" "Real"]]})
+     ["cot_position_id" "cospan" "Varchar"]
+     ["point_hae" "cospan" "Varchar"]
+     ["point_ce" "cospan" "Varchar"]
+     ["point_le" "cospan" "Varchar"]
+     ["tileX" "cospan" "Varchar"]
+     ["tileY" "cospan" "Varchar"]
+     ["latitude" "cospan" "Varchar"]
+     ["longitude" "cospan" "Varchar"]]})
 
 (def mapping-f
   "A mapping between schema"
@@ -136,24 +136,24 @@
     :entities
     #{"source" "cot_action" "cot_detail"}
     :attributes
-    [["id" "source" "Integer"]
+    [["id" "source" "Varchar"]
      ["name" "source" "Varchar"]
      ["channel" "source" "Varchar"]
 
-     ["id" "cot_action" "Integer"]
+     ["id" "cot_action" "Varchar"]
      ["how" "cot_action" "Varchar"]
      ["servertime" "cot_action" "Bigint"]
-     ["point_ce" "cot_action" "Integer"]
-     ["point_le" "cot_action" "Integer"]
-     ["tileX" "cot_action" "Integer"]
-     ["latitude" "cot_action" "Real"]
-     ["longitude" "cot_action" "Real"]
+     ["point_ce" "cot_action" "Varchar"]
+     ["point_le" "cot_action" "Varchar"]
+     ["tileX" "cot_action" "Varchar"]
+     ["latitude" "cot_action" "Varchar"]
+     ["longitude" "cot_action" "Varchar"]
 
-     ["id" "cot_detail" "Integer"]
+     ["id" "cot_detail" "Varchar"]
      ["detail" "cot_detail" "Text"]
      ["cot_type" "cot_detail" "Varchar"]
-     ["tileY" "cot_detail" "Integer"]
-     ["point_hae" "cot_detail" "Integer"]]
+     ["tileY" "cot_detail" "Varchar"]
+     ["point_hae" "cot_detail" "Varchar"]]
     :references
     [["has_source" "cot_action" "source"]
      ["has_cot_action" "cot_detail" "cot_action"]
@@ -218,7 +218,7 @@
         java_functions
           EqualStr : String, String -> Bool = \"return input[0].equals(input[1])\"
           EqualVc : Varchar, Varchar -> Bool = \"return input[0].equals(input[1])\"
-          EqualInt : Integer, Integer -> Bool = \"return input[0].equals(input[1])\"
+          EqualInt : Varchar, Varchar -> Bool = \"return input[0].equals(input[1])\"
           OrBool : Bool, Bool -> Bool = \"return input[0] || input[1]\"
         }")
 
@@ -231,8 +231,7 @@
    (::dq/source dq/qs-02) (::dq/target dq/qs-02)
    (::dq/source dq/qs-03) (::dq/target dq/qs-03)
    (::dq/source dq/qs-04) (::dq/target dq/qs-04)
-   dq/sc-05
-   (::dq/source-alt dq/qs-05) (::dq/target-alt dq/qs-05)
+   ; (::dq/source-alt dq/qs-05) (::dq/target-alt dq/qs-05)
    (::dq/source dq/qs-05) (::dq/target dq/qs-05)
    (::dq/source dq/qs-06) (::dq/target dq/qs-06)
    (::dq/source dq/qs-07) (::dq/target dq/qs-07)
@@ -243,20 +242,23 @@
    (::dq/source-pre dq/qs-09) (::dq/target-pre dq/qs-09)
    (::dq/source dq/qs-09) (::dq/target dq/qs-09)])
 
+(defn qname [query]
+  (str (::dq/nspace query) "." (::dq/nspace query)))
+
 (def query-class-names
-  {"Qt_01" (::dq/qname dq/qs-01)
-   "Qt_02" (::dq/qname dq/qs-02)
-   "Qt_03" (::dq/qname dq/qs-03)
-   "Qt_04" (::dq/qname dq/qs-04)
-   "Qt_05" (::dq/qname dq/qs-05)
-   "Qt_06s" (::dq/qname dq/qs-06)
-   "Qt_07s" (::dq/qname dq/qs-07)
-   "Qt_08pre" (::dq/qname dq/qs-08)
-   "Qt_09pre" (::dq/qname dq/qs-09)})
+  {"Qt_01" (qname dq/qs-01)
+   "Qt_02" (qname dq/qs-02)
+   "Qt_03" (qname dq/qs-03)
+   "Qt_04" (qname dq/qs-04)
+   "Qt_05" (qname dq/qs-05)
+   "Qt_06s" (qname dq/qs-06)
+   "Qt_07s" (qname dq/qs-07)
+   "Qt_08pre" (qname dq/qs-08)
+   "Qt_09pre" (qname dq/qs-09)})
 
 (defn query-tweeker
   "a transducer that 'tweeks' the key value
-  to be the qname for the class."
+  to be the nspace for the class."
   [xf]
   (fn
     ([] (xf))

@@ -2,11 +2,15 @@
   "The BRASS IMMoRTALS demo queries"
   (:require (aql [spec :as s])))
 
-;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
-;;   database/server/baseline_schema_ddl.sql
+;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk
+;;   /database/server/baseline_schema_ddl.sql
+;;
+;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk
+;;   /shared/modules/dfus/TakServerDataManager/src/main/java/mil/darpa/immortals/dfus/TakServerDataManager?order=name
 
 (def qs-01
-  {::qname "mil.darpa.immortals.dfus.TakServerDataManager.DFU.CotEventsForConstantCotType"
+  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+   ::name "CotEventsForConstantCotType"
    ::doc "
    ## Query 1 : cot_eventsForConstantCotType
    Basic test against single table with a simple filter on a projected column.
@@ -27,6 +31,7 @@
      where
       ce.cot_type = \"a-n-A-C-F-m\"
      attributes
+      event_id -> ce.id
       source_id -> ce.source_id
       cot_type -> ce.cot_type
      }
@@ -36,22 +41,24 @@
    "})
 
 (def qs-02
-  {::qname "mil.darpa.immortals.dfus.TakServerDataManager.DFU.CotEventsForConstantTimeInterval"
+  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+   ::name "CotEventsForConstantTimeInterval"
    ::doc "
    Like query 1 except filter on non-projected column.
    "
    ::sql "
    select ce.id, ce.source_id, ce.cot_type, ce.how
    from cot_event as ce
-   where ce.servertime = 1494174900 // 2017-05-07t16:35
+   where ce.servertime = '201705071635'
    "
    ::source "
    query Qs_02 = simple : S  {
      from
       ce:cot_event
      where
-      ce.servertime = \"1494174900\"
+      ce.servertime = \"201705071635\"
      attributes
+      event_id -> ce.id
       source_id -> ce.source_id
       cot_type -> ce.cot_type
       how -> ce.how
@@ -62,23 +69,25 @@
    "})
 
 (def qs-03
-  {::qname "mil.darpa.immortals.dfus.TakServerDataManager.DFU.CotEventsForConstantCompoundFilter"
+  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+   ::name "CotEventsForConstantCompoundFilter"
    ::doc "
    Query with a simple compound filter
    "
    ::sql "
    select ce.id, ce.source_id, ce.cot_type, ce.how
   	from cot_event as ce
-  	where ce.servertime = 1494174900
+  	where ce.servertime = '201705071635'
   	and ce.cot_type = 'a-n-A-C-F-m'
    "
    ::source "
    query Qs_03 = simple : S {
       from ce : cot_event
       where
-        ce.servertime = \"1494174900\"
+        ce.servertime = \"201705071635\"
         ce.cot_type = \"a-n-A-C-F-m\"
       attributes
+        event_id -> ce.id
         source_id -> ce.source_id
         cot_type -> ce.cot_type
         how -> ce.how
@@ -89,7 +98,8 @@
    "})
 
 (def qs-04
-  {::qname "mil.darpa.immortals.dfus.TakServerDataManager.DFU.CotEventsForConstantChannelJoin"
+  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+   ::name "CotEventsForConstantChannelJoin"
    ::doc "
    Simple join with filter
    "
@@ -97,7 +107,7 @@
    select s.name, ce.id, ce.cot_type, ce.servertime
    from source as s
    join cot_event as ce on s.id = ce.source_id
-   where s.channel = 7
+   where s.channel = '7'
    "
    ::source "
    query Qs_04 = simple : S {
@@ -109,6 +119,7 @@
         s.channel = \"7\"
       attributes
         name -> s.name
+        event_id -> ce.id
         cot_type -> ce.cot_type
         time -> ce.servertime
    }
@@ -117,101 +128,49 @@
    query Qt_04 = [ Qx ; Qs_04 ]
    "})
 
-(def sc-05 "
-  schema S5m = literal : sql {
-    entities
-          Qchan
-          Qtype
-      attributes
-          name : Qchan -> Varchar
-          time : Qchan -> Bigint
-          type : Qchan -> Varchar
-          channel : Qchan -> Varchar
-
-          name : Qtype -> Varchar
-          time : Qtype -> Bigint
-          type : Qtype -> Varchar
-          channel : Qtype -> Varchar
-  }")
-
 (def qs-05
-  {::qname "mil.darpa.immortals.dfus.TakServerDataManager.DFU.CotEventsForConstantChannelJoin2"
+  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+   ::name "CotEventsForConstantChannelJoin2"
    ::doc "
    Same as query4 but no projection of column from joined table.
    "
    ::sql "
-     select s.name, ce.cot_type, ce.servertime
+     select ce.id, ce.cot_type, ce.servertime
      from source as s
        join cot_event as ce on s.id = ce.source_id
-     where s.channel = 5
-        or ce.cot_type = 'a-n-A-C-F-s'
-   "
-   ::source-alt "
-     query Qm_05 = literal : S -> S5m {
-       entity
-         Qchan -> {
-           from
-             s : source
-             ce : cot_event
-           where
-             s = ce.has_source
-             s.channel = \"3\"
-           attributes
-             name -> s.name
-             type -> ce.cot_type
-             channel -> s.channel
-             time -> ce.servertime
-           }
-       entity
-        Qtype -> {
-          from
-            s : source
-            ce : cot_event
-          where
-            s = ce.has_source
-            ce.cot_type = \"a-n-A-C-F-m\"
-          attributes
-          name -> s.name
-          type -> ce.cot_type
-          channel -> s.channel
-          time -> ce.servertime
-          }
-     }
+     where s.channel = '7'
    "
    ::source "
      query Qs_05 = simple : S {
-       from
-         s : source
-         ce : cot_event
-       where
-          s = ce.has_source
-          OrBool(EqualVc(s.channel,\"3\"),
-                 EqualVc(ce.cot_type,\"a-n-A-C-F-m\")) = true
-       attributes
-         channel -> s.channel
-         name -> s.name
-         time -> ce.servertime
-         type -> ce.cot_type
+            from
+              s : source
+              ce : cot_event
+            where
+              s = ce.has_source
+              s.channel = \"7\"
+            attributes
+              event_id -> ce.id
+              type -> ce.cot_type
+              channel -> s.channel
+              time -> ce.servertime
      }
-   "
-   ::target-alt "
-   query Qn_05 = [ Qx ; Qm_05 ]
    "
    ::target "
    query Qt_05 = [ Qx ; Qs_05 ]
    "})
 
 (def qs-06
-  {::qname "mil.darpa.immortals.dfus.TakServerDataManager.DFU.CotEventsForConstantMixedJoin"
+  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+   ::name "CotEventsForConstantMixedJoin"
    ::doc "
    Same as query5 except join across tables.
    "
    ::sql "
-   select s.name, ce.cot_type, ce.servertime
+   select s.name, ce.id, ce.cot_type, ce.servertime
    from source as s
-     join cot_event as ce on s.id = ce.source_id
-   where  s.channel = 5
-     or ce.cot_type = 'a-n-A-C-F-m'
+     join cot_event as ce on s.source_id = ce.source_id
+   where  s.channel = '5'
+     or ce.cot_type = 'a-n-A-C-F-s'
    "
    ::source "
    query Qs_06s = simple : S {
@@ -220,10 +179,11 @@
        s : source
      where
        s = ce.has_source
-       OrBool(EqualVc(s.channel,\"3\"),
-              EqualVc(ce.cot_type,\"a-n-A-C-F-m\")) = true
+       OrBool(EqualVc(s.channel,\"5\"),
+              EqualVc(ce.cot_type,\"a-n-A-C-F-s\")) = true
      attributes
        name -> s.name
+       event_id -> ce.id
        cot_type -> ce.cot_type
        time -> ce.servertime
    }
@@ -233,16 +193,17 @@
    "})
 
 (def qs-07
-  {::qname "mil.darpa.immortals.dfus.TakServerDataManager.DFU.CotEventsOnChannelInRegion"
+  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+   ::name "CotEventsOnChannelInRegion"
    ::doc "
    More complex join and filter
    "
    ::sql "
    select s.name, ce.id, ce.cot_type, ce.servertime
    from source as s
-     join cot_event as ce on s.id = ce.source_id
+     join cot_event as ce on s.source_id = ce.source_id
      join cot_position cep on ce.id = cep.has_cot_event
-   where  s.channel = 3 and cep.tileX = 18830 and cep.tileY = 25704
+   where  s.channel = '6' and cep.tileX = '18830' and cep.tileY = '25704'
    "
    ::source "
    query Qs_07s = simple : S {
@@ -253,9 +214,9 @@
      where
        s = ce.has_source
        ce = cep.has_cot_event
-       s.channel = 3
-       cep.tileX = 18830
-       cep.tileY = 25704
+       s.channel = \"6\"
+       cep.tileX = \"18830\"
+       cep.tileY = \"25704\"
      attributes
        name -> s.name
        cot_type -> ce.cot_type
@@ -279,7 +240,8 @@
   ")
 
 (def qs-08
-  {::qname "mil.darpa.immortals.dfus.TakServerDataManager.DFU.CotEventsForUidAndInterval"
+  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+   ::name "CotEventsForUidAndInterval"
    ::doc "
    Simple parameterized query.
    "
@@ -308,7 +270,9 @@
             s.name = name_parm
             ce.servertime = servertime_parm
           attributes
+            source_id -> s.source_id
             name -> s.name
+            event_id -> ce.id
             time -> ce.servertime
             tileX -> cep.tileX
             tileY -> cep.tileY
@@ -342,7 +306,8 @@
 ")
 
 (def qs-09
-  {::qname "mil.darpa.immortals.dfus.TakServerDataManager.DFU.CotEventsForUidAndIntervalBound"
+  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+   ::name "CotEventsForUidAndInterval"
    ::doc "
    Compare to query 8 except trained using bound parameters.
    Effectively treating it as a canned query but
@@ -375,7 +340,9 @@
             s.name = name_param
             ce.servertime = servertime_param
           attributes
+            source_id -> s.source_id
             name -> s.name
+            event_id -> ce.id
             time -> ce.servertime
             tileX -> cep.tileX
             tileY -> cep.tileY
