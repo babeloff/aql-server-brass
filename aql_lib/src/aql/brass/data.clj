@@ -243,7 +243,7 @@
    (::dq/source dq/qs-09) (::dq/target dq/qs-09)])
 
 (defn qname [query]
-  (str (::dq/nspace query) "." (::dq/nspace query)))
+  (str (::dq/nspace query) "." (::dq/name query)))
 
 (def query-class-names
   {"Qt_01" (qname dq/qs-01)
@@ -264,7 +264,9 @@
     ([] (xf))
     ([res] (xf res))
     ([res [k v]]
-     (xf res (vector (get query-class-names k k) v k)))))
+     (xf res (vector
+              (get query-class-names k k)
+              {"sql" v "aid" k})))))
 
 (def query-demo-attributes
   "a list of the queries to return"

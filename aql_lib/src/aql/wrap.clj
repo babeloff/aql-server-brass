@@ -77,7 +77,7 @@
         query-fn (fn [name] (query->sql (get (::query env-map) name)))
         schema-fn (fn [name] (schema->sql (get (::schema env-map) name)))]
     {:query
-     (into []
+     (into {}
            (comp
             (map #(vector % (query-fn %)))
             tweeker)
