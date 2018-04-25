@@ -232,10 +232,12 @@
      entities
            Q
        attributes
+           source_id : Q -> Varchar
            name : Q -> Varchar
-           time : Q -> Bigint
-           tileX : Q -> Integer
-           tileY : Q -> Integer
+           event_id : Q -> Varchar
+           time : Q -> Varchar
+           tileX : Q -> Varchar
+           tileY : Q -> Varchar
    }
   ")
 
@@ -257,7 +259,7 @@
    query Qs_08pre = literal : S -> S8 {
       params
          name_parm : Varchar
-         servertime_parm : Bigint
+         servertime_parm : Varchar
       entity
         Q -> {
           from
@@ -298,10 +300,12 @@
      entities
            Q
        attributes
+           source_id : Q -> Varchar
            name : Q -> Varchar
-           time : Q -> Bigint
-           tileX : Q -> Integer
-           tileY : Q -> Integer
+           event_id : Q -> Varchar
+           time : Q -> Varchar
+           tileX : Q -> Varchar
+           tileY : Q -> Varchar
      }
 ")
 
@@ -327,7 +331,7 @@
    query Qs_09pre = literal : S -> S9 {
      params
         name_param : Varchar
-        servertime_param : Bigint
+        servertime_param : Varchar
       entity
         Q -> {
           from

@@ -37,8 +37,8 @@
      ["source_id" "cot_event" "Varchar"]
      ["cot_type" "cot_event" "Varchar"]
      ["how" "cot_event" "Varchar"]
-     ["detail" "cot_event" "Text"]
-     ["servertime" "cot_event" "Bigint"]
+     ["detail" "cot_event" "Varchar"]
+     ["servertime" "cot_event" "Varchar"]
 
      ["id" "cot_position" "Varchar"]
      ["cot_event_id" "cot_position" "Varchar"]
@@ -56,7 +56,7 @@
     [[["x" "cot_event"]
       [::s/equal
        ["source_id" "x"]
-       ["id" ["has_source" "x"]]]]
+       ["source_id" ["has_source" "x"]]]]
      [["y" "cot_position"]
       [::s/equal
        ["cot_event_id" "y"]
@@ -77,8 +77,8 @@
      ["cot_event_id" "cospan" "Varchar"]
      ["cot_type" "cospan" "Varchar"]
      ["how" "cospan" "Varchar"]
-     ["detail" "cospan" "Text"]
-     ["servertime" "cospan" "Bigint"]
+     ["detail" "cospan" "Varchar"]
+     ["servertime" "cospan" "Varchar"]
 
      ["cot_position_id" "cospan" "Varchar"]
      ["point_hae" "cospan" "Varchar"]
@@ -99,7 +99,7 @@
     {[["source"] ["cospan"]]
      #::s
      {:attribute-map
-      {"id" "source_id"
+      {"source_id" "source_id"
        "name" "name"
        "channel" "channel"}}
 
@@ -142,7 +142,7 @@
 
      ["id" "cot_action" "Varchar"]
      ["how" "cot_action" "Varchar"]
-     ["servertime" "cot_action" "Bigint"]
+     ["servertime" "cot_action" "Varchar"]
      ["point_ce" "cot_action" "Varchar"]
      ["point_le" "cot_action" "Varchar"]
      ["tileX" "cot_action" "Varchar"]
@@ -150,7 +150,7 @@
      ["longitude" "cot_action" "Varchar"]
 
      ["id" "cot_detail" "Varchar"]
-     ["detail" "cot_detail" "Text"]
+     ["detail" "cot_detail" "Varchar"]
      ["cot_type" "cot_detail" "Varchar"]
      ["tileY" "cot_detail" "Varchar"]
      ["point_hae" "cot_detail" "Varchar"]]

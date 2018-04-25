@@ -16,7 +16,7 @@
 (s/def ::prime string?)
 (s/def ::ref string?)
 (s/def ::ref-name string?)
-(s/def ::type #{"Integer" "Varchar" "Bigint"})
+(s/def ::type #{"Integer" "Varchar" "Bigint" "Real"})
 (s/def ::column (s/keys :req [::entity ::cospan ::type]
                         :opt [::prime ::ref ::ref-name]))
 (s/def ::columns (s/coll-of ::column :kind vector? :distinct true))
@@ -47,7 +47,7 @@
    {::entity "source"
     ::cospan "source_id"
     ::prime "id"
-    ::type "Integer"}
+    ::type "Varchar"}
    "Source_Name"
    {::entity "source"
     ::cospan "name"
@@ -61,13 +61,13 @@
    {::entity "cot_event"
     ::cospan "cot_event_id"
     ::prime "id"
-    ::type "Integer"}
+    ::type "Varchar"}
    "Event_SourceId"
    {::entity "cot_event"
     ::cospan "source_id"
     ::ref "Source_Id"
     ::ref-name "has_source"
-    ::type "Integer"}
+    ::type "Varchar"}
    "Event_CotType"
    {::entity "cot_event"
     ::cospan "cot_type"
@@ -79,51 +79,51 @@
    "Event_Detail"
    {::entity "cot_event"
     ::cospan "detail"
-    ::type "Text"}
+    ::type "Varchar"}
    "Event_ServerTime"
    {::entity "cot_event"
     ::cospan "servertime"
-    ::type "Bigint"}
+    ::type "Varchar"}
 
    "Position_Id"
    {::entity "cot_event_position"
     ::cospan "cot_position_id"
     ::prime "id"
-    ::type "Integer"}
+    ::type "Varchar"}
    "Position_EventId"
    {::entity "cot_event_position"
     ::cospan "cot_event_id"
     ::ref "Event_Id"
     ::ref-name "has_cot_event"
-    ::type "Integer"}
+    ::type "Varchar"}
    "Position_PointHae"
    {::entity "cot_event_position"
     ::cospan "point_hae"
-    ::type "Integer"}
+    ::type "Varchar"}
    "Position_PointCE"
    {::entity "cot_event_position"
     ::cospan "point_ce"
-    ::type "Integer"}
+    ::type "Varchar"}
    "Position_PointLE"
    {::entity "cot_event_position"
     ::cospan "point_le"
-    ::type "Integer"}
+    ::type "Varchar"}
    "Position_TileX"
    {::entity "cot_event_position"
     ::cospan "tileX"
-    ::type "Integer"}
+    ::type "Varchar"}
    "Position_TileY"
    {::entity "cot_event_position"
     ::cospan "tileY"
-    ::type "Integer"}
+    ::type "Varchar"}
    "Position_Longitude"
    {::entity "cot_event_position"
     ::cospan "longitude"
-    ::type "Real"}
+    ::type "Varchar"}
    "Position_Latitude"
    {::entity "cot_event_position"
     ::cospan "latitude"
-    ::type "Real"}})
+    ::type "Varchar"}})
 
 (def lookup
   (assoc base-lookup

@@ -37,9 +37,10 @@
                           :snapshots false}]
                 ["nexus-snapshot" {:url "http://immortals.isis.vanderbilt.edu:8081/repository/maven-snapshots"
                                    :snapshots true}]]
- ;;:deploy-repositories
- ;;[["nexus-snapshot" {:url "http://immortals.isis.vanderbilt.edu:8081/repository/maven-snapshots"}
-;;   :snapshots true
+ :deploy-repositories
+ [["default"
+   {:url "http://immortals.isis.vanderbilt.edu:8081/repository/maven-snapshots"
+    :snapshots true}]]
 
  :main aql.brass.daemon
  :aot [aql.brass.daemon])

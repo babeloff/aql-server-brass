@@ -26,8 +26,8 @@ schema S = literal : sql1 {
     source_id : cot_event -> Varchar
     cot_type : cot_event -> Varchar
     how : cot_event -> Varchar
-    detail : cot_event -> Text
-    servertime : cot_event -> Bigint
+    detail : cot_event -> Varchar
+    servertime : cot_event -> Varchar
     id : cot_position -> Varchar
     cot_event_id : cot_position -> Varchar
     point_hae : cot_position -> Varchar
@@ -38,7 +38,7 @@ schema S = literal : sql1 {
     latitude : cot_position -> Varchar
     longitude : cot_position -> Varchar
     observation_equations 
-      forall x:cot_event . source_id(x) = id(has_source(x))
+      forall x:cot_event . source_id(x) = source_id(has_source(x))
       forall y:cot_position . cot_event_id(y) = id(has_cot_event(y))
 }
 
@@ -52,8 +52,8 @@ schema X = literal : sql1 {
     cot_event_id : cospan -> Varchar
     cot_type : cospan -> Varchar
     how : cospan -> Varchar
-    detail : cospan -> Text
-    servertime : cospan -> Bigint
+    detail : cospan -> Varchar
+    servertime : cospan -> Varchar
     cot_position_id : cospan -> Varchar
     point_hae : cospan -> Varchar
     point_ce : cospan -> Varchar
@@ -67,7 +67,7 @@ schema X = literal : sql1 {
 mapping F = literal : S -> X {
   entity source -> cospan
     attributes 
-      id -> source_id
+      source_id -> source_id
       name -> name
       channel -> channel
   entity cot_event -> cospan
@@ -106,24 +106,24 @@ schema T = literal : sql1 {
     has_source : cot_detail -> source
     has_cot_detail : source -> cot_detail
   attributes 
-    cot_event_id : cot_action -> Integer
+    cot_event_id : cot_action -> Varchar
     how : cot_action -> Varchar
-    latitude : cot_action -> Real
-    longitude : cot_action -> Real
-    point_ce : cot_action -> Integer
-    point_le : cot_action -> Integer
-    servertime : cot_action -> Bigint
-    source_id : cot_action -> Integer
-    tileX : cot_action -> Integer
-    cot_event_id : cot_detail -> Integer
-    cot_position_id : cot_detail -> Integer
+    latitude : cot_action -> Varchar
+    longitude : cot_action -> Varchar
+    point_ce : cot_action -> Varchar
+    point_le : cot_action -> Varchar
+    servertime : cot_action -> Varchar
+    source_id : cot_action -> Varchar
+    tileX : cot_action -> Varchar
+    cot_event_id : cot_detail -> Varchar
+    cot_position_id : cot_detail -> Varchar
     cot_type : cot_detail -> Varchar
-    detail : cot_detail -> Text
-    point_hae : cot_detail -> Integer
-    tileY : cot_detail -> Integer
+    detail : cot_detail -> Varchar
+    point_hae : cot_detail -> Varchar
+    tileY : cot_detail -> Varchar
     channel : source -> Varchar
     name : source -> Varchar
-    source_id : source -> Integer
+    source_id : source -> Varchar
 }
 
 mapping G = literal : T -> X {
@@ -289,17 +289,19 @@ query Qx = [ toCoQuery G ; toQuery F ]
      entities
            Q
        attributes
+           source_id : Q -> Varchar
            name : Q -> Varchar
-           time : Q -> Bigint
-           tileX : Q -> Integer
-           tileY : Q -> Integer
+           event_id : Q -> Varchar
+           time : Q -> Varchar
+           tileX : Q -> Varchar
+           tileY : Q -> Varchar
    }
   
 
    query Qs_08pre = literal : S -> S8 {
       params
          name_parm : Varchar
-         servertime_parm : Bigint
+         servertime_parm : Varchar
       entity
         Q -> {
           from
@@ -339,17 +341,19 @@ query Qx = [ toCoQuery G ; toQuery F ]
      entities
            Q
        attributes
+           source_id : Q -> Varchar
            name : Q -> Varchar
-           time : Q -> Bigint
-           tileX : Q -> Integer
-           tileY : Q -> Integer
+           event_id : Q -> Varchar
+           time : Q -> Varchar
+           tileX : Q -> Varchar
+           tileY : Q -> Varchar
      }
 
 
    query Qs_09pre = literal : S -> S9 {
      params
         name_param : Varchar
-        servertime_param : Bigint
+        servertime_param : Varchar
       entity
         Q -> {
           from
