@@ -31,10 +31,10 @@
   (cond
     (or (.var term) (.gen term) (.sk term)) term
     (and (.sym term) (= 0 (.size (.args term)))) term
-    (.fk term) (Term/Fk (.fk term (quote-prime (.arg term))))
-    (.att term) (Term/Att (.att term (quote-prime (.arg term))))
+    (.fk term) (Term/Fk (.fk term) (quote-prime (.arg term)))
+    (.att term) (Term/Att (.att term) (quote-prime (.arg term)))
     (.obj term) (Term/Obj (str "'" (.obj term) "'") (.ty term))
-    (.sym term) (Term/Sym (map #(quote-prime %) (.args term)))
+    (.sym term) (Term/Sym (.sym term) (map #(quote-prime %) (.args term)))
     :else (Util/anomaly)))
 
 (defn query->sql-path-helper
