@@ -55,13 +55,13 @@
              (quote-prime path)))))
 
 (defn query->sql-equation-helper [ctx eqn]
-  (let [lhs (.lhs eqn)
-        rhs (.rhs eqn)]
+  (let [lhs (.first eqn)
+        rhs (.second eqn)]
     (str (query->sql-path-helper ctx lhs "ID")
          " = "
          (query->sql-path-helper ctx rhs "ID"))))
 
-(defn query->sql-ent-helper [schema ents ent-key attrs refs]
+(defn query->sql-ent-helper [ctx schema ents ent-key attrs refs]
   "Expand the query entity [there may be more than one].
    see fql :: src/catdata/aql/Query.java :: toSQLViews()"
   (let [b (.get ents ent-key)
@@ -88,7 +88,7 @@
 
           where
           (into []
-                (map #(query->sql-equation-helper schema %))
+                (map #(query->sql-equation-helper ctx %))
                 eqns)]
 
       ;; skip ID column (.add select (.)))))
@@ -108,9 +108,12 @@
         refs (.fks full-query)
         ent-keys (.keySet ents)]
     (into {}
-          (map (fn [ent-key]
-                 (vector ent-key
-                         (query->sql-ent-helper schema ents ent-key atts refs))))
+          (map
+           (fn [ent-key]
+             (vector
+               ent-key
+               (query->sql-ent-helper
+                full-query schema ents ent-key atts refs))))
           ent-keys)))
 
 (defn query->sql [query]

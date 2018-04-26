@@ -26,9 +26,9 @@
 (sr/select-one [:query] reqs)
 (def query (->> "Qt_01" query-fn))
 (def full-query (.unnest query))
-(def qs (.second (.toSQLViews full-query "" "" "ID" "char")))
+; (def qs (.second (.toSQLViews full-query "" "" "ID" "char")))
 
-(def ents (.ens full-query))
+(def ctx full-query)
 (def schema (.dst full-query))
 (def ents (.ens full-query))
 (def attrs (.atts full-query))
@@ -40,6 +40,11 @@
 (def b (.get ents ent-key))
 (def gens (.gens b))
 (def eqns (.eqs b))
+(def eqn (first eqns))
+(def lhs (.first eqn))
+(aql-wrap/query->sql-path-helper ctx lhs "ID")
+
+
 (def is-empty? (.isEmpty gens))
 (def from
       (into []
@@ -56,11 +61,8 @@
             (map (fn [ref] (str (.get refs ref) " as " ref)))
             (.fksFrom schema ent-key)))
 (aql-wrap/to-sql-helper schema ents ent-key attrs refs)
-
 (aql-wrap/to-sql full-query)
-
 (def query-names (.ens (.dst query)))
-(reduce #(str %1 (.get qs %2) "\n\n") "" query-names)
 
 (aql-wrap/query->sql query)
 
