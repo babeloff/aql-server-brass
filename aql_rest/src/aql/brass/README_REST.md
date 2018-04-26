@@ -21,7 +21,7 @@ clj -m aql.brass.server --port 23456
 ```
 
 
-A precompiled [uber-jar is available here](https//nexus.isis.vanderbilt.edu/repository/maven-snapshots).
+A precompiled [uber-jar is available here](https://nexus.isis.vanderbilt.edu/repository/maven-snapshots).
 The easiest way to run the service is from the command line.
 ```bash
 java -jar ./<where-ever>/aql-server-brass-<version>.jar

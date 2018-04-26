@@ -10,7 +10,7 @@
   :source-paths #{"src"}
   :repositories {"central" "http://repo1.maven.org/maven2/"
                  "clojars" "https://clojars.org/repo/"
-                 "nexus" "https//nexus.isis.vanderbilt.edu/repository/maven-snapshots"}
+                 "nexus" "https://nexus.isis.vanderbilt.edu/repository/maven-snapshots"}
   :dependencies
     '[[org.clojure/clojure "1.9.0"]
       [http-kit "2.2.0"]
