@@ -202,14 +202,14 @@
    select s.name, ce.id, ce.cot_type, ce.servertime
    from source as s
      join cot_event as ce on s.source_id = ce.source_id
-     join cot_position cep on ce.id = cep.has_cot_event
+     join cot_event_position cep on ce.id = cep.has_cot_event
    where  s.channel = '6' and cep.tileX = '18830' and cep.tileY = '25704'
    "
    ::source "
    query Qs_07s = simple : S {
      from
        ce : cot_event
-       cep : cot_position
+       cep : cot_event_position
        s : source
      where
        s = ce.has_source
@@ -265,7 +265,7 @@
           from
             s : source
             ce : cot_event
-            cep : cot_position
+            cep : cot_event_position
           where
             s = ce.has_source
             ce = cep.has_cot_event
@@ -321,7 +321,7 @@
    select s.id, s.name, ce.servertime, cep.tileX, cep.tileY
    from source as s
      join cot_event as ce on s.id = ce.source_id
-     join cot_position cep on ce.id = cep.has_cot_event
+     join cot_event_position cep on ce.id = cep.has_cot_event
    where s.name = ? and ce.servertime = ?
    "
    ::sql "
@@ -337,7 +337,7 @@
           from
             s : source
             ce : cot_event
-            cep : cot_position
+            cep : cot_event_position
           where
             s = ce.has_source
             ce = cep.has_cot_event

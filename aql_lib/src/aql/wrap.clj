@@ -6,9 +6,12 @@
    (clojure.tools [logging :as log])
    (com.rpl [specter :as sr]))
   (:import
-   (catdata LineException)
+   (catdata
+    LineException
+    Util)
    (catdata.aql
-    AqlCmdLine)
+    AqlCmdLine
+    Term)
    (catdata.aql.exp
     AqlEnv
     AqlParser
@@ -24,11 +27,44 @@
 (defn sk [h id-col ty]
   (h ty))
 
+(defn quote-prime [term]
+  (cond
+    (or (.var term) (.gen term) (.sk term)) term
+    (and (.sym term) (= 0 (.size (.args term)))) term
+    (.fk term) (Term/Fk (.fk term (quote-prime (.arg term))))
+    (.att term) (Term/Att (.att term (quote-prime (.arg term))))
+    (.obj term) (Term/Obj (str "'" (.obj term) "'") (.ty term))
+    (.sym term) (Term/Sym (map #(quote-prime %) (.args term)))
+    :else (Util/anomaly)))
+
+(defn query->sql-path-helper
+  "Expand the path suitable for where clause
+   Query.java : whereToString "
+  [ctx path id-col]
+  (let [gen (.gen path)
+        sk (.sk path)
+        consts (.consts ctx)]
+    (cond
+      gen (str gen "." id-col)
+      sk (if (.containsKey consts sk)
+          (.toStringSql
+           (quote-prime
+            (.convert (.get consts sk))))
+          "?")
+      :else (.toStringSql
+             (quote-prime path)))))
+
+(defn query->sql-equation-helper [ctx eqn]
+  (let [lhs (.lhs eqn)
+        rhs (.rhs eqn)]
+    (str (query->sql-path-helper ctx lhs "ID")
+         " = "
+         (query->sql-path-helper ctx rhs "ID"))))
+
 (defn query->sql-ent-helper [schema ents ent-key attrs refs]
   "Expand the query entity [there may be more than one].
    see fql :: src/catdata/aql/Query.java :: toSQLViews()"
   (let [b (.get ents ent-key)
-        ent-name (.str ent-key)
         gens (.gens b)
         eqns (.eqs b)
         is-empty? (.isEmpty gens)]
@@ -48,11 +84,20 @@
           select-ref
           (into []
                 (map (fn [ref] (str (.get refs ref) " as " ref)))
-                (.fksFrom schema ent-key))]
+                (.fksFrom schema ent-key))
+
+          where
+          (into []
+                (map #(query->sql-equation-helper schema %))
+                eqns)]
+
       ;; skip ID column (.add select (.)))))
       (str " select " (st/join ", " select-attr)
-           " from " (st/join ", " from)))))
-           ;" where " (st/join " and " eqns)))))
+           "\n"
+           " from " (st/join ", " from)
+           "\n"
+           (if (empty? where) ";"
+             (str " where " (st/join " and " where) "\n;"))))))
 
 (defn query->sql-helper [full-query]
   "Expand the query .
@@ -100,21 +145,21 @@
 
 (sr/declarepath IS-QUERY)
 (sr/providepath IS-QUERY
-        (sr/cond-path
-         (sr/must "query") "query"
-         (sr/must :query) :query))
+                (sr/cond-path
+                 (sr/must "query") "query"
+                 (sr/must :query) :query))
 
 (sr/declarepath IS-SCHEMA)
 (sr/providepath IS-SCHEMA
-        (sr/cond-path
-         (sr/must "schema") "schema"
-         (sr/must :schema) :schema))
+                (sr/cond-path
+                 (sr/must "schema") "schema"
+                 (sr/must :schema) :schema))
 
 (sr/declarepath IS-ERR)
 (sr/providepath IS-ERR
-        (sr/cond-path
-         (sr/must "err") "err"
-         (sr/must :err) :err))
+                (sr/cond-path
+                 (sr/must "err") "err"
+                 (sr/must :err) :err))
 
 (defn xform-result
   "the tweeker is an optional transducer that gets

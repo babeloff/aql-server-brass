@@ -12,12 +12,12 @@ typeside sql1 = literal {
         }
 schema S = literal : sql1 {
   entities
-    cot_position
+    cot_event_position
     cot_event
     source
   foreign_keys
     has_source : cot_event -> source
-    has_cot_event : cot_position -> cot_event
+    has_cot_event : cot_event_position -> cot_event
   attributes
     id : source -> Varchar
     name : source -> Varchar
@@ -28,18 +28,18 @@ schema S = literal : sql1 {
     how : cot_event -> Varchar
     detail : cot_event -> Text
     servertime : cot_event -> Varchar
-    id : cot_position -> Varchar
-    cot_event_id : cot_position -> Varchar
-    point_hae : cot_position -> Varchar
-    point_ce : cot_position -> Varchar
-    point_le : cot_position -> Varchar
-    tileX : cot_position -> Varchar
-    tileY : cot_position -> Varchar
-    latitude : cot_position -> Real
-    longitude : cot_position -> Real
+    id : cot_event_position -> Varchar
+    cot_event_id : cot_event_position -> Varchar
+    point_hae : cot_event_position -> Varchar
+    point_ce : cot_event_position -> Varchar
+    point_le : cot_event_position -> Varchar
+    tileX : cot_event_position -> Varchar
+    tileY : cot_event_position -> Varchar
+    latitude : cot_event_position -> Real
+    longitude : cot_event_position -> Real
     observation_equations
       forall x:cot_event . source_id(x) = id(has_source(x))
-      forall y:cot_position . cot_event_id(y) = id(has_cot_event(y))
+      forall y:cot_event_position . cot_event_id(y) = id(has_cot_event(y))
 }
 
 schema X = literal : sql1 {
@@ -80,7 +80,7 @@ mapping F = literal : S -> X {
       how -> how
       detail -> detail
       servertime -> servertime
-  entity cot_position -> cospan
+  entity cot_event_position -> cospan
     foreign_keys
       has_cot_event -> cospan
     attributes
@@ -314,7 +314,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
    query Qs_07s = simple : S {
      from
        ce : cot_event
-       cep : cot_position
+       cep : cot_event_position
        s : source
      where
        s = ce.has_source
@@ -352,7 +352,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
           from
             s : source
             ce : cot_event
-            cep : cot_position
+            cep : cot_event_position
           where
             s = ce.has_source
             ce = cep.has_cot_event
@@ -400,7 +400,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
           from
             s : source
             ce : cot_event
-            cep : cot_position
+            cep : cot_event_position
           where
             s = ce.has_source
             ce = cep.has_cot_event

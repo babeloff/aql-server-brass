@@ -2,26 +2,26 @@
 
 schema S = literal : sql {
   entities
-    cot_position
+    cot_event_position
     cot_event
     source
   foreign_keys
     source_id : cot_event -> source
-    has_cot_event : cot_position -> cot_event
+    has_cot_event : cot_event_position -> cot_event
   attributes
-    tileY : cot_position -> Integer
-    point_ce : cot_position -> Integer
+    tileY : cot_event_position -> Integer
+    point_ce : cot_event_position -> Integer
     servertime : cot_event -> Bigint
-    longitude : cot_position -> Real
+    longitude : cot_event_position -> Real
     cot_type : cot_event -> Varchar
     detail : cot_event -> Text
-    latitude : cot_position -> Real
+    latitude : cot_event_position -> Real
     name : source -> Varchar
-    tileX : cot_position -> Integer
-    point_le : cot_position -> Integer
+    tileX : cot_event_position -> Integer
+    point_le : cot_event_position -> Integer
     how : cot_event -> Varchar
     channel : source -> Varchar
-    point_hae : cot_position -> Integer
+    point_hae : cot_event_position -> Integer
 }
 
 schema S5m = literal : sql {

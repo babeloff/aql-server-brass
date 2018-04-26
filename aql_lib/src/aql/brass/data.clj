@@ -27,7 +27,7 @@
     :type ::s/schema
     :extend "sql1"
     :entities
-    #{"source" "cot_event" "cot_position"}
+    #{"source" "cot_event" "cot_event_position"}
     :attributes
     [["source_id" "source" "Varchar"]
      ["name" "source" "Varchar"]
@@ -40,24 +40,24 @@
      ["detail" "cot_event" "Varchar"]
      ["servertime" "cot_event" "Varchar"]
 
-     ["id" "cot_position" "Varchar"]
-     ["cot_event_id" "cot_position" "Varchar"]
-     ["point_hae" "cot_position" "Varchar"]
-     ["point_ce" "cot_position" "Varchar"]
-     ["point_le" "cot_position" "Varchar"]
-     ["tileX" "cot_position" "Varchar"]
-     ["tileY" "cot_position" "Varchar"]
-     ["latitude" "cot_position" "Varchar"]
-     ["longitude" "cot_position" "Varchar"]]
+     ["id" "cot_event_position" "Varchar"]
+     ["cot_event_id" "cot_event_position" "Varchar"]
+     ["point_hae" "cot_event_position" "Varchar"]
+     ["point_ce" "cot_event_position" "Varchar"]
+     ["point_le" "cot_event_position" "Varchar"]
+     ["tileX" "cot_event_position" "Varchar"]
+     ["tileY" "cot_event_position" "Varchar"]
+     ["latitude" "cot_event_position" "Varchar"]
+     ["longitude" "cot_event_position" "Varchar"]]
     :references
     [["has_source" "cot_event" "source"]
-     ["has_cot_event" "cot_position" "cot_event"]]
+     ["has_cot_event" "cot_event_position" "cot_event"]]
     :observations
     [[["x" "cot_event"]
       [::s/equal
        ["source_id" "x"]
        ["source_id" ["has_source" "x"]]]]
-     [["y" "cot_position"]
+     [["y" "cot_event_position"]
       [::s/equal
        ["cot_event_id" "y"]
        ["id" ["has_cot_event" "y"]]]]]})
@@ -114,7 +114,7 @@
        "detail" "detail"
        "servertime" "servertime"}}
 
-     [["cot_position"] ["cospan"]]
+     [["cot_event_position"] ["cospan"]]
      #::s
      {:reference-map {"has_cot_event" nil}
       :attribute-map
@@ -264,10 +264,14 @@
   (fn
     ([] (xf))
     ([res] (xf res))
-    ([res [k v]]
-     (xf res (vector
-              (get query-class-names k k)
-              {"sql" v "aid" k})))))
+    ([res [key value]]
+     (xf res
+         (let [qkey (get query-class-names key key)]
+           (vector qkey
+             {"class" qkey
+              "sql" value
+              "aid" key}))))))
+;; TODO add the original sql and the aql
 
 (def query-demo-attributes
   "a list of the queries to return"
