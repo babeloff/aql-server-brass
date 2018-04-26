@@ -40,28 +40,29 @@
 (defn query->sql-path-helper
   "Expand the path suitable for where clause
    Query.java : whereToString "
-  [ctx path id-col]
+  [ref-alias-fn ctx path]
   (let [gen (.gen path)
         sk (.sk path)
         consts (.consts ctx)]
     (cond
-      gen (str gen "." id-col)
+      gen nil ; (str gen "." (ref-alias-fn [gen :id]))
       sk (if (.containsKey consts sk)
-          (.toStringSql
-           (quote-prime
-            (.convert (.get consts sk))))
-          "?")
+           (.toStringSql
+            (quote-prime
+             (.convert (.get consts sk))))
+           "?")
       :else (.toStringSql
              (quote-prime path)))))
 
-(defn query->sql-equation-helper [ctx eqn]
+(defn query->sql-equation-helper [ref-alias-fn ctx eqn]
   (let [lhs (.first eqn)
-        rhs (.second eqn)]
-    (str (query->sql-path-helper ctx lhs "ID")
-         " = "
-         (query->sql-path-helper ctx rhs "ID"))))
+        rhs (.second eqn)
+        lhq (query->sql-path-helper ref-alias-fn ctx lhs)
+        rhq (query->sql-path-helper ref-alias-fn ctx rhs)]
+    (when (and (some? lhq) (some? rhq))
+      (str lhq " = " rhq))))
 
-(defn query->sql-ent-helper [ctx schema ents ent-key attrs refs]
+(defn query->sql-ent-helper [ref-alias-fn ctx schema ents ent-key attrs refs]
   "Expand the query entity [there may be more than one].
    see fql :: src/catdata/aql/Query.java :: toSQLViews()"
   (let [b (.get ents ent-key)
@@ -88,7 +89,9 @@
 
           where
           (into []
-                (map #(query->sql-equation-helper ctx %))
+                (comp
+                 (map #(query->sql-equation-helper ref-alias-fn ctx %))
+                 (filter some?))
                 eqns)]
 
       ;; skip ID column (.add select (.)))))
@@ -97,9 +100,9 @@
            " from " (st/join ", " from)
            "\n"
            (if (empty? where) ";"
-             (str " where " (st/join " and " where) "\n;"))))))
+               (str " where " (st/join " and " where) "\n;"))))))
 
-(defn query->sql-helper [full-query]
+(defn query->sql-helper [ref-alias-fn full-query]
   "Expand the query .
    see fql :: src/catdata/aql/Query.java"
   (let [schema (.dst full-query)
@@ -111,12 +114,12 @@
           (map
            (fn [ent-key]
              (vector
-               ent-key
-               (query->sql-ent-helper
-                full-query schema ents ent-key atts refs))))
+              ent-key
+              (query->sql-ent-helper
+               ref-alias-fn full-query schema ents ent-key atts refs))))
           ent-keys)))
 
-(defn query->sql [query]
+(defn query->sql [ref-alias-fn query]
   "a modified version of catdata.aql.AqlCmdLine/queryToSql
    * does not include 'create view'
    * replaces whitespace characters with blanks."
@@ -124,7 +127,7 @@
     (try
       (let [full-query (.unnest query)
             ;; qs (.second (.toSQLViews full-query "" "" "ID" "char"))
-            qs (query->sql-helper full-query)
+            qs (query->sql-helper ref-alias-fn full-query)
             qm (.ens (.dst query))]
         (-> (reduce #(str %1 (.get qs %2) "  ") "" qm)
             (st/replace #"[\n\t\r]" " ")
@@ -168,10 +171,10 @@
   "the tweeker is an optional transducer that gets
   applied to the result immediately before being
   placed into the vector. "
-  [reqs tweeker gen]
+  [ref-alias-fn reqs tweeker gen]
   (log/debug "extract-result" reqs)
   (let [env-map (env->maps (sr/select-one [:env] gen))
-        query-fn (fn [name] (query->sql (get (::query env-map) name)))
+        query-fn (fn [name] (query->sql ref-alias-fn (get (::query env-map) name)))
         schema-fn (fn [name] (schema->sql (get (::schema env-map) name)))]
     {:query
      (into {}

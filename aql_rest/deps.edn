@@ -24,8 +24,8 @@
         net.cgrand/xforms {:mvn/version "0.16.0"}}
  :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
              "clojars" {:url "https://clojars.org/repo/"}
-             "nexus" {:url "https//nexus.isis.vanderbilt.edu/repository/maven-releases"}
-             "nexus-snapshot" {:url "https//nexus.isis.vanderbilt.edu/repository/maven-snapshots"}}
+             ;; "nexus" {:url "https//nexus.isis.vanderbilt.edu/repository/maven-releases/"}
+             "nexus-snapshot" {:url "https//nexus.isis.vanderbilt.edu/repository/maven-snapshots/"}}
  :aliases
  {:depstar
   {:extra-deps

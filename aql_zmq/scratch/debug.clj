@@ -46,5 +46,5 @@
                   (sr/traverse-all ["schema"])
                   (mapcat #(vector % (schema-fn %))))
                  [return-objs])})
-
-(aql-wrap/xform-result return-objs identity gen)
+(defn ref-alias-fn [ks] "DID")
+(aql-wrap/xform-result ref-alias-fn return-objs identity gen)

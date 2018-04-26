@@ -38,8 +38,8 @@
                 ["nexus-snapshot" {:url "https://nexus.isis.vanderbilt.edu/repository/maven-snapshots/"
                                    :snapshots true}]]
  :deploy-repositories
- [["default"
-   {:url "https//nexus.isis.vanderbilt.edu/repository/maven-snapshots"
+ [["vuisis"
+   {:url "https://nexus.isis.vanderbilt.edu/repository/maven-snapshots"
     :snapshots true}]]
 
  :main aql.brass.daemon

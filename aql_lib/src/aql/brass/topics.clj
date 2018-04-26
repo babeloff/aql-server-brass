@@ -12,6 +12,8 @@
     [mutant :as brass-mutant])
    (aql.brass.spec [mutant :as brass-spec])))
 
+(defn ref-alias-fn [ks] "TID")
+
 (defn brass-p2c1
   [p-json]
   (let [mutant (brass-mutant/normalize p-json)
@@ -48,6 +50,7 @@
         (log/info "brass phase 2 results: " gen)
         (->> gen
           (aql-wrap/xform-result
+            ref-alias-fn
             brass-data/query-demo-attributes
             brass-data/query-tweeker)
           json/write-str))
