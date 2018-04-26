@@ -83,7 +83,7 @@
       </releases>
     </repository>
     <repository>
-      <id>nexus-snapshot</id>
+      <id>snapshot</id>
       <url>https://nexus.isis.vanderbilt.edu/repository/maven-snapshots/</url>
       <snapshots>
         <enabled>true</enabled>

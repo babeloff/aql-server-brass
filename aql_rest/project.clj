@@ -9,6 +9,7 @@
  :license {:name "Eclipse Public License"
            :url "http://www.eclipse.org/legal/epl-v10.html"}
  :source-paths ["src" "../aql_lib/src"]
+
  :dependencies
  [[org.clojure/clojure "1.9.0"]
   [com.cemerick/pomegranate "1.0.0"]
@@ -35,10 +36,27 @@
                 ["clojars" {:url "https://clojars.org/repo/"}]
                 ["nexus" {:url "https://nexus.isis.vanderbilt.edu/repository/maven-releases"
                           :snapshots false}]
-                ["nexus-snapshot" {:url "https://nexus.isis.vanderbilt.edu/repository/maven-snapshots/"
-                                   :snapshots true}]]
+                ["snapshot" {:url "https://nexus.isis.vanderbilt.edu/repository/maven-snapshots/"
+                             :snapshots true}]]
+
+
+ :plugins [[lein-package "2.1.1"]
+           [lein-ring "0.8.3"]]
+
+ :hooks [leiningen.package.hooks.deploy
+         leiningen.package.hooks.install]
+
+ :package {:skipjar false
+           :autobuild true
+           :reuse true
+           :artifacts
+           [{:build "uberjar"
+             :classifier "standalone"
+             :extension "jar"}]}
+
+ ;; :classifiers { :standalone :foo}
  :deploy-repositories
- [["vuisis"
+ [["snapshot"
    {:url "https://nexus.isis.vanderbilt.edu/repository/maven-snapshots"
     :snapshots true}]]
 
