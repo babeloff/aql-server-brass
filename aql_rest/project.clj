@@ -1,9 +1,9 @@
-(require 'cemerick.pomegranate.aether)
-(cemerick.pomegranate.aether/register-wagon-factory!
-  "http" #(org.apache.maven.wagon.providers.http.HttpWagon.))
+; (require 'cemerick.pomegranate.aether)
+; (cemerick.pomegranate.aether/register-wagon-factory!
+;  "http" #(org.apache.maven.wagon.providers.http.HttpWagon.)
 
 (defproject
- aql-brass-server "2018.94.25-SNAPSHOT"
+ aql-brass-server "2018.04.25-SNAPSHOT"
  :description "A building the aql-brass-server."
  :url "https://github.com/"
  :license {:name "Eclipse Public License"
@@ -33,13 +33,13 @@
  :exclusions [org.slf4j/slf4j-nop]
  :repositories [["central" {:url "https://repo1.maven.org/maven2/"}]
                 ["clojars" {:url "https://clojars.org/repo/"}]
-                ["nexus" {:url "http://immortals.isis.vanderbilt.edu:8081/repository/maven-releases"
+                ["nexus" {:url "https://nexus.isis.vanderbilt.edu/repository/maven-releases"
                           :snapshots false}]
-                ["nexus-snapshot" {:url "http://immortals.isis.vanderbilt.edu:8081/repository/maven-snapshots"
+                ["nexus-snapshot" {:url "https://nexus.isis.vanderbilt.edu/repository/maven-snapshots/"
                                    :snapshots true}]]
  :deploy-repositories
  [["default"
-   {:url "http://immortals.isis.vanderbilt.edu:8081/repository/maven-snapshots"
+   {:url "https//nexus.isis.vanderbilt.edu/repository/maven-snapshots"
     :snapshots true}]]
 
  :main aql.brass.daemon

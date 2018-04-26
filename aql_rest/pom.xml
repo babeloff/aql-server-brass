@@ -3,7 +3,7 @@
   <groupId>aql-brass-server</groupId>
   <artifactId>aql-brass-server</artifactId>
   <packaging>jar</packaging>
-  <version>2018.94.25-SNAPSHOT</version>
+  <version>2018.04.25-SNAPSHOT</version>
   <name>aql-brass-server</name>
   <description>A building the aql-brass-server.</description>
   <url>https://github.com/</url>
@@ -74,7 +74,7 @@
     </repository>
     <repository>
       <id>nexus</id>
-      <url>http://immortals.isis.vanderbilt.edu:8081/repository/maven-releases</url>
+      <url>https://nexus.isis.vanderbilt.edu/repository/maven-releases</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
@@ -84,7 +84,7 @@
     </repository>
     <repository>
       <id>nexus-snapshot</id>
-      <url>http://immortals.isis.vanderbilt.edu:8081/repository/maven-snapshots</url>
+      <url>https://nexus.isis.vanderbilt.edu/repository/maven-snapshots/</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
