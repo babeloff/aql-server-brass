@@ -5,9 +5,10 @@
    (com.rpl [specter :as sr])
    (aql [wrap :as aql-wrap])))
 
-(defn helpers
+(def helpers
   {:ref-alias-fn (fn [ks] "A0ID")
-   :sort-select-fn})
+   :sort-select-fn identity})
+;; TODO fix for the general case
 
 (defn aql-eval [request]
   (if-let [model (sr/select-one ["model"] request)]

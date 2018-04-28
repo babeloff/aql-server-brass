@@ -10,7 +10,8 @@
 ;;     /mil/darpa/immortals/dfus/TakServerDataManager/DFU
 
 (def qs-01
-  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+  {::key "Qs_01"
+   ::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
    ::name "CotEventsForConstantCotType"
    ::doc "
    ## Query 1 : cot_eventsForConstantCotType
@@ -43,7 +44,8 @@
    "})
 
 (def qs-02
-  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+  {::key "Qs_02"
+   ::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
    ::name "CotEventsForConstantTimeInterval"
    ::doc "
    Like query 1 except filter on non-projected column.
@@ -72,7 +74,8 @@
    "})
 
 (def qs-03
-  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+  {::key "Qs_03"
+   ::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
    ::name "CotEventsForConstantCompoundFilter"
    ::doc "
    Query with a simple compound filter
@@ -102,7 +105,8 @@
    "})
 
 (def qs-04
-  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+  {::key "Qs_04"
+   ::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
    ::name "CotEventsForConstantChannelJoin"
    ::doc "
    Simple join with filter
@@ -134,7 +138,8 @@
    "})
 
 (def qs-05
-  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+  {::key "Qs_05"
+   ::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
    ::name "CotEventsForConstantChannelJoin2"
    ::doc "
    Same as query4 but no projection of column from joined table.
@@ -166,7 +171,8 @@
    "})
 
 (def qs-06
-  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+  {::key "Qs_06"
+   ::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
    ::name "CotEventsForConstantMixedJoin"
    ::doc "
    Same as query5 except join across tables.
@@ -200,7 +206,8 @@
    "})
 
 (def qs-07
-  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+  {::key "Qs_07"
+   ::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
    ::name "CotEventsOnChannelInRegion"
    ::doc "
    More complex join and filter
@@ -250,7 +257,8 @@
   ")
 
 (def qs-08
-  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+  {::key "Qs_08"
+   ::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
    ::name "CotEventsForUidAndInterval"
    ::doc "
    Simple parameterized query.
@@ -320,7 +328,8 @@
 ")
 
 (def qs-09
-  {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
+  {::key "Qs_09"
+   ::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
    ::name "CotEventsForUidAndInterval"
    ::doc "
    Compare to query 8 except trained using bound parameters.

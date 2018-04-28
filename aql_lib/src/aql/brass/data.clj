@@ -256,24 +256,14 @@
    "Qt_08pre" (qname dq/qs-08)
    "Qt_09pre" (qname dq/qs-09)})
 
-(defn query-tweeker
-  "a transducer that 'tweeks' the key value
-  to be the qname for the class if one has
-  been supplied."
-  [xf]
-  (fn
-    ([] (xf))
-    ([res] (xf res))
-    ([res [key value]]
-     (xf res
-         (let [qkey (get query-class-names key key)]
-           (vector qkey
-             {"class" qkey
-              "sql" value
-              "aid" key}))))))
-;; TODO add the original sql and the aql
+(def query-dict
+  (into {}
+        (map (fn [q] (vector (::dq/key q) q)))
+        [dq/qs-01 dq/qs-02 dq/qs-03
+         dq/qs-04 dq/qs-05 dq/qs-06
+         dq/qs-07 dq/qs-08 dq/qs-09]))
 
-(def query-demo-attributes
+(def demo-objects
   "a list of the queries to return"
   {:query ["Qs_01" "Qt_01"
            "Qs_02" "Qt_02"
