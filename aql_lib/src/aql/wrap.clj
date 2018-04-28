@@ -70,7 +70,7 @@
         gens (.gens b)
         eqns (.eqs b)
         is-empty? (.isEmpty gens)
-        sort-attr-fn (get-in helpers [:sort-attr-fn] identiy)]
+        sort-select-fn (get-in helpers [:sort-select-fn] identiy)]
     (if is-empty?
       (throw (RuntimeException. "empty from clause invalid sql")))
 
@@ -83,7 +83,7 @@
           (into []
                 (comp
                   (map (fn [attr] (str (.get attrs attr) " as " attr))))
-                (sort-attr-fn (.attsFrom schema ent-key)))
+                (sort-select-fn (.attsFrom schema ent-key)))
 
           select-ref
           (into []
