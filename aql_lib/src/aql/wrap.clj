@@ -17,7 +17,7 @@
     AqlParser
     AqlMultiDriver)))
 
-(defn schema->sql [schema]
+(defn schema->sql [name schema]
   (when schema
     (try
       (AqlCmdLine/schemaToSql schema)
@@ -63,14 +63,15 @@
     (when (and (some? lhq) (some? rhq))
       (str lhq " = " rhq))))
 
-(defn query->sql-ent-helper [helpers ctx schema ents ent-key attrs refs]
+(defn query->sql-ent-helper
   "Expand the query entity [there may be more than one].
    see fql :: src/catdata/aql/Query.java :: toSQLViews()"
+  [query-name helpers ctx schema ents ent-key attrs refs]
   (let [b (.get ents ent-key)
         gens (.gens b)
         eqns (.eqs b)
         is-empty? (.isEmpty gens)
-        sort-select-fn (get-in helpers [:sort-select-fn] identiy)]
+        sort-select-fn (get-in helpers [:sort-select-fn] identity)]
     (if is-empty?
       (throw (RuntimeException. "empty from clause invalid sql")))
 
@@ -83,7 +84,8 @@
           (into []
                 (comp
                   (map (fn [attr] (str (.get attrs attr) " as " attr))))
-                (sort-select-fn (.attsFrom schema ent-key)))
+                (sort-select-fn query-name
+                                (.attsFrom schema ent-key)))
 
           select-ref
           (into []
@@ -105,9 +107,10 @@
            (if (empty? where) ";"
                (str " where " (st/join " and " where) "\n;"))))))
 
-(defn query->sql-helper [helpers full-query]
+(defn query->sql-helper
   "Expand the query .
    see fql :: src/catdata/aql/Query.java"
+  [query-name helpers full-query]
   (let [schema (.dst full-query)
         ents (.ens full-query)
         atts (.atts full-query)
@@ -119,18 +122,20 @@
              (vector
               ent-key
               (query->sql-ent-helper
-               helpers full-query schema ents ent-key atts refs))))
+               query-name
+               helpers full-query schema
+               ents ent-key atts refs))))
           ent-keys)))
 
-(defn query->sql [helpers query]
+(defn query->sql
   "a modified version of catdata.aql.AqlCmdLine/queryToSql
    * does not include 'create view'
    * replaces whitespace characters with blanks."
+  [name helpers query]
   (when query
     (try
       (let [full-query (.unnest query)
-            ;; qs (.second (.toSQLViews full-query "" "" "ID" "char"))
-            qs (query->sql-helper helpers full-query)
+            qs (query->sql-helper name helpers full-query)
             qm (.ens (.dst query))]
         (-> (reduce #(str %1 (.get qs %2) "  ") "" qm)
             (st/replace #"[\n\t\r]" " ")
@@ -174,16 +179,19 @@
   "the tweeker is an optional transducer that gets
   applied to the result immediately before being
   placed into the vector. "
-  [helpers reqs tweeker gen]
+  [helpers reqs gen]
   (log/debug "extract-result" reqs)
   (let [env-map (env->maps (sr/select-one [:env] gen))
-        query-fn (fn [name] (query->sql helpers (get (::query env-map) name)))
-        schema-fn (fn [name] (schema->sql (get (::schema env-map) name)))]
+        query-fn
+        (fn [name] (query->sql name helpers (get (::query env-map) name)))
+
+        schema-fn
+        (fn [name] (schema->sql name (get (::schema env-map) name)))]
     {:query
      (into {}
            (comp
             (map #(vector % (query-fn %)))
-            tweeker)
+            (get-in helpers [:tweek-output-xf] identity))
            (sr/select-one [IS-QUERY] reqs))
      :schema
      (into []

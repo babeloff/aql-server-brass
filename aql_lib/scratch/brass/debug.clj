@@ -19,7 +19,7 @@
 ; (def drvr (aql-wrap/make-driver model)) (.start drvr)
 ; (def exn (aql-wrap/private-field "exn" drvr))
 (def env (sr/select-one [:env] gen))
-(def reqs (merge brass-data/query-demo-attributes))
+(def reqs (merge brass-data/demo-objects))
 (def env-map (aql-wrap/env->maps (sr/select-one [:env] gen)))
 (def query-fn (partial get (::aql-wrap/query env-map)))
 ; (def schema-fn (partial get (::aql-wrap/schema env-map)))

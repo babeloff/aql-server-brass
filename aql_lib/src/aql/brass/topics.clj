@@ -9,12 +9,9 @@
    (aql.brass
     [data :as brass-data]
     [cospan :as brass-cospan]
-    [mutant :as brass-mutant])
+    [mutant :as brass-mutant]
+    [wrap :as wrap-helper])
    (aql.brass.spec [mutant :as brass-spec])))
-
-(def helpers
-  :ref-alias-fn (fn [ks] "TID")
-  :sort-select-fn (fn [ks] "TID"))
 
 (defn brass-p2c1
   [p-json]
@@ -52,9 +49,8 @@
         (log/info "brass phase 2 results: " gen)
         (->> gen
           (aql-wrap/xform-result
-            helpers
-            brass-data/query-demo-attributes
-            brass-data/query-tweeker)
+            wrap-helper/helpers
+            brass-data/demo-objects)
           json/write-str))
       (catch Exception ex
         (log/error "aql fault " ex)
