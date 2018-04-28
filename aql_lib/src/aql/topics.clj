@@ -5,7 +5,9 @@
    (com.rpl [specter :as sr])
    (aql [wrap :as aql-wrap])))
 
-(defn ref-alias-fn [ks] "A0ID")
+(defn helpers
+  {:ref-alias-fn (fn [ks] "A0ID")
+   :sort-select-fn})
 
 (defn aql-eval [request]
   (if-let [model (sr/select-one ["model"] request)]
@@ -14,5 +16,5 @@
           return-objs (sr/select-one ["return"] request)]
       (log/info "aql-handler results:" aql-env)
       (->> aql-env
-           (aql-wrap/xform-result ref-alias-fn return-objs identity)
+           (aql-wrap/xform-result helpers return-objs identity)
            json/write-str))))

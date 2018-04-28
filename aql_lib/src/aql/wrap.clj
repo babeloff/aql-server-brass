@@ -40,12 +40,12 @@
 (defn query->sql-path-helper
   "Expand the path suitable for where clause
    Query.java : whereToString "
-  [ref-alias-fn ctx path]
+  [helpers ctx path]
   (let [gen (.gen path)
         sk (.sk path)
         consts (.consts ctx)]
     (cond
-      gen nil ; (str gen "." (ref-alias-fn [gen :id]))
+      gen nil ; (str gen "." (helpers [gen :id]))
       sk (if (.containsKey consts sk)
            (.toStringSql
             (quote-prime
@@ -54,21 +54,23 @@
       :else (.toStringSql
              (quote-prime path)))))
 
-(defn query->sql-equation-helper [ref-alias-fn ctx eqn]
+(defn query->sql-equation-helper [helpers ctx eqn]
   (let [lhs (.first eqn)
         rhs (.second eqn)
-        lhq (query->sql-path-helper ref-alias-fn ctx lhs)
-        rhq (query->sql-path-helper ref-alias-fn ctx rhs)]
+        ref-alias-fn (get-in helpers [:ref-alias-fn] identity)
+        lhq (query->sql-path-helper helpers ctx lhs)
+        rhq (query->sql-path-helper helpers ctx rhs)]
     (when (and (some? lhq) (some? rhq))
       (str lhq " = " rhq))))
 
-(defn query->sql-ent-helper [ref-alias-fn ctx schema ents ent-key attrs refs]
+(defn query->sql-ent-helper [helpers ctx schema ents ent-key attrs refs]
   "Expand the query entity [there may be more than one].
    see fql :: src/catdata/aql/Query.java :: toSQLViews()"
   (let [b (.get ents ent-key)
         gens (.gens b)
         eqns (.eqs b)
-        is-empty? (.isEmpty gens)]
+        is-empty? (.isEmpty gens)
+        sort-attr-fn (get-in helpers [:sort-attr-fn] identiy)]
     (if is-empty?
       (throw (RuntimeException. "empty from clause invalid sql")))
 
@@ -79,8 +81,9 @@
 
           select-attr
           (into []
-                (map (fn [attr] (str (.get attrs attr) " as " attr)))
-                (.attsFrom schema ent-key))
+                (comp
+                  (map (fn [attr] (str (.get attrs attr) " as " attr))))
+                (sort-attr-fn (.attsFrom schema ent-key)))
 
           select-ref
           (into []
@@ -90,7 +93,7 @@
           where
           (into []
                 (comp
-                 (map #(query->sql-equation-helper ref-alias-fn ctx %))
+                 (map #(query->sql-equation-helper helpers ctx %))
                  (filter some?))
                 eqns)]
 
@@ -102,7 +105,7 @@
            (if (empty? where) ";"
                (str " where " (st/join " and " where) "\n;"))))))
 
-(defn query->sql-helper [ref-alias-fn full-query]
+(defn query->sql-helper [helpers full-query]
   "Expand the query .
    see fql :: src/catdata/aql/Query.java"
   (let [schema (.dst full-query)
@@ -116,10 +119,10 @@
              (vector
               ent-key
               (query->sql-ent-helper
-               ref-alias-fn full-query schema ents ent-key atts refs))))
+               helpers full-query schema ents ent-key atts refs))))
           ent-keys)))
 
-(defn query->sql [ref-alias-fn query]
+(defn query->sql [helpers query]
   "a modified version of catdata.aql.AqlCmdLine/queryToSql
    * does not include 'create view'
    * replaces whitespace characters with blanks."
@@ -127,7 +130,7 @@
     (try
       (let [full-query (.unnest query)
             ;; qs (.second (.toSQLViews full-query "" "" "ID" "char"))
-            qs (query->sql-helper ref-alias-fn full-query)
+            qs (query->sql-helper helpers full-query)
             qm (.ens (.dst query))]
         (-> (reduce #(str %1 (.get qs %2) "  ") "" qm)
             (st/replace #"[\n\t\r]" " ")
@@ -171,10 +174,10 @@
   "the tweeker is an optional transducer that gets
   applied to the result immediately before being
   placed into the vector. "
-  [ref-alias-fn reqs tweeker gen]
+  [helpers reqs tweeker gen]
   (log/debug "extract-result" reqs)
   (let [env-map (env->maps (sr/select-one [:env] gen))
-        query-fn (fn [name] (query->sql ref-alias-fn (get (::query env-map) name)))
+        query-fn (fn [name] (query->sql helpers (get (::query env-map) name)))
         schema-fn (fn [name] (schema->sql (get (::schema env-map) name)))]
     {:query
      (into {}

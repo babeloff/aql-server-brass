@@ -46,5 +46,8 @@
                   (sr/traverse-all ["schema"])
                   (mapcat #(vector % (schema-fn %))))
                  [return-objs])})
-(defn ref-alias-fn [ks] "DID")
-(aql-wrap/xform-result ref-alias-fn return-objs identity gen)
+(def helpers
+  {:ref-alias-fn (fn [ks] "DID")
+   :sort-select-fn identity})
+
+(aql-wrap/xform-result helpers return-objs identity gen)

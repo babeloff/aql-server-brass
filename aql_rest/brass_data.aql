@@ -84,15 +84,15 @@ mapping F = literal : S -> X {
     foreign_keys 
       has_cot_event -> cospan
     attributes 
-      tiley -> tiley
       point_ce -> point_ce
       longitude -> longitude
       cot_event_id -> cot_event_id
       id -> cot_position_id
       latitude -> latitude
-      tilex -> tilex
+      tiley -> tiley
       point_le -> point_le
       point_hae -> point_hae
+      tilex -> tilex
 }
 
 schema T = literal : sql1 {
@@ -166,7 +166,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
      from
       ce:cot_event
      where
-      ce.cot_type = "a-n-A-C-F-m"
+      ce.cot_type = "a-n-A-C-F-s"
      attributes
       event_id -> ce.id
       source_id -> ce.source_id
@@ -220,7 +220,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
         name -> s.name
         event_id -> ce.id
         cot_type -> ce.cot_type
-        time -> ce.servertime
+        servertime -> ce.servertime
    }
    
 
