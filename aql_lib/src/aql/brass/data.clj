@@ -45,8 +45,8 @@
      ["point_hae" "cot_event_position" "Varchar"]
      ["point_ce" "cot_event_position" "Varchar"]
      ["point_le" "cot_event_position" "Varchar"]
-     ["tileX" "cot_event_position" "Varchar"]
-     ["tileY" "cot_event_position" "Varchar"]
+     ["tilex" "cot_event_position" "Varchar"]
+     ["tiley" "cot_event_position" "Varchar"]
      ["latitude" "cot_event_position" "Varchar"]
      ["longitude" "cot_event_position" "Varchar"]]
     :references
@@ -84,8 +84,8 @@
      ["point_hae" "cospan" "Varchar"]
      ["point_ce" "cospan" "Varchar"]
      ["point_le" "cospan" "Varchar"]
-     ["tileX" "cospan" "Varchar"]
-     ["tileY" "cospan" "Varchar"]
+     ["tilex" "cospan" "Varchar"]
+     ["tiley" "cospan" "Varchar"]
      ["latitude" "cospan" "Varchar"]
      ["longitude" "cospan" "Varchar"]]})
 
@@ -123,8 +123,8 @@
        "point_hae" "point_hae"
        "point_ce" "point_ce"
        "point_le" "point_le"
-       "tileX" "tileX"
-       "tileY" "tileY"
+       "tilex" "tilex"
+       "tiley" "tiley"
        "latitude" "latitude"
        "longitude" "longitude"}}}})
 
@@ -145,14 +145,14 @@
      ["servertime" "cot_action" "Varchar"]
      ["point_ce" "cot_action" "Varchar"]
      ["point_le" "cot_action" "Varchar"]
-     ["tileX" "cot_action" "Varchar"]
+     ["tilex" "cot_action" "Varchar"]
      ["latitude" "cot_action" "Varchar"]
      ["longitude" "cot_action" "Varchar"]
 
      ["id" "cot_detail" "Varchar"]
      ["detail" "cot_detail" "Varchar"]
      ["cot_type" "cot_detail" "Varchar"]
-     ["tileY" "cot_detail" "Varchar"]
+     ["tiley" "cot_detail" "Varchar"]
      ["point_hae" "cot_detail" "Varchar"]]
     :references
     [["has_source" "cot_action" "source"]
@@ -193,7 +193,7 @@
        "servertime" "servertime"
        "point_ce" "point_ce"
        "point_le" "point_le"
-       "tileX" "tileX"
+       "tilex" "tilex"
        "longitude" "longitude"
        "latitude" "latitude"}}
      [["cot_detail"] ["cospan"]]
@@ -205,7 +205,7 @@
        "cot_event_id" "cot_event_id"
        "point_hae" "point_hae"
        "detail" "detail"
-       "tileY" "tileY"
+       "tiley" "tiley"
        "cot_type" "cot_type"}}}})
 
 (def ts-sql1

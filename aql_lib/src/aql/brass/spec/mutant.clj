@@ -108,13 +108,13 @@
    {::entity "cot_event_position"
     ::cospan "point_le"
     ::type "Varchar"}
-   "Position_TileX"
+   "Position_tilex"
    {::entity "cot_event_position"
-    ::cospan "tileX"
+    ::cospan "tilex"
     ::type "Varchar"}
-   "Position_TileY"
+   "Position_tiley"
    {::entity "cot_event_position"
-    ::cospan "tileY"
+    ::cospan "tiley"
     ::type "Varchar"}
    "Position_Longitude"
    {::entity "cot_event_position"

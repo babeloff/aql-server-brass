@@ -27,7 +27,7 @@
             "Event_ServerTime"
             "Position_PointCE"
             "Position_PointLE"
-            "Position_TileX"
+            "Position_tilex"
             "Position_Longitude"
             "Position_Latitude"]}
          {"table" "cot_detail"
@@ -36,7 +36,7 @@
            "Position_EventId"
            "Position_PointHae"
            "Event_Detail"
-           "Position_TileY"
+           "Position_tiley"
            "Event_CotType"]}]}}}})
 
 

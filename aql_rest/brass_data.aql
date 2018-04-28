@@ -33,8 +33,8 @@ schema S = literal : sql1 {
     point_hae : cot_event_position -> Varchar
     point_ce : cot_event_position -> Varchar
     point_le : cot_event_position -> Varchar
-    tileX : cot_event_position -> Varchar
-    tileY : cot_event_position -> Varchar
+    tilex : cot_event_position -> Varchar
+    tiley : cot_event_position -> Varchar
     latitude : cot_event_position -> Varchar
     longitude : cot_event_position -> Varchar
     observation_equations 
@@ -58,8 +58,8 @@ schema X = literal : sql1 {
     point_hae : cospan -> Varchar
     point_ce : cospan -> Varchar
     point_le : cospan -> Varchar
-    tileX : cospan -> Varchar
-    tileY : cospan -> Varchar
+    tilex : cospan -> Varchar
+    tiley : cospan -> Varchar
     latitude : cospan -> Varchar
     longitude : cospan -> Varchar
 }
@@ -84,13 +84,13 @@ mapping F = literal : S -> X {
     foreign_keys 
       has_cot_event -> cospan
     attributes 
-      tileY -> tileY
+      tiley -> tiley
       point_ce -> point_ce
       longitude -> longitude
       cot_event_id -> cot_event_id
       id -> cot_position_id
       latitude -> latitude
-      tileX -> tileX
+      tilex -> tilex
       point_le -> point_le
       point_hae -> point_hae
 }
@@ -114,13 +114,13 @@ schema T = literal : sql1 {
     point_le : cot_action -> Varchar
     servertime : cot_action -> Varchar
     source_id : cot_action -> Varchar
-    tileX : cot_action -> Varchar
+    tilex : cot_action -> Varchar
     cot_event_id : cot_detail -> Varchar
     cot_position_id : cot_detail -> Varchar
     cot_type : cot_detail -> Varchar
     detail : cot_detail -> Varchar
     point_hae : cot_detail -> Varchar
-    tileY : cot_detail -> Varchar
+    tiley : cot_detail -> Varchar
     channel : source -> Varchar
     name : source -> Varchar
     source_id : source -> Varchar
@@ -139,7 +139,7 @@ mapping G = literal : T -> X {
       point_le -> point_le
       servertime -> servertime
       source_id -> source_id
-      tileX -> tileX
+      tilex -> tilex
   entity cot_detail -> cospan
     foreign_keys 
       has_source -> cospan
@@ -149,7 +149,7 @@ mapping G = literal : T -> X {
       cot_type -> cot_type
       detail -> detail
       point_hae -> point_hae
-      tileY -> tileY
+      tiley -> tiley
   entity source -> cospan
     foreign_keys 
       has_cot_action -> cospan
@@ -273,8 +273,8 @@ query Qx = [ toCoQuery G ; toQuery F ]
        s = ce.has_source
        ce = cep.has_cot_event
        s.channel = "6"
-       cep.tileX = "18830"
-       cep.tileY = "25704"
+       cep.tilex = "18830"
+       cep.tiley = "25704"
      attributes
        name -> s.name
        cot_type -> ce.cot_type
@@ -293,8 +293,8 @@ query Qx = [ toCoQuery G ; toQuery F ]
            name : Q -> Varchar
            event_id : Q -> Varchar
            time : Q -> Varchar
-           tileX : Q -> Varchar
-           tileY : Q -> Varchar
+           tilex : Q -> Varchar
+           tiley : Q -> Varchar
    }
   
 
@@ -318,8 +318,8 @@ query Qx = [ toCoQuery G ; toQuery F ]
             name -> s.name
             event_id -> ce.id
             time -> ce.servertime
-            tileX -> cep.tileX
-            tileY -> cep.tileY
+            tilex -> cep.tilex
+            tiley -> cep.tiley
         }
      }
    
@@ -345,8 +345,8 @@ query Qx = [ toCoQuery G ; toQuery F ]
            name : Q -> Varchar
            event_id : Q -> Varchar
            time : Q -> Varchar
-           tileX : Q -> Varchar
-           tileY : Q -> Varchar
+           tilex : Q -> Varchar
+           tiley : Q -> Varchar
      }
 
 
@@ -370,8 +370,8 @@ query Qx = [ toCoQuery G ; toQuery F ]
             name -> s.name
             event_id -> ce.id
             time -> ce.servertime
-            tileX -> cep.tileX
-            tileY -> cep.tileY
+            tilex -> cep.tilex
+            tiley -> cep.tiley
         }
      }
    

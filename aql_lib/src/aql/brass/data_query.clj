@@ -6,7 +6,8 @@
 ;;   /database/server/baseline_schema_ddl.sql
 ;;
 ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk
-;;   /shared/modules/dfus/TakServerDataManager/src/main/java/mil/darpa/immortals/dfus/TakServerDataManager?order=name
+;;   /shared/modules/dfus/TakServerDataManager/src/main/java
+;;     /mil/darpa/immortals/dfus/TakServerDataManager/DFU
 
 (def qs-01
   {::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
@@ -29,13 +30,14 @@
      from
       ce:cot_event
      where
-      ce.cot_type = \"a-n-A-C-F-m\"
+      ce.cot_type = \"a-n-A-C-F-s\"
      attributes
       event_id -> ce.id
       source_id -> ce.source_id
       cot_type -> ce.cot_type
      }
    "
+   ::select-order ["event_id" "source_id" "cot_type"]
    ::target "
    query Qt_01 = [ Qx ; Qs_01 ]
    "})
@@ -64,6 +66,7 @@
       how -> ce.how
      }
    "
+   ::select-order ["event_id" "source_id" "cot_type" "how"]
    ::target "
    query Qt_02 = [ Qx ; Qs_02 ]
    "})
@@ -93,6 +96,7 @@
         how -> ce.how
       }
    "
+   ::select-order ["event_id" "source_id" "cot_type"]
    ::target "
    query Qt_03 = [ Qx ; Qs_03 ]
    "})
@@ -106,7 +110,7 @@
    ::sql "
    select s.name, ce.id, ce.cot_type, ce.servertime
    from source as s
-   join cot_event as ce on s.id = ce.source_id
+   join cot_event as ce on s.source_id = ce.source_id
    where s.channel = '7'
    "
    ::source "
@@ -121,9 +125,10 @@
         name -> s.name
         event_id -> ce.id
         cot_type -> ce.cot_type
-        time -> ce.servertime
+        servertime -> ce.servertime
    }
    "
+   ::select-order ["name" "event_id" "cot_type" "servertime"]
    ::target "
    query Qt_04 = [ Qx ; Qs_04 ]
    "})
@@ -137,7 +142,7 @@
    ::sql "
      select ce.id, ce.cot_type, ce.servertime
      from source as s
-       join cot_event as ce on s.id = ce.source_id
+       join cot_event as ce on s.source_id = ce.source_id
      where s.channel = '7'
    "
    ::source "
@@ -155,6 +160,7 @@
               time -> ce.servertime
      }
    "
+   ::select-order ["id" "cot_type" "servertime"]
    ::target "
    query Qt_05 = [ Qx ; Qs_05 ]
    "})
@@ -188,6 +194,7 @@
        time -> ce.servertime
    }
    "
+   ::select-order ["name" "event_id" "cot_type" "servertime"]
    ::target "
    query Qt_06s = [ Qx ; Qs_06s ]
    "})
@@ -203,7 +210,7 @@
    from source as s
      join cot_event as ce on s.source_id = ce.source_id
      join cot_event_position cep on ce.id = cep.has_cot_event
-   where  s.channel = '6' and cep.tileX = '18830' and cep.tileY = '25704'
+   where  s.channel = '6' and cep.tilex = '18830' and cep.tiley = '25704'
    "
    ::source "
    query Qs_07s = simple : S {
@@ -215,14 +222,15 @@
        s = ce.has_source
        ce = cep.has_cot_event
        s.channel = \"6\"
-       cep.tileX = \"18830\"
-       cep.tileY = \"25704\"
+       cep.tilex = \"18830\"
+       cep.tiley = \"25704\"
      attributes
        name -> s.name
        cot_type -> ce.cot_type
        time -> ce.servertime
      }
    "
+   ::select-order ["name" "event_id" "cot_type" "servertime"]
    ::target "
    query Qt_07s = [ Qx ; Qs_07s ]
    "})
@@ -236,8 +244,8 @@
            name : Q -> Varchar
            event_id : Q -> Varchar
            time : Q -> Varchar
-           tileX : Q -> Varchar
-           tileY : Q -> Varchar
+           tilex : Q -> Varchar
+           tiley : Q -> Varchar
    }
   ")
 
@@ -248,9 +256,10 @@
    Simple parameterized query.
    "
    ::sql-pre "
-   select s.id, s.name, ce.servertime, cep.tileX, cep.tileY
+   select s.id, s.name, ce.id, ce.servertime, cep.tilex, cep.tiley
    from source as s
      join cot_event as ce on s.id = ce.source_id
+     join cot_event_position cep on ce.id = cep.cot_event_id
    where s.name = ? and ce.servertime = ?
    "
    ::sql "
@@ -276,8 +285,8 @@
             name -> s.name
             event_id -> ce.id
             time -> ce.servertime
-            tileX -> cep.tileX
-            tileY -> cep.tileY
+            tilex -> cep.tilex
+            tiley -> cep.tiley
         }
      }
    "
@@ -288,6 +297,7 @@
          servertime_parm = \"1494174900\"
       imports Qs_08pre
    }"
+   ::select-order ["source_id" "name" "event_id" "time" "tilex" "tiley"]
    ::target-pre "
    query Qt_08pre = [ Qx ; Qs_08pre ]
    "
@@ -304,8 +314,8 @@
            name : Q -> Varchar
            event_id : Q -> Varchar
            time : Q -> Varchar
-           tileX : Q -> Varchar
-           tileY : Q -> Varchar
+           tilex : Q -> Varchar
+           tiley : Q -> Varchar
      }
 ")
 
@@ -318,7 +328,7 @@
    attributesing all results from sample parameter binding.
    "
    ::sql-pre "
-   select s.id, s.name, ce.servertime, cep.tileX, cep.tileY
+   select s.id, s.name, ce.servertime, cep.tilex, cep.tiley
    from source as s
      join cot_event as ce on s.id = ce.source_id
      join cot_event_position cep on ce.id = cep.has_cot_event
@@ -348,8 +358,8 @@
             name -> s.name
             event_id -> ce.id
             time -> ce.servertime
-            tileX -> cep.tileX
-            tileY -> cep.tileY
+            tilex -> cep.tilex
+            tiley -> cep.tiley
         }
      }
    "
@@ -362,6 +372,7 @@
       imports Qs_09pre
    }
    "
+   ::select-order ["source_id" "name" "event_id" "time" "tilex" "tiley"]
    ::target-pre "
    query Qt_09pre = [ Qx ; Qs_09pre ]
    "

@@ -9,7 +9,7 @@ schema S = literal : sql {
     source_id : cot_event -> source
     has_cot_event : cot_event_position -> cot_event
   attributes
-    tileY : cot_event_position -> Integer
+    tiley : cot_event_position -> Integer
     point_ce : cot_event_position -> Integer
     servertime : cot_event -> Bigint
     longitude : cot_event_position -> Real
@@ -17,7 +17,7 @@ schema S = literal : sql {
     detail : cot_event -> Text
     latitude : cot_event_position -> Real
     name : source -> Varchar
-    tileX : cot_event_position -> Integer
+    tilex : cot_event_position -> Integer
     point_le : cot_event_position -> Integer
     how : cot_event -> Varchar
     channel : source -> Varchar
