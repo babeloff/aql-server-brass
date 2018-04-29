@@ -56,7 +56,6 @@
 
 ;; :ref-alias-fn : usage query->sql-equation-helper
 
-
 (def helpers
   {:ref-alias-fn ref-alias-fn
    :sort-select-fn sort-select-fn
