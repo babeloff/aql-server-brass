@@ -56,20 +56,38 @@
          (< lhs rhs))
        coll))))
 
-;; ::aw/ref-alias-fn : usage query->sql-equation-helper
+;; ::aw/pk-alias-fn : usage query->sql-equation-helper
 
-(let [alias-id {"source" "source_id"
-                "cot_event" "cot_event_id"
-                "cot_event_position" "cot_position_id"}]
-  (defn ref-alias-fn [from-alias key-type key-name]
-    (let [key-str (str key-name)]
-      (case key-type
-        ::aw/pk
-        (get alias-id (get from-alias key-str) "PKID")
-        "UnkRef"))))
+(let [alias {"source"
+             {::aw/pk "source_id"}
+             "cot_event"
+             {::aw/pk "id"
+              ::aw/fk {"has_source" "source_id"}}
+             "cot_event_position"
+             {::aw/pk "id"
+              ::aw/fk {"has_cot_event" "cont_event_id"}}
+             "cot_action"
+             {::aw/pk "id"
+              ::aw/fk {"has_source" "source_id"
+                       "has_detail" "id"}}
+             "cot_detail"
+             {::aw/pk "id"
+              ::aw/fk {"has_action" "id"}}}]
+
+  (defn pk-alias-fn [ent-alias-map ent-alias]
+    (let [ent-alias-str (str ent-alias)
+          ent-name (get ent-alias-map ent-alias-str)]
+      (log/debug "pk-alias " ent-alias ent-name ent-alias-map)
+      (get-in alias [ent-name ::aw/pk] "PKID")))
+
+  (defn fk-alias-fn [ent-alias-map ent-alias fk-name]
+    (let [ent-alias-str (str ent-alias)
+          ent-name (get ent-alias-map ent-alias-str)]
+      (get-in alias [ent-name ::aw/pk fk-name] "FKID"))))
 
 
 (def helpers
-  {::aw/ref-alias-fn ref-alias-fn
+  {::aw/pk-alias-fn pk-alias-fn
+   ::aw/fk-alias-fn fk-alias-fn
    ::aw/sort-select-fn sort-select-fn
    ::aw/tweek-output-xf tweek-query-output})

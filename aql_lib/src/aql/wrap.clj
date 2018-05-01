@@ -26,7 +26,7 @@
 
 (defn quote-prime-helper
   "rewrite the referenced terms as needed"
-  [ref-alias-fn term]
+  [fk-alias-fn term]
   (cond
     (or (.var term) (.gen term) (.sk term))
     [::term term]
@@ -37,12 +37,12 @@
     (.fk term)
     [::fkref
      (Term/Fk (.fk term)
-              (second (quote-prime-helper ref-alias-fn (.arg term))))]
+              (second (quote-prime-helper fk-alias-fn (.arg term))))]
 
     (.att term)
     [::attr
      (Term/Att (.att term)
-               (second (quote-prime-helper ref-alias-fn (.arg term))))]
+               (second (quote-prime-helper fk-alias-fn (.arg term))))]
 
     (.obj term)
     [::literal
@@ -52,40 +52,42 @@
     (.sym term)
     [::sym
      (Term/Sym (.sym term)
-               (map #(second (quote-prime-helper ref-alias-fn %))
+               (map #(second (quote-prime-helper fk-alias-fn %))
                     (.args term)))]
 
     :else [::err (Util/anomaly)]))
 
-(defn quote-prime [ref-alias-fn term]
-  (let [[k v] (quote-prime-helper ref-alias-fn term)]
+(defn quote-prime [fk-alias-fn term]
+  (let [[k v] (quote-prime-helper fk-alias-fn term)]
       [k (.toStringSql v)]))
 
 (defn query->sql-term-helper
   "Expand the path suitable for where clause
    Query.java : whereToString "
-  [helpers from-alias ctx path]
+  [helpers ent-alias->name ctx path]
   (let [gen (.gen path)
         sk (.sk path)
         consts (.consts ctx)
-        ref-alias-fn (get-in helpers [::ref-alias-fn] identity)]
+        pk-alias-fn (get-in helpers [::pk-alias-fn] identity)
+        fk-alias-fn (get-in helpers [::fk-alias-fn] identity)]
     (cond
       gen [::pkid
            (str gen "."
-             (ref-alias-fn from-alias ::pk gen))]
+             (pk-alias-fn ent-alias->name gen))]
       sk (if (.containsKey consts sk)
-           (quote-prime ref-alias-fn
+           (quote-prime fk-alias-fn
                         (.convert (.get consts sk)))
            [::pvalue "?"])
-      :else (quote-prime ref-alias-fn path))))
+      :else (quote-prime fk-alias-fn path))))
 
-(defn query->sql-equation-helper [helpers from-alias ctx eqn]
+(defn query->sql-equation-helper [helpers ent-alias->name ctx eqn]
   (let [lhs (.first eqn)
         rhs (.second eqn)
-        [lht lhv] (query->sql-term-helper helpers from-alias ctx lhs)
-        [rht rhv] (query->sql-term-helper helpers from-alias ctx rhs)]
+        [lht lhv] (query->sql-term-helper helpers ent-alias->name ctx lhs)
+        [rht rhv] (query->sql-term-helper helpers ent-alias->name ctx rhs)]
     (when (and (some? lhv) (some? rhv))
-      (str lht ":" lhv " = " rht ":" rhv))))
+      (log/debug "where " lht " : " lhv " = " rht " : " rhv)
+      (str lhv " = " rhv))))
 
 (defn query->sql-ent-helper
   "Expand the query entity [there may be more than one].
@@ -97,8 +99,8 @@
       (throw (RuntimeException. "empty from clause invalid sql")))
     (let [eqns (.eqs b)
           sort-select-fn (get-in helpers [::sort-select-fn] identity)
-          from-alias (into {}
-                           (map #(vector % (.get gens %)))
+          ent-alias->name (into {}
+                           (map #(vector (str %) (str (.get gens %))))
                            (.keySet gens))
 
           from
@@ -121,7 +123,7 @@
           where
           (into []
                 (comp
-                 (map #(query->sql-equation-helper helpers from-alias ctx %))
+                 (map #(query->sql-equation-helper helpers ent-alias->name ctx %))
                  (filter some?))
                 eqns)]
 

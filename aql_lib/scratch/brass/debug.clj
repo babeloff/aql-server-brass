@@ -68,8 +68,8 @@
 
 (into [] (comp (sr/traverse-all [:err])) [gen])
 (into [] (comp (map #(.getMessage %))) (sr/traverse [:err sr/ALL] gen))
-(defn ref-alias-fn [ks] "AID")
-(def result (aql-wrap/xform-result {:ref-alias-fn ref-alias-fn} reqs identity gen))
+(defn pk-alias-fn [ks] "AID")
+(def result (aql-wrap/xform-result {:pk-alias-fn pk-alias-fn} reqs identity gen))
 ((aql-util/echo log/info "result ") result)
 
 (def env-map (aql-wrap/env->maps (sr/select-one [:env] gen)))

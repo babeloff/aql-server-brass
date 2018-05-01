@@ -339,8 +339,8 @@
    ::sql-pre "
    select s.id, s.name, ce.servertime, cep.tilex, cep.tiley
    from source as s
-     join cot_event as ce on s.id = ce.source_id
-     join cot_event_position cep on ce.id = cep.has_cot_event
+     join cot_event as ce on s.source_id = ce.source_id
+     join cot_event_position cep on ce.id = cep.cot_event_id
    where s.name = ? and ce.servertime = ?
    "
    ::sql "

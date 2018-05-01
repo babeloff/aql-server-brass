@@ -58,7 +58,8 @@
  :deploy-repositories
  [["snapshot"
    {:url "https://nexus.isis.vanderbilt.edu/repository/maven-snapshots"
-    :snapshots true}]]
+    :snapshots true
+    :sign-releases false}]]
 
  :main aql.brass.daemon
  :aot [aql.brass.daemon])
