@@ -293,7 +293,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
    query Qt_05 = [ Qx ; Qs_05 ]
 
 
-   query Qs_06s = simple : S {
+   query Qs_06 = simple : S {
      from
        ce : cot_event
        s : source
@@ -308,10 +308,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
    }
 
 
-   query Qt_06s = [ Qx ; Qs_06s ]
+   query Qt_06 = [ Qx ; Qs_06 ]
 
 
-   query Qs_07s = simple : S {
+   query Qs_07 = simple : S {
      from
        ce : cot_event
        cep : cot_event_position
@@ -329,7 +329,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
      }
 
 
-   query Qt_07s = [ Qx ; Qs_07s ]
+   query Qt_07 = [ Qx ; Qs_07 ]
 
 
   schema S8 = literal : sql1 {

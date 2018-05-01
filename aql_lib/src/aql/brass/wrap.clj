@@ -48,15 +48,15 @@
       (log/debug "sort-select" query-key ordering)
       (sort-by
        (fn [attr]
-         (log/debug "selection" attr)
-         (get ordering (str attr) 0))
+         ;(log/debug "selection" attr)
+         (get ordering (str attr) 10))
        (fn [lhs rhs]
-         (log/debug "ordering" lhs rhs)
+         (if (= 10 lhs) (log/debug "ordering lhs" lhs))
+         (if (= 10 rhs) (log/debug "ordering rhs" rhs))
          (< lhs rhs))
        coll))))
 
 ;; ::aw/ref-alias-fn : usage query->sql-equation-helper
-
 
 (let [alias-id {"source" "source_id"
                 "cot_event" "cot_event_id"

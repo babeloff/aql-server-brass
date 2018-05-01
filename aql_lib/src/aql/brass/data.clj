@@ -251,17 +251,30 @@
    "Qt_03" (qname dq/qs-03)
    "Qt_04" (qname dq/qs-04)
    "Qt_05" (qname dq/qs-05)
-   "Qt_06s" (qname dq/qs-06)
-   "Qt_07s" (qname dq/qs-07)
+   "Qt_06" (qname dq/qs-06)
+   "Qt_07" (qname dq/qs-07)
    "Qt_08pre" (qname dq/qs-08)
    "Qt_09pre" (qname dq/qs-09)})
 
 (def query-dict
-  (into {}
-        (map (fn [q] (vector (::dq/key q) q)))
-        [dq/qs-01 dq/qs-02 dq/qs-03
-         dq/qs-04 dq/qs-05 dq/qs-06
-         dq/qs-07 dq/qs-08 dq/qs-09]))
+  {"Qs_01" dq/qs-01
+   "Qs_02" dq/qs-02
+   "Qs_03" dq/qs-03
+   "Qs_04" dq/qs-04
+   "Qs_05" dq/qs-05
+   "Qs_06" dq/qs-06
+   "Qs_07" dq/qs-07
+   "Qs_08pre" dq/qs-08
+   "Qs_09pre" dq/qs-09
+   "Qt_01" dq/qs-01
+   "Qt_02" dq/qs-02
+   "Qt_03" dq/qs-03
+   "Qt_04" dq/qs-04
+   "Qt_05" dq/qs-05
+   "Qt_06" dq/qs-06
+   "Qt_07" dq/qs-07
+   "Qt_08pre" dq/qs-08
+   "Qt_09pre" dq/qs-09})
 
 (def demo-objects
   "a list of the queries to return"
@@ -270,9 +283,9 @@
            "Qs_03" "Qt_03"
            "Qs_04" "Qt_04"
            "Qs_05" "Qt_05"
-           "Qs_06s" "Qt_06s"
-           "Qs_07s" "Qt_07s"
+           "Qs_06" "Qt_06"
+           "Qs_07" "Qt_07"
            "Qs_08pre" "Qt_08pre"
-           "Qs_08" "Qt_08"
-           "Qs_09pre" "Qt_09pre"
-           "Qs_09" "Qt_09"]})
+           ;"Qs_08" "Qt_08"
+           "Qs_09pre" "Qt_09pre"]})
+           ;"Qs_09" "Qt_09"]})

@@ -99,7 +99,7 @@
         how -> ce.how
       }
    "
-   ::select-order ["event_id" "source_id" "cot_type"]
+   ::select-order ["event_id" "source_id" "cot_type" "how"]
    ::target "
    query Qt_03 = [ Qx ; Qs_03 ]
    "})
@@ -160,12 +160,11 @@
               s.channel = \"7\"
             attributes
               event_id -> ce.id
-              type -> ce.cot_type
-              channel -> s.channel
-              time -> ce.servertime
+              cot_type -> ce.cot_type
+              servertime -> ce.servertime
      }
    "
-   ::select-order ["id" "cot_type" "servertime"]
+   ::select-order ["event_id" "cot_type" "servertime"]
    ::target "
    query Qt_05 = [ Qx ; Qs_05 ]
    "})
@@ -185,7 +184,7 @@
      or ce.cot_type = 'a-n-A-C-F-s'
    "
    ::source "
-   query Qs_06s = simple : S {
+   query Qs_06 = simple : S {
      from
        ce : cot_event
        s : source
@@ -197,12 +196,12 @@
        name -> s.name
        event_id -> ce.id
        cot_type -> ce.cot_type
-       time -> ce.servertime
+       servertime -> ce.servertime
    }
    "
    ::select-order ["name" "event_id" "cot_type" "servertime"]
    ::target "
-   query Qt_06s = [ Qx ; Qs_06s ]
+   query Qt_06 = [ Qx ; Qs_06 ]
    "})
 
 (def qs-07
@@ -220,7 +219,7 @@
    where  s.channel = '6' and cep.tilex = '18830' and cep.tiley = '25704'
    "
    ::source "
-   query Qs_07s = simple : S {
+   query Qs_07 = simple : S {
      from
        ce : cot_event
        cep : cot_event_position
@@ -233,13 +232,14 @@
        cep.tiley = \"25704\"
      attributes
        name -> s.name
+       event_id -> ce.id
        cot_type -> ce.cot_type
-       time -> ce.servertime
+       servertime -> ce.servertime
      }
    "
    ::select-order ["name" "event_id" "cot_type" "servertime"]
    ::target "
-   query Qt_07s = [ Qx ; Qs_07s ]
+   query Qt_07 = [ Qx ; Qs_07 ]
    "})
 
 (def sc-08 "
