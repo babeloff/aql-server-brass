@@ -17,6 +17,10 @@
     AqlParser
     AqlMultiDriver)))
 
+
+(def DUMMY_FKID "FKID")
+(def DUMMY_PKID "PKID")
+
 (defn schema->sql [name schema]
   (when schema
     (try
@@ -26,22 +30,22 @@
 
 (defn pk-alias->name
   [alias ent-alias-map]
-  (fn [ent-alias]
+  (fn pk-alias-lup [ent-alias]
     (let [ent-alias-str (str ent-alias)
           ent-name (get ent-alias-map ent-alias-str)]
-      (log/debug "pk-alias " ent-alias ent-name ent-alias-map)
-      (get-in alias [ent-name ::pk] "PKID"))))
+      (log/debug "pk-alias " (str ent-alias "." ent-name) ent-alias-map)
+      (get-in alias [ent-name ::pk] nil))))
 
 (defn fk-alias->name
   "this translates fk alias names to the corresponding column"
   [alias ent-alias-map]
-  (fn [fk-term]
+  (fn fk-alias-lup [fk-term]
     ;; (log/debug "fk-alias-lookup " fk-term)
     (let [ent-alias (str (.arg fk-term))
           fk-alias (str (.fk fk-term))
           ;; _ (log/debug "fk-alias " ent-alias fk-alias)
           ent-name (get ent-alias-map ent-alias)]
-      (get-in alias [ent-name ::fk fk-alias] "FKID"))))
+      (get-in alias [ent-name ::fk fk-alias] DUMMY_FKID))))
 
 (defn quote-prime-helper
   "rewrite the referenced terms as needed"
@@ -99,6 +103,7 @@
            [::pvalue "?"])
       :else (quote-prime fk-alias-lup path))))
 
+
 (defn query->sql-equation-helper [helpers ent-alias->name ctx eqn]
   (let [lhs (.first eqn)
         rhs (.second eqn)
@@ -143,7 +148,10 @@
           (into []
                 (comp
                  (map #(query->sql-equation-helper helpers ent-alias->name ctx %))
-                 (filter some?))
+                 (filter some?)
+                 ;; this bit filtering on DUMMY_FKID should
+                 ;; likely be handled sooner.
+                 (filter #(not (.contains % DUMMY_FKID))))
                 eqns)]
 
       ;; skip ID column (.add select (.)))))

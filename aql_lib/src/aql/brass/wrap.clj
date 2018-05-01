@@ -71,9 +71,9 @@
      "cot_action"
      {::aw/pk "id"
       ::aw/fk {"has_source" "source_id"
-               "has_detail" "id"}}
+               "has_cot_detail" "id"}}
      "cot_detail"
      {::aw/pk "id"
-      ::aw/fk {"has_action" "id"}}}
+      ::aw/fk {"has_cot_action" "id"}}}
    ::aw/sort-select-fn sort-select-fn
    ::aw/tweek-output-xf tweek-query-output})
