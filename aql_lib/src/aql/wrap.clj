@@ -24,9 +24,28 @@
       (catch Exception ex
         "cannot generate sql for schema"))))
 
+(defn pk-alias->name
+  [alias ent-alias-map]
+  (fn [ent-alias]
+    (let [ent-alias-str (str ent-alias)
+          ent-name (get ent-alias-map ent-alias-str)]
+      (log/debug "pk-alias " ent-alias ent-name ent-alias-map)
+      (get-in alias [ent-name ::pk] "PKID"))))
+
+(defn fk-alias->name
+  "this translates fk alias names to the corresponding column"
+  [alias ent-alias-map]
+  (fn [fk-term]
+    ;; (log/debug "fk-alias-lookup " fk-term)
+    (let [ent-alias (str (.arg fk-term))
+          fk-alias (str (.fk fk-term))
+          ;; _ (log/debug "fk-alias " ent-alias fk-alias)
+          ent-name (get ent-alias-map ent-alias)]
+      (get-in alias [ent-name ::fk fk-alias] "FKID"))))
+
 (defn quote-prime-helper
   "rewrite the referenced terms as needed"
-  [fk-alias-fn term]
+  [fk-alias-lup term]
   (cond
     (or (.var term) (.gen term) (.sk term))
     [::term term]
@@ -36,13 +55,13 @@
 
     (.fk term)
     [::fkref
-     (Term/Fk (.fk term)
-              (second (quote-prime-helper fk-alias-fn (.arg term))))]
+     (Term/Fk (fk-alias-lup term)
+              (second (quote-prime-helper fk-alias-lup (.arg term))))]
 
     (.att term)
     [::attr
      (Term/Att (.att term)
-               (second (quote-prime-helper fk-alias-fn (.arg term))))]
+               (second (quote-prime-helper fk-alias-lup (.arg term))))]
 
     (.obj term)
     [::literal
@@ -52,13 +71,13 @@
     (.sym term)
     [::sym
      (Term/Sym (.sym term)
-               (map #(second (quote-prime-helper fk-alias-fn %))
+               (map #(second (quote-prime-helper fk-alias-lup %))
                     (.args term)))]
 
     :else [::err (Util/anomaly)]))
 
-(defn quote-prime [fk-alias-fn term]
-  (let [[k v] (quote-prime-helper fk-alias-fn term)]
+(defn quote-prime [fk-alias-lup term]
+  (let [[k v] (quote-prime-helper fk-alias-lup term)]
       [k (.toStringSql v)]))
 
 (defn query->sql-term-helper
@@ -68,17 +87,17 @@
   (let [gen (.gen path)
         sk (.sk path)
         consts (.consts ctx)
-        pk-alias-fn (get-in helpers [::pk-alias-fn] identity)
-        fk-alias-fn (get-in helpers [::fk-alias-fn] identity)]
+        ref-alias (get helpers ::ref-alias {})
+        pk-alias-lup (pk-alias->name ref-alias ent-alias->name)
+        fk-alias-lup (fk-alias->name ref-alias ent-alias->name)]
     (cond
       gen [::pkid
-           (str gen "."
-             (pk-alias-fn ent-alias->name gen))]
+           (str gen "." (pk-alias-lup gen))]
       sk (if (.containsKey consts sk)
-           (quote-prime fk-alias-fn
+           (quote-prime fk-alias-lup
                         (.convert (.get consts sk)))
            [::pvalue "?"])
-      :else (quote-prime fk-alias-fn path))))
+      :else (quote-prime fk-alias-lup path))))
 
 (defn query->sql-equation-helper [helpers ent-alias->name ctx eqn]
   (let [lhs (.first eqn)

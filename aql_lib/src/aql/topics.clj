@@ -6,7 +6,7 @@
    (aql [wrap :as aql-wrap])))
 
 (def helpers
-  {::aql-wrap/pk-alias-fn (fn [ks] "A0ID")
+  {::aql-wrap/pk-alias-lup (fn [ks] "A0ID")
    ::aql-wrap/sort-select-fn identity
    ::aql-wrap/tweek-query-output identity})
 ;; TODO fix for the general case

@@ -56,38 +56,24 @@
          (< lhs rhs))
        coll))))
 
-;; ::aw/pk-alias-fn : usage query->sql-equation-helper
-
-(let [alias {"source"
-             {::aw/pk "source_id"}
-             "cot_event"
-             {::aw/pk "id"
-              ::aw/fk {"has_source" "source_id"}}
-             "cot_event_position"
-             {::aw/pk "id"
-              ::aw/fk {"has_cot_event" "cont_event_id"}}
-             "cot_action"
-             {::aw/pk "id"
-              ::aw/fk {"has_source" "source_id"
-                       "has_detail" "id"}}
-             "cot_detail"
-             {::aw/pk "id"
-              ::aw/fk {"has_action" "id"}}}]
-
-  (defn pk-alias-fn [ent-alias-map ent-alias]
-    (let [ent-alias-str (str ent-alias)
-          ent-name (get ent-alias-map ent-alias-str)]
-      (log/debug "pk-alias " ent-alias ent-name ent-alias-map)
-      (get-in alias [ent-name ::aw/pk] "PKID")))
-
-  (defn fk-alias-fn [ent-alias-map ent-alias fk-name]
-    (let [ent-alias-str (str ent-alias)
-          ent-name (get ent-alias-map ent-alias-str)]
-      (get-in alias [ent-name ::aw/pk fk-name] "FKID"))))
-
+;; ::aw/pk-alias-lup : usage query->sql-equation-helper
 
 (def helpers
-  {::aw/pk-alias-fn pk-alias-fn
-   ::aw/fk-alias-fn fk-alias-fn
+  {::aw/ref-alias
+    {"source"
+     {::aw/pk "source_id"}
+     "cot_event"
+     {::aw/pk "id"
+      ::aw/fk {"has_source" "source_id"}}
+     "cot_event_position"
+     {::aw/pk "id"
+      ::aw/fk {"has_cot_event" "cont_event_id"}}
+     "cot_action"
+     {::aw/pk "id"
+      ::aw/fk {"has_source" "source_id"
+               "has_detail" "id"}}
+     "cot_detail"
+     {::aw/pk "id"
+      ::aw/fk {"has_action" "id"}}}
    ::aw/sort-select-fn sort-select-fn
    ::aw/tweek-output-xf tweek-query-output})
