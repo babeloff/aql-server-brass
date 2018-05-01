@@ -3,6 +3,7 @@
    (clojure [string :as st])
    (clojure.data [json :as json])
    (clojure.tools [logging :as log])
+   (aql [wrap :as aw])
    (aql.brass [data :as bd]
               [data-query :as bdq])))
 
@@ -10,7 +11,7 @@
 ;; gets used in aql.wrap
 
 
-;; :tweek-output-xf : usage in xform-result
+;; ::aw/tweek-output-xf : usage in xform-result
 
 (defn tweek-query-output
   "a transducer that 'tweeks' the key value
@@ -29,7 +30,7 @@
               "aid" key}))))))
 ;; TODO add the original sql and the aql
 
-;; :sort-select-fn : usage query->sql-ent-helper
+;; ::aw/sort-select-fn : usage query->sql-ent-helper
 
 (let [q-lup
       (into {}
@@ -54,9 +55,21 @@
          (< lhs rhs))
        coll))))
 
-;; :ref-alias-fn : usage query->sql-equation-helper
+;; ::aw/ref-alias-fn : usage query->sql-equation-helper
+
+
+(let [alias-id {"source" "source_id"
+                "cot_event" "cot_event_id"
+                "cot_event_position" "cot_position_id"}]
+  (defn ref-alias-fn [from-alias key-type key-name]
+    (let [key-str (str key-name)]
+      (case key-type
+        ::aw/pk
+        (get alias-id (get from-alias key-str) "PKID")
+        "UnkRef"))))
+
 
 (def helpers
-  {:ref-alias-fn ref-alias-fn
-   :sort-select-fn sort-select-fn
-   :tweek-output-xf tweek-query-output})
+  {::aw/ref-alias-fn ref-alias-fn
+   ::aw/sort-select-fn sort-select-fn
+   ::aw/tweek-output-xf tweek-query-output})

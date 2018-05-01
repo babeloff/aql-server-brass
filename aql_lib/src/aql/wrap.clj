@@ -24,66 +24,89 @@
       (catch Exception ex
         "cannot generate sql for schema"))))
 
-(defn sk [h id-col ty]
-  (h ty))
+(defn quote-fk [ref-alias-fn term])
 
-(defn quote-prime [term]
-  (cond
-    (or (.var term) (.gen term) (.sk term)) term
-    (and (.sym term) (= 0 (.size (.args term)))) term
-    (.fk term) (Term/Fk (.fk term) (quote-prime (.arg term)))
-    (.att term) (Term/Att (.att term) (quote-prime (.arg term)))
-    (.obj term) (Term/Obj (str "'" (.obj term) "'") (.ty term))
-    (.sym term) (Term/Sym (.sym term) (map #(quote-prime %) (.args term)))
-    :else (Util/anomaly)))
 
-(defn query->sql-path-helper
+(defn quote-prime [ref-alias-fn term]
+  (let [[k v]
+        (cond
+          (or (.var term) (.gen term) (.sk term))
+          [::term term]
+
+          (and (.sym term) (= 0 (.size (.args term))))
+          [::term term]
+
+          (.fk term)
+          [::fk
+           (Term/Fk (.fk term)
+                    (second (quote-prime ref-alias-fn (.arg term))))]
+
+          (.att term)
+          [::attr
+           (Term/Att (.att term)
+                     (second (quote-prime ref-alias-fn (.arg term))))]
+
+          (.obj term)
+          [::literal
+           (Term/Obj (str "'" (.obj term) "'")
+                     (.ty term))]
+
+          (.sym term)
+          [::sym
+           (Term/Sym (.sym term)
+                     (map #(second (quote-prime ref-alias-fn %))
+                          (.args term)))]
+
+          :else [::err (Util/anomaly)])]
+      [k (.toStringSql v)]))
+
+(defn query->sql-term-helper
   "Expand the path suitable for where clause
    Query.java : whereToString "
-  [helpers ctx path]
+  [helpers from-alias ctx path]
   (let [gen (.gen path)
         sk (.sk path)
-        consts (.consts ctx)]
+        consts (.consts ctx)
+        ref-alias-fn (get-in helpers [::ref-alias-fn] identity)]
     (cond
-      gen nil ; (str gen "." (helpers [gen :id]))
+      gen [::pkid (str gen "." (ref-alias-fn from-alias ::pk gen))]
       sk (if (.containsKey consts sk)
-           (.toStringSql
-            (quote-prime
-             (.convert (.get consts sk))))
-           "?")
-      :else (.toStringSql
-             (quote-prime path)))))
+           (quote-prime ref-alias-fn
+                        (.convert (.get consts sk)))
+           [::pvalue "?"])
+      :else (quote-prime ref-alias-fn path))))
 
-(defn query->sql-equation-helper [helpers ctx eqn]
+(defn query->sql-equation-helper [helpers from-alias ctx eqn]
   (let [lhs (.first eqn)
         rhs (.second eqn)
-        ref-alias-fn (get-in helpers [:ref-alias-fn] identity)
-        lhq (query->sql-path-helper helpers ctx lhs)
-        rhq (query->sql-path-helper helpers ctx rhs)]
-    (when (and (some? lhq) (some? rhq))
-      (str lhq " = " rhq))))
+        [lht lhv] (query->sql-term-helper helpers from-alias ctx lhs)
+        [rht rhv] (query->sql-term-helper helpers from-alias ctx rhs)]
+    (when (and (some? lhv) (some? rhv))
+      (str lht ":" lhv " = " rht ":" rhv))))
 
 (defn query->sql-ent-helper
   "Expand the query entity [there may be more than one].
    see fql :: src/catdata/aql/Query.java :: toSQLViews()"
   [query-name helpers ctx schema ents ent-key attrs refs]
   (let [b (.get ents ent-key)
-        gens (.gens b)
-        eqns (.eqs b)
-        is-empty? (.isEmpty gens)
-        sort-select-fn (get-in helpers [:sort-select-fn] identity)]
-    (if is-empty?
+        gens (.gens b)]
+    (if (.isEmpty gens)
       (throw (RuntimeException. "empty from clause invalid sql")))
+    (let [eqns (.eqs b)
+          sort-select-fn (get-in helpers [::sort-select-fn] identity)
+          from-alias (into {}
+                           (map #(vector % (.get gens %)))
+                           (.keySet gens))
 
-    (let [from
+          from
           (into []
-                (map (fn [ent] (str (.get gens ent) " as " ent)))
+                (map #(str (.get gens %) " as " %))
                 (.keySet gens))
 
           select-attr
           (into []
                 (comp
-                  (map (fn [attr] (str (.get attrs attr) " as " attr))))
+                 (map (fn [attr] (str (.get attrs attr) " as " attr))))
                 (sort-select-fn query-name
                                 (.attsFrom schema ent-key)))
 
@@ -95,7 +118,7 @@
           where
           (into []
                 (comp
-                 (map #(query->sql-equation-helper helpers ctx %))
+                 (map #(query->sql-equation-helper helpers from-alias ctx %))
                  (filter some?))
                 eqns)]
 
@@ -191,7 +214,7 @@
      (into {}
            (comp
             (map #(vector % (query-fn %)))
-            (get-in helpers [:tweek-output-xf] identity))
+            (get-in helpers [::tweek-output-xf] identity))
            (sr/select-one [IS-QUERY] reqs))
      :schema
      (into []
