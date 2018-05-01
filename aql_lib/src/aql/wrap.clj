@@ -24,40 +24,41 @@
       (catch Exception ex
         "cannot generate sql for schema"))))
 
-(defn quote-fk [ref-alias-fn term])
+(defn quote-prime-helper
+  "rewrite the referenced terms as needed"
+  [ref-alias-fn term]
+  (cond
+    (or (.var term) (.gen term) (.sk term))
+    [::term term]
 
+    (and (.sym term) (= 0 (.size (.args term))))
+    [::term term]
+
+    (.fk term)
+    [::fkref
+     (Term/Fk (.fk term)
+              (second (quote-prime-helper ref-alias-fn (.arg term))))]
+
+    (.att term)
+    [::attr
+     (Term/Att (.att term)
+               (second (quote-prime-helper ref-alias-fn (.arg term))))]
+
+    (.obj term)
+    [::literal
+     (Term/Obj (str "'" (.obj term) "'")
+               (.ty term))]
+
+    (.sym term)
+    [::sym
+     (Term/Sym (.sym term)
+               (map #(second (quote-prime-helper ref-alias-fn %))
+                    (.args term)))]
+
+    :else [::err (Util/anomaly)]))
 
 (defn quote-prime [ref-alias-fn term]
-  (let [[k v]
-        (cond
-          (or (.var term) (.gen term) (.sk term))
-          [::term term]
-
-          (and (.sym term) (= 0 (.size (.args term))))
-          [::term term]
-
-          (.fk term)
-          [::fk
-           (Term/Fk (.fk term)
-                    (second (quote-prime ref-alias-fn (.arg term))))]
-
-          (.att term)
-          [::attr
-           (Term/Att (.att term)
-                     (second (quote-prime ref-alias-fn (.arg term))))]
-
-          (.obj term)
-          [::literal
-           (Term/Obj (str "'" (.obj term) "'")
-                     (.ty term))]
-
-          (.sym term)
-          [::sym
-           (Term/Sym (.sym term)
-                     (map #(second (quote-prime ref-alias-fn %))
-                          (.args term)))]
-
-          :else [::err (Util/anomaly)])]
+  (let [[k v] (quote-prime-helper ref-alias-fn term)]
       [k (.toStringSql v)]))
 
 (defn query->sql-term-helper
@@ -69,7 +70,9 @@
         consts (.consts ctx)
         ref-alias-fn (get-in helpers [::ref-alias-fn] identity)]
     (cond
-      gen [::pkid (str gen "." (ref-alias-fn from-alias ::pk gen))]
+      gen [::pkid
+           (str gen "."
+             (ref-alias-fn from-alias ::pk gen))]
       sk (if (.containsKey consts sk)
            (quote-prime ref-alias-fn
                         (.convert (.get consts sk)))
