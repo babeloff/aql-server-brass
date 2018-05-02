@@ -1,0 +1,4 @@
+ob = <'OrBool'> <'('> ev <','> <ws> ev <')'> <ws> <'='> <ws> '\'true\'' ;
+ev = <'EqualVc'> <'('> term <','> <ws> term <')'> ;
+term = #'[\'\.\-_a-zA-Z0-9]+' ;
+ws = #'\s+' ;

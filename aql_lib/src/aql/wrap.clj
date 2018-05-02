@@ -4,7 +4,8 @@
    (clojure [pprint :as pp]
             [string :as st])
    (clojure.tools [logging :as log])
-   (com.rpl [specter :as sr]))
+   (com.rpl [specter :as sr])
+   (instaparse [core :as insta]))
   (:import
    (catdata
     LineException
@@ -103,6 +104,14 @@
            [::pvalue "?"])
       :else (quote-prime fk-alias-lup path))))
 
+(def ob-gram (insta/parser (clojure.java.io/resource "or_bool.bnf")))
+
+(defn rewrite-function
+  [eq]
+  (let [clause (insta/parses ob-gram sam-ob)]
+    (if clause
+      (str (get))
+      eq)))
 
 (defn query->sql-equation-helper [helpers ent-alias->name ctx eqn]
   (let [lhs (.first eqn)
@@ -111,6 +120,7 @@
         [rht rhv] (query->sql-term-helper helpers ent-alias->name ctx rhs)]
     (when (and (some? lhv) (some? rhv))
       (log/debug "where " lht " : " lhv " = " rht " : " rhv)
+      ;; TODO (rewrite-function (str lhv " = " rhv)))))
       (str lhv " = " rhv))))
 
 (defn query->sql-ent-helper

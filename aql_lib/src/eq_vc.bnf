@@ -1,0 +1,3 @@
+ev = <'EqualVc'> <'('> term <','> <ws> term <')'> ;
+term = #'[\'\._a-zA-Z0-9]+' ;
+ws = #'\s+'

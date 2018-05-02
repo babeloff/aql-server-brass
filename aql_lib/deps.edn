@@ -14,7 +14,8 @@
         org.clojure/tools.logging {:mvn/version "0.2.3"}
         ch.qos.logback/logback-classic {:mvn/version "1.0.1"
                                         :exclusions [org.slf4j/slf4j-nop]}
-        net.cgrand/xforms {:mvn/version "0.16.0"}}
+        net.cgrand/xforms {:mvn/version "0.16.0"}
+        instaparse {:mvn/version "1.4.9"}}
  :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
              "clojars" {:url "https://clojars.org/repo/"}
              "nexus" {:url "https://nexus.isis.vanderbilt.edu/repository/maven-releases"}
