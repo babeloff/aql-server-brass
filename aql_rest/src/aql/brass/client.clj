@@ -81,7 +81,7 @@
       errors
       {:exit-message (error-msg errors)}
 
-      (seq? options)
+      options
       {:options options :arguments arguments}
 
       :else
@@ -105,6 +105,7 @@
         (System/exit (if ok? 0 1)))
 
       (get options :m1) (process mutant-json-live-1)
-      (get options :m2) (process mutant-json-def))))
+      (get options :m2) (process mutant-json-def)
+      :else (log/warn "options " options))))
 
 (defn -main [& args] (run args))
