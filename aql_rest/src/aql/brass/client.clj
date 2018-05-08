@@ -22,9 +22,17 @@
           "Event_ServerTime"
           "Position_PointCE"
           "Position_PointLE"
-          "Position_tilex"
+          "Position_TileX"
           "Position_Longitude"
-          "Position_Latitude"]}{}]}}}})
+          "Position_Latitude"]}
+       {"table" "cot_detail"
+        "columns"
+        ["Position_Id"
+         "Position_EventId"
+         "Position_PointHae"
+         "Event_Detail"
+         "Position_TileY"
+         "Event_CotType"]}]}}}})
 
 (def mutant-json-live-1
   {"martiServerModel"

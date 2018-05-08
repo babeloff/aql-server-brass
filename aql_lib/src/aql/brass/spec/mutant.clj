@@ -108,11 +108,11 @@
    {::entity "cot_event_position"
     ::cospan "point_le"
     ::type "Varchar"}
-   "Position_tilex"
+   "Position_TileX"
    {::entity "cot_event_position"
     ::cospan "tilex"
     ::type "Varchar"}
-   "Position_tiley"
+   "Position_TileY"
    {::entity "cot_event_position"
     ::cospan "tiley"
     ::type "Varchar"}
@@ -141,7 +141,7 @@
          "point_hae" (get base-lookup "Position_PointHae")
          "point_ce" (get base-lookup "Position_PointCE")
          "point_le" (get base-lookup "Position_PointLE")
-         "tileX" (get base-lookup "Position_tilex")
-         "tileY" (get base-lookup "Position_tiley")
+         "tileX" (get base-lookup "Position_TileX")
+         "tileY" (get base-lookup "Position_TileY")
          "longitude" (get base-lookup "Position_Longitude")
          "latitude" (get base-lookup "Position_Latitude")))

@@ -21,7 +21,7 @@ The content of the JSON passed should look something like this...
           "Event_ServerTime"
           "Position_PointCE"
           "Position_PointLE"
-          "Position_tilex"
+          "Position_TileX"
           "Position_Longitude"
           "Position_Latitude"]}
        {"table" "cot_detail"
@@ -30,7 +30,7 @@ The content of the JSON passed should look something like this...
          "Position_EventId"
          "Position_PointHae"
          "Event_Detail"
-         "Position_tiley"
+         "Position_TileY"
          "Event_CotType"]}]}}}})
 ```
 
