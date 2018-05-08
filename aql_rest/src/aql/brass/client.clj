@@ -5,8 +5,10 @@
    (clojure
     [string :as st]
     [pprint :as pp])
+   (clojure.tools
+     [logging :as log]
+     [cli :as cli])
    (clojure.data [json :as json])
-   (clojure.tools [logging :as log])
    (aql.brass [data :as brass-data])))
 
 (def mutant-json-def
@@ -47,20 +49,62 @@
           ["point_hae" "point_ce" "point_le"
            "tileX" "tileY" "longitude" "latitude"]}]}}}})
 
-(def mutant-json mutant-json-live-1)
-
-(def options
+(defn options [payload]
   {:method :post
    :headers {"content-type" "application/json; charset=UTF-8"}
    :body (->
-          {:permutation mutant-json}
+          {:permutation payload}
           json/write-str
           ring-io/string-input-stream)})
 
-(defn -main [& args]
-  (pp/pprint {:permutation mutant-json})
-  (let [response (clt/post "http://localhost:9090/brass/p2/c1/json" options)]
+(def cli-options
+  [["-1" "--message-1" :id :m1]
+   ["-2" "--message-2" :id :m2]])
+
+(defn usage [options-summary]
+  (->> ["Usage: program-name [options]"
+        "Options:" options-summary]
+       (st/join \newline)))
+
+(defn error-msg [errors]
+  (str "The following errors occurred while parsing your command:\n\n"
+       (st/join \newline errors)))
+
+(defn validate-args
+  [args]
+  (let [{:keys [options arguments errors summary]}
+        (cli/parse-opts args cli-options)]
+    (cond
+      (:help options)
+      {:exit-message (usage summary) :ok? true}
+
+      errors
+      {:exit-message (error-msg errors)}
+
+      (seq? options)
+      {:options options :arguments arguments}
+
+      :else
+      {:exit-message (usage summary)})))
+
+(defn process [message]
+  (pp/pprint {:permutation message})
+  (let [opts (options message)
+        response (clt/post "http://localhost:9090/brass/p2/c1/json" opts)]
     (-> @response
         :body
         json/read-str
         pp/pprint)))
+
+(defn run [args]
+  (let [{:keys [options exit-message ok?]} (validate-args args)]
+    (cond
+      exit-message
+      (do
+        (println exit-message)
+        (System/exit (if ok? 0 1)))
+
+      (get options :m1) (process mutant-json-live-1)
+      (get options :m2) (process mutant-json-def))))
+
+(defn -main [& args] (run args))
