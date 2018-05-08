@@ -104,14 +104,16 @@
            [::pvalue "?"])
       :else (quote-prime fk-alias-lup path))))
 
-(def ob-gram (insta/parser (clojure.java.io/resource "or_bool.bnf")))
+; (def ob-gram (insta/parser (clojure.java.io/resource "or_bool.bnf")))
 
-(defn rewrite-function
-  [eq]
-  (let [clause (insta/parses ob-gram sam-ob)]
-    (if clause
-      (str (get))
-      eq)))
+; Rewrite the function call as straight sql
+;
+;(defn rewrite-function
+;  [eq]
+;  (let [clause (insta/parses ob-gram sam-ob)]
+;    (if clause
+;      (str (get))
+;      eq)
 
 (defn query->sql-equation-helper [helpers ent-alias->name ctx eqn]
   (let [lhs (.first eqn)

@@ -296,6 +296,17 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>instaparse</groupId>
+      <artifactId>instaparse</artifactId>
+      <version>1.4.9</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>slf4j-nop</artifactId>
+          <groupId>org.slf4j</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
 </project>
 

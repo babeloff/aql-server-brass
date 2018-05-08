@@ -97,63 +97,57 @@ mapping F = literal : S -> X {
 
 schema T = literal : sql1 {
   entities 
-    cot_action
+    ae3962ebf18084c0f95329137329b88d8
     source
-    cot_detail
+    ab9254b78c81c4303a2bac778a67343d8
   foreign_keys 
-    has_cot_action : source -> cot_action
-    has_source : cot_action -> source
-    has_source : cot_detail -> source
-    has_cot_detail : source -> cot_detail
+    has_ae3962ebf18084c0f95329137329b88d8 : source -> ae3962ebf18084c0f95329137329b88d8
+    has_source : ae3962ebf18084c0f95329137329b88d8 -> source
+    has_source : ab9254b78c81c4303a2bac778a67343d8 -> source
+    has_ab9254b78c81c4303a2bac778a67343d8 : source -> ab9254b78c81c4303a2bac778a67343d8
   attributes 
-    cot_event_id : cot_action -> Varchar
-    how : cot_action -> Varchar
-    latitude : cot_action -> Varchar
-    longitude : cot_action -> Varchar
-    point_ce : cot_action -> Varchar
-    point_le : cot_action -> Varchar
-    servertime : cot_action -> Varchar
-    source_id : cot_action -> Varchar
-    tilex : cot_action -> Varchar
-    cot_event_id : cot_detail -> Varchar
-    cot_position_id : cot_detail -> Varchar
-    cot_type : cot_detail -> Varchar
-    detail : cot_detail -> Varchar
-    point_hae : cot_detail -> Varchar
-    tiley : cot_detail -> Varchar
+    cot_type : ab9254b78c81c4303a2bac778a67343d8 -> Varchar
+    detail : ab9254b78c81c4303a2bac778a67343d8 -> Varchar
+    how : ab9254b78c81c4303a2bac778a67343d8 -> Varchar
+    servertime : ab9254b78c81c4303a2bac778a67343d8 -> Varchar
+    source_id : ab9254b78c81c4303a2bac778a67343d8 -> Varchar
+    latitude : ae3962ebf18084c0f95329137329b88d8 -> Varchar
+    longitude : ae3962ebf18084c0f95329137329b88d8 -> Varchar
+    point_ce : ae3962ebf18084c0f95329137329b88d8 -> Varchar
+    point_hae : ae3962ebf18084c0f95329137329b88d8 -> Varchar
+    point_le : ae3962ebf18084c0f95329137329b88d8 -> Varchar
+    tilex : ae3962ebf18084c0f95329137329b88d8 -> Varchar
+    tiley : ae3962ebf18084c0f95329137329b88d8 -> Varchar
     channel : source -> Varchar
     name : source -> Varchar
     source_id : source -> Varchar
 }
 
 mapping G = literal : T -> X {
-  entity cot_action -> cospan
+  entity ab9254b78c81c4303a2bac778a67343d8 -> cospan
     foreign_keys 
       has_source -> cospan
     attributes 
-      cot_event_id -> cot_event_id
+      cot_type -> cot_type
+      detail -> detail
       how -> how
+      servertime -> servertime
+      source_id -> source_id
+  entity ae3962ebf18084c0f95329137329b88d8 -> cospan
+    foreign_keys 
+      has_source -> cospan
+    attributes 
       latitude -> latitude
       longitude -> longitude
       point_ce -> point_ce
-      point_le -> point_le
-      servertime -> servertime
-      source_id -> source_id
-      tilex -> tilex
-  entity cot_detail -> cospan
-    foreign_keys 
-      has_source -> cospan
-    attributes 
-      cot_event_id -> cot_event_id
-      cot_position_id -> cot_position_id
-      cot_type -> cot_type
-      detail -> detail
       point_hae -> point_hae
+      point_le -> point_le
+      tilex -> tilex
       tiley -> tiley
   entity source -> cospan
     foreign_keys 
-      has_cot_action -> cospan
-      has_cot_detail -> cospan
+      has_ab9254b78c81c4303a2bac778a67343d8 -> cospan
+      has_ae3962ebf18084c0f95329137329b88d8 -> cospan
     attributes 
       channel -> channel
       name -> name

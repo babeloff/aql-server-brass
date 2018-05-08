@@ -9,7 +9,7 @@
    (clojure.tools [logging :as log])
    (aql.brass [data :as brass-data])))
 
-(def mutant-json
+(def mutant-json-def
   {"martiServerModel"
    {"requirements"
     {"postgresqlPerturbation"
@@ -24,15 +24,22 @@
           "Position_PointLE"
           "Position_tilex"
           "Position_Longitude"
-          "Position_Latitude"]}
-       {"table" "cot_detail"
-        "columns"
-        ["Position_Id"
-         "Position_EventId"
-         "Position_PointHae"
-         "Event_Detail"
-         "Position_tiley"
-         "Event_CotType"]}]}}}})
+          "Position_Latitude"]}{}]}}}})
+
+(def mutant-json-live-1
+  {"martiServerModel"
+     {"requirements"
+      {"postgresqlPerturbation"
+       {"tables"
+        [{"table" "ab9254b78c81c4303a2bac778a67343d8"
+          "columns"
+          ["source_id" "cot_type" "how" "detail" "servertime"]}
+         {"table" "ae3962ebf18084c0f95329137329b88d8",
+          "columns"
+          ["point_hae" "point_ce" "point_le"
+           "tileX" "tileY" "longitude" "latitude"]}]}}}})
+
+(def mutant-json mutant-json-live-1)
 
 (def options
   {:method :post
