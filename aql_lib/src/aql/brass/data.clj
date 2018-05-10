@@ -68,11 +68,11 @@
     :type ::s/schema
     :extend "sql1"
     :entities
-    #{"cospan"}
+    #{"source" "cospan"}
     :attributes
-    [["source_id" "cospan" "Varchar"]
-     ["name" "cospan" "Varchar"]
-     ["channel" "cospan" "Varchar"]
+    [["source_id" "source" "Varchar"]
+     ["name" "source" "Varchar"]
+     ["channel" "source" "Varchar"]
 
      ["cot_event_id" "cospan" "Varchar"]
      ["cot_type" "cospan" "Varchar"]
@@ -96,7 +96,7 @@
     :type ::s/mapping
     :schema-map ["S" "X"]
     :entity-map
-    {[["source"] ["cospan"]]
+    {[["source"] ["source"]]
      #::s
      {:attribute-map
       {"source_id" "source_id"
@@ -175,7 +175,7 @@
     :type ::s/mapping
     :schema-map ["T" "X"]
     :entity-map
-    {[["entity source"] ["cospan"]]
+    {[["source"] ["source"]]
      #::s
      {:attribute-map
       {"id" "source_id"

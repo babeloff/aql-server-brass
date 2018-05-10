@@ -2,26 +2,26 @@
 ;;
 {:paths ["src"]
  :deps {org.clojure/clojure {:mvn/version "1.9.0"}
-        org.clojure/tools.deps.alpha {:mvn/version "LATEST" ; "0.5.425"
+        org.clojure/tools.deps.alpha {:mvn/version "RELEASE" ; "0.5.425"
                                       :exclusions [org.slf4j/slf4j-nop]}
-        org.clojure/tools.nrepl {:mvn/version "LATEST"} ; "0.2.12"}
-        http-kit {:mvn/version "LATEST"} ; "2.3.0"}
-        javax.xml.bind/jaxb-api {:mvn/version "LATEST"} ; "2.3.0"}
-        com.rpl/specter {:mvn/version "LATEST"} ; "1.1.0"}
+        org.clojure/tools.nrepl {:mvn/version "RELEASE"} ; "0.2.12"}
+        http-kit {:mvn/version "RELEASE"} ; "2.3.0"}
+        javax.xml.bind/jaxb-api {:mvn/version "RELEASE"} ; "2.3.0"}
+        com.rpl/specter {:mvn/version "RELEASE"} ; "1.1.1"}
         aql_lib {:local/root "../aql_lib"}
         net.catdata/fql {:mvn/version "0.9-SNAPSHOT"
                          :classifier "jar-with-deps"}
-        org.clojure/data.json {:mvn/version "LATEST"} ; "0.2.6"}
-        com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider {:mvn/version "LATEST"} ; "2.9.5"}
-        org.clojure/tools.logging {:mvn/version "LATEST"} ; "0.2.3"}
-        ch.qos.logback/logback-classic {:mvn/version "LATEST" ; "1.0.1"
+        org.clojure/data.json {:mvn/version "RELEASE"} ; "0.2.6"}
+        com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider {:mvn/version "RELEASE"} ; "2.9.5"}
+        org.clojure/tools.logging {:mvn/version "RELEASE"} ; "0.4.1"}
+        ch.qos.logback/logback-classic {:mvn/version "RELEASE" ; "1.2.3"
                                         :exclusions [org.slf4j/slf4j-nop]}
-        compojure {:mvn/version "LATEST"} ; "1.6.0"}
-        ring/ring-json {:mvn/version "LATEST"} ; "0.4.0"}
-        commons-daemon/commons-daemon {:mvn/version "LATEST"} ; "1.1.0"}
-        javax.servlet/servlet-api {:mvn/version "LATEST"} ; "2.5"}
-        org.clojure/tools.cli {:mvn/version "LATEST"} ; "0.3.7"}
-        net.cgrand/xforms {:mvn/version "LATEST"}} ; "0.16.0"}}
+        compojure {:mvn/version "RELEASE"} ; "1.6.0"}
+        ring/ring-json {:mvn/version "RELEASE"} ; "0.4.0"}
+        commons-daemon/commons-daemon {:mvn/version "RELEASE"} ; "1.1.0"}
+        javax.servlet/servlet-api {:mvn/version "RELEASE"} ; "2.5"}
+        org.clojure/tools.cli {:mvn/version "RELEASE"} ; "0.3.7"}
+        net.cgrand/xforms {:mvn/version "RELEASE"}} ; "0.16.0"}}
  :mvn/repos {"central" {:url "https://repo1.maven.org/maven2/"}
              "clojars" {:url "https://clojars.org/repo/"}
              "vuisis" {:url "https://nexus.isis.vanderbilt.edu/repository/maven-releases/"}

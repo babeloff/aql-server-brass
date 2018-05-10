@@ -1,7 +1,7 @@
 (ns aql.brass.mutant
   (:require
-   (aql [spec :as aql-spec])
-   (aql.brass.spec [mutant :as mut-spec])
+   (aql [spec :as as])
+   (aql.brass.spec [mutant :as ms])
    (clojure [pprint :as pp]
             [string :as st])
    (com.rpl [specter :as sr])))
@@ -19,15 +19,15 @@
                  "postgresqlPerturbation"
                  "tables"]
                 permutation-json)
-        tables (conj mutant-tables mut-spec/source)]
-    {::mut-spec/tables
+        tables (conj mutant-tables ms/source)]
+    {::ms/tables
      (into []
            (map (fn [{table "table" columns "columns"}]
-                  {::aql-spec/name table
-                   ::mut-spec/columns
-                   (mapv #(sr/select-one [%] mut-spec/lookup) columns)}))
+                  {::as/name table
+                   ::ms/columns
+                   (mapv #(sr/select-one [%] ms/lookup) columns)}))
            tables)
-     ::mut-spec/references
+     ::ms/references
      (let [tabv (into [] (into #{} (map (fn [{tab "table"}] tab)) tables))
            pairs (partition 2 1 tabv)]
        (into []

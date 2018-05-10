@@ -14,7 +14,8 @@
 (require '[aql.serialize :as aql-serial] :reload)
 (require '[aql.brass.client :as brass-client] :reload)
 
-(def mutant (brass-mutant/normalize brass-client/mutant-json))
+(def mutant (brass-mutant/normalize brass-client/mutant-json-def))
+(def mutant (brass-mutant/normalize brass-client/mutant-json-live-1))
 (s/explain ::brass-spec/mutant mutant)
 (pp/pprint mutant)
 (into [] brass-cospan/entity-names-xform [mutant])

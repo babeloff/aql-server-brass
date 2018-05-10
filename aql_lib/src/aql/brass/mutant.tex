@@ -1,0 +1,36 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+
+\begin{document}
+
+The source table will be unchanged from the original to the target schema.
+All other target tables [hereafter referred to as "targets"]
+must be mutually bijective.
+
+The original cot_event and cot_event_position are bijective.
+The bijection is made explicit in the schema by making cot_event_id both
+the primary key and a foreign key.
+\begin{verbatim}
+CONSTRAINT cot_event_position_pkey PRIMARY KEY (cot_event_id)
+CONSTRAINT cot_event_fk FOREIGN KEY (cot_event_id)
+      REFERENCES takrpt.cot_event (id) MATCH SIMPLE]
+\end{verbatim}
+
+All remaining attributes from the original schema must
+be presented in the targets.
+The source_id foreign_key will be present in exactly one of the targets.
+The primary keys for the targets will each be named 'id'
+and are not specified in the perturbation message.
+Each of the targets' primary keys are isomorphic with the
+original cot_event.id and cot_event_position.cot_event_id primary keys.
+These primary keys also serve as the foreign keys to all other targets.
+This effectively forms an isomorphic clique between all targets.
+This makes it appear that cot_event_position.cot_event_id
+is dropped but it is not.
+
+Currently the perturbation message shows the targets
+and the attributes which they have been assigned.
+Everything else is covered by the rules.
+
+\end{document}
