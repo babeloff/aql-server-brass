@@ -30,7 +30,7 @@
       (sr/pred #(= (:aql.spec/name %) entity-name))
       ::brass-spec/columns sr/ALL])
    ; (gxf/sort-by (fn [[name _]] name))
-   (map (fn [{col-name ::brass-spec/cospan}]
+   (map (fn [{col-name ::brass-spec/coname}]
           (vector col-name col-name)))))
 
 (defn entity-map-ref-xform
@@ -84,7 +84,7 @@
         [::brass-spec/tables sr/ALL
          (sr/collect-one :aql.spec/name)
          ::brass-spec/columns sr/ALL
-         (sr/collect-one ::brass-spec/cospan)
+         (sr/collect-one ::brass-spec/coname)
          ::brass-spec/type])
        (gxf/sort-by (fn [[new-ent col-name _]] [new-ent col-name]))
        (map (fn [[new-ent col-name col-type]] [col-name new-ent col-type])))

@@ -16,10 +16,9 @@
    {"requirements"
     {"postgresqlPerturbation"
      {"tables"
-      [{"table"  "cot_action"
+      [{"table" "cot_action"
         "columns"
-         ["Event_Id"
-          "Event_SourceId"
+         ["Event_SourceId"
           "Event_How"
           "Event_ServerTime"
           "Position_PointCE"
@@ -29,9 +28,7 @@
           "Position_Latitude"]}
        {"table" "cot_detail"
         "columns"
-        ["Position_Id"
-         "Position_EventId"
-         "Position_PointHae"
+        ["Position_PointHae"
          "Event_Detail"
          "Position_TileY"
          "Event_CotType"]}]}}}})

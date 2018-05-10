@@ -44,11 +44,12 @@ schema S = literal : sql1 {
 
 schema X = literal : sql1 {
   entities 
+    source
     cospan
   attributes 
-    source_id : cospan -> Varchar
-    name : cospan -> Varchar
-    channel : cospan -> Varchar
+    source_id : source -> Varchar
+    name : source -> Varchar
+    channel : source -> Varchar
     cot_event_id : cospan -> Varchar
     cot_type : cospan -> Varchar
     how : cospan -> Varchar
@@ -65,7 +66,7 @@ schema X = literal : sql1 {
 }
 
 mapping F = literal : S -> X {
-  entity source -> cospan
+  entity source -> source
     attributes 
       source_id -> source_id
       name -> name

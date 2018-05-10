@@ -3,7 +3,6 @@
 (require '(com.rpl [specter :as sr]))
 (require '[clojure.spec.alpha :as s])
 (require '(clojure.tools [logging :as log]))
-(require '[net.cgrand.xforms :as gxf])
 
 (require '[aql.spec :as aql-spec] :reload)
 (require '[aql.util :as aql-util] :reload)
@@ -14,10 +13,11 @@
 (require '[aql.serialize :as aql-serial] :reload)
 (require '[aql.brass.client :as brass-client] :reload)
 
-(def mutant (brass-mutant/normalize brass-client/mutant-json-def))
-(def mutant (brass-mutant/normalize brass-client/mutant-json-live-1))
-(s/explain ::brass-spec/mutant mutant)
+(def mutant0 (brass-mutant/normalize brass-client/mutant-json-def))
+(def mutant1 (brass-mutant/normalize brass-client/mutant-json-live-1))
+(def mutant mutant1)
 (pp/pprint mutant)
+(pp/pprint (s/conform ::brass-spec/mutant mutant))
 (into [] brass-cospan/entity-names-xform [mutant])
 
 (def entity-name "cot_action")

@@ -6,6 +6,15 @@
             [string :as st])
    (com.rpl [specter :as sr])))
 
+(defn normalize-helper [addendum]
+  (fn [{table "table" columns "columns"}]
+    {::as/name table
+     ::ms/columns
+     (into
+      addendum
+      (map #(sr/select-one [%] ms/lookup))
+      columns)}))
+
 (defn normalize
   "normalize a partial json mutant object.
    it should at a minimum conform to
@@ -14,26 +23,26 @@
   [permutation-json]
   (let [mutant-tables
         (sr/select-one
-                ["martiServerModel"
-                 "requirements"
-                 "postgresqlPerturbation"
-                 "tables"]
-                permutation-json)
-        tables (conj mutant-tables ms/source)]
+         ["martiServerModel"
+          "requirements"
+          "postgresqlPerturbation"
+          "tables"]
+         permutation-json)
+        event-id (sr/select-one ["Event_Id"] ms/lookup)]
     {::ms/tables
-     (into []
-           (map (fn [{table "table" columns "columns"}]
-                  {::as/name table
-                   ::ms/columns
-                   (mapv #(sr/select-one [%] ms/lookup) columns)}))
-           tables)
+     (into
+      (into
+       []
+       (map (normalize-helper []))
+       [ms/source])
+      (map (normalize-helper [event-id]))
+      mutant-tables)
      ::ms/references
-     (let [tabv (into [] (into #{} (map (fn [{tab "table"}] tab)) tables))
-           pairs (partition 2 1 tabv)]
+     (let [tabv (into []
+                      (map (fn [{tab "table"}] tab))
+                      mutant-tables)
+           pairs (partition 2 1 tabv tabv)]
        (into []
-             (comp
-              (map (fn [[lhs rhs]]
-                     [[(str "has_" lhs) rhs lhs]
-                      [(str "has_" rhs) lhs rhs]]))
-              cat)
+             (map (fn [[lhs rhs]]
+                    [(str "has_" lhs) rhs lhs]))
              pairs))}))

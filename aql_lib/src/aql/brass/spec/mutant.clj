@@ -3,29 +3,40 @@
   (:require [clojure.spec.alpha :as s]
             [aql.spec :as aql-spec]))
 
-;; ::entity indicates the entity for which is the parent of the attribute
-;; ::cospan is the original name for that attribute
-;; ::type is the datatype of the column
-;; ::ref indicates that this is morphism between entities.
-
-(s/def ::reference (s/tuple string? string? string?))
+;; the name of a foreign-key reference
+(s/def ::ref-name string?)
+(s/def ::ent-name string?)
+(s/def ::attr-name string?)
+;; expresses the morphisms between entities
+(s/def ::reference (s/tuple ::ref-name ::ent-name ::ent-name))
 (s/def ::references (s/coll-of ::reference :kind vector? :distinct true))
 
-(s/def ::entity string?)
-(s/def ::cospan string?)
-(s/def ::prime string?)
+;; ::origin indicates the entity for which is the parent of the attribute
+(s/def ::origin ::ent-name)
+;; ::coent indicates the cospan entity
+(s/def ::coent ::ent-name)
+;; ::coname is the cospan name for that attribute
+;; also the original name if possible
+(s/def ::coname ::attr-name)
+;; ::numame is the new name if different from ::coname
+(s/def ::nuname ::attr-name)
+;; ::ref indicates that this is a morphism between entities.
+;; it provides the key to that referenced column.
 (s/def ::ref string?)
-(s/def ::ref-name string?)
+;; ::type is the datatype of the column
 (s/def ::type #{"Integer" "Varchar" "Bigint" "Real"})
-(s/def ::column (s/keys :req [::entity ::cospan ::type]
-                        :opt [::prime ::ref ::ref-name]))
+;; ::column is the column record, it carries enough information
+;; for the target schema and mapping to the cospan.
+(s/def ::column (s/keys :req [::origin ::coent ::coname ::type]
+                        :opt [::nuname ::ref ::ref-name]))
 (s/def ::columns (s/coll-of ::column :kind vector? :distinct true))
 (s/def ::table (s/keys :req [::aql-spec/name ::columns]))
 (s/def ::tables (s/coll-of ::table :kind vector? :distinct true))
 (s/def ::mutant (s/keys :req [::tables ::references]))
 
-;; This map contains information that should be
+;; This map contains information that could be
 ;; supplied in the permutation-json but is not.
+;; It is implicit.
 
 (def source
   {"table" "source"
@@ -34,8 +45,8 @@
     "Source_Name"
     "Source_Channel"]})
 
-;; This map contains the information necessary to construct the
-;; prime T schema and the G mapping.
+;; This map contains the information necessary to
+;; construct the T schema and the G mapping.
 ;; It needs to be merged with the normalized mutant object.
 ;; The normalized mutant object is formed from
 ;; - [aql.brass.client/mutant-json]
@@ -44,85 +55,103 @@
 
 (def base-lookup
   {"Source_Id"
-   {::entity "source"
-    ::cospan "source_id"
-    ::prime "id"
+   {::origin "source"
+    ::coent "source"
+    ::coname "source_id"
+    ::nuname "id"
     ::type "Varchar"}
    "Source_Name"
-   {::entity "source"
-    ::cospan "name"
+   {::origin "source"
+    ::coent "source"
+    ::coname "name"
     ::type "Varchar"}
    "Source_Channel"
-   {::entity "source"
-    ::cospan "channel"
+   {::origin "source"
+    ::coent "source"
+    ::coname "channel"
     ::type "Varchar"}
 
    "Event_Id"
-   {::entity "cot_event"
-    ::cospan "cot_event_id"
-    ::prime "id"
+   {::origin "cot_event"
+    ::coent "cospan"
+    ::coname "cot_event_id"
+    ::nuname "id"
     ::type "Varchar"}
    "Event_SourceId"
-   {::entity "cot_event"
-    ::cospan "source_id"
+   {::origin "cot_event"
+    ::coent "cospan"
+    ::coname "source_id"
     ::ref "Source_Id"
     ::ref-name "has_source"
     ::type "Varchar"}
    "Event_CotType"
-   {::entity "cot_event"
-    ::cospan "cot_type"
+   {::origin "cot_event"
+    ::coent "cospan"
+    ::coname "cot_type"
     ::type "Varchar"}
    "Event_How"
-   {::entity "cot_event"
-    ::cospan "how"
+   {::origin "cot_event"
+    ::coent "cospan"
+    ::coname "how"
     ::type "Varchar"}
    "Event_Detail"
-   {::entity "cot_event"
-    ::cospan "detail"
+   {::origin "cot_event"
+    ::coent "cospan"
+    ::coname "detail"
     ::type "Varchar"}
    "Event_ServerTime"
-   {::entity "cot_event"
-    ::cospan "servertime"
+   {::origin "cot_event"
+    ::coent "cospan"
+    ::coname "servertime"
     ::type "Varchar"}
 
    "Position_Id"
-   {::entity "cot_event_position"
-    ::cospan "cot_position_id"
-    ::prime "id"
+   {::origin "cot_event_position"
+    ::coent "cospan"
+    ::coname "cot_position_id"
+    ::nuname "id"
     ::type "Varchar"}
    "Position_EventId"
-   {::entity "cot_event_position"
-    ::cospan "cot_event_id"
+   {::origin "cot_event_position"
+    ::coent "cospan"
+    ::coname "cot_event_id"
     ::ref "Event_Id"
     ::ref-name "has_cot_event"
     ::type "Varchar"}
    "Position_PointHae"
-   {::entity "cot_event_position"
-    ::cospan "point_hae"
+   {::origin "cot_event_position"
+    ::coent "cospan"
+    ::coname "point_hae"
     ::type "Varchar"}
    "Position_PointCE"
-   {::entity "cot_event_position"
-    ::cospan "point_ce"
+   {::origin "cot_event_position"
+    ::coent "cospan"
+    ::coname "point_ce"
     ::type "Varchar"}
    "Position_PointLE"
-   {::entity "cot_event_position"
-    ::cospan "point_le"
+   {::origin "cot_event_position"
+    ::coent "cospan"
+    ::coname "point_le"
     ::type "Varchar"}
    "Position_TileX"
-   {::entity "cot_event_position"
-    ::cospan "tilex"
+   {::origin "cot_event_position"
+    ::coent "cospan"
+    ::coname "tilex"
     ::type "Varchar"}
    "Position_TileY"
-   {::entity "cot_event_position"
-    ::cospan "tiley"
+   {::origin "cot_event_position"
+    ::coent "cospan"
+    ::coname "tiley"
     ::type "Varchar"}
    "Position_Longitude"
-   {::entity "cot_event_position"
-    ::cospan "longitude"
+   {::origin "cot_event_position"
+    ::coent "cospan"
+    ::coname "longitude"
     ::type "Varchar"}
    "Position_Latitude"
-   {::entity "cot_event_position"
-    ::cospan "latitude"
+   {::origin "cot_event_position"
+    ::coent "cospan"
+    ::coname "latitude"
     ::type "Varchar"}})
 
 (def lookup
