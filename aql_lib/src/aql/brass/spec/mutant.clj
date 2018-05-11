@@ -82,7 +82,7 @@
     ::coent "cospan"
     ::coname "source_id"
     ::ref "Source_Id"
-    ::ref-name "has_source"
+    ::ref-name "source_fk"
     ::type "Varchar"}
    "Event_CotType"
    {::origin "cot_event"
@@ -116,7 +116,7 @@
     ::coent "cospan"
     ::coname "cot_event_id"
     ::ref "Event_Id"
-    ::ref-name "has_cot_event"
+    ::ref-name "cot_event_fk"
     ::type "Varchar"}
    "Position_PointHae"
    {::origin "cot_event_position"

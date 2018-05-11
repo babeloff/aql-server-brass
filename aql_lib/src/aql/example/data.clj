@@ -17,7 +17,7 @@
     "k"  ["b" "Varchar"]
     "m"  ["b" "Varchar"]}
    :references
-   {"has_a" ["b" "a"]}})
+   {"a_fk" ["b" "a"]}})
 
 (def schema-x
   {:name "X"
@@ -36,7 +36,7 @@
     "m"  [["b" "d"] "Varchar"]}
 
    :references
-   {"has_a" [["a" "c"]]}})
+   {"a_fk" [["a" "c"]]}})
 
 
 (def schema-t
@@ -52,7 +52,7 @@
     "k"  ["b" "Varchar"]
     "m"  ["b" "Varchar"]}
    :references
-   {"has_a" ["b" "a"]}})
+   {"a_fk" ["b" "a"]}})
 
 
 (def m-x->s
@@ -83,8 +83,8 @@
          i -> i(ca)
          k -> k(cb)
        foreign_keys
-         // has_d : c -> d
-         has_d -> {
+         // d_fk : c -> d
+         d_fk -> {
            ca -> da
            cb -> db}}
      entity d -> {
@@ -93,7 +93,7 @@
          j -> j(da)
          m -> m(db)
        foreign_keys
-         // has_c : d -> c
-         has_c -> {
+         // c_fk : d -> c
+         c_fk -> {
            da -> ca
            db -> cb}}")

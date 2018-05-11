@@ -97,11 +97,11 @@
     ;[[["x" "cot_action"]
     ;  [::aql-spec/equal
     ;   ["source_id" "x"]
-    ;   ["id" ["has_source" "x"]]
+    ;   ["id" ["source_fk" "x"]]
     ; [["y" "cot_detail"]
     ;  [::aql-spec/equal
     ;   ["cot_event_id" "y"]
-    ;   ["id" ["has_cot_action" "y"]]}
+    ;   ["id" ["cot_action_fk" "y"]]}
 
    ::g
    #::aql-spec

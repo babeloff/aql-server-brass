@@ -16,8 +16,8 @@ schema S = literal : sql1 {
     cot_event
     source
   foreign_keys
-    has_source : cot_event -> source
-    has_cot_event : cot_event_position -> cot_event
+    source_fk : cot_event -> source
+    cot_event_fk : cot_event_position -> cot_event
   attributes
     id : source -> Varchar
     name : source -> Varchar
@@ -38,8 +38,8 @@ schema S = literal : sql1 {
     latitude : cot_event_position -> Real
     longitude : cot_event_position -> Real
     observation_equations
-      forall x:cot_event . source_id(x) = id(has_source(x))
-      forall y:cot_event_position . cot_event_id(y) = id(has_cot_event(y))
+      forall x:cot_event . source_id(x) = id(source_fk(x))
+      forall y:cot_event_position . cot_event_id(y) = id(cot_event_fk(y))
 }
 
 schema X = literal : sql1 {
@@ -72,7 +72,7 @@ mapping F = literal : S -> X {
       channel -> channel
   entity cot_event -> cospan
     foreign_keys
-      has_source -> cospan
+      source_fk -> cospan
     attributes
       id -> cot_event_id
       source_id -> source_id
@@ -82,7 +82,7 @@ mapping F = literal : S -> X {
       servertime -> servertime
   entity cot_event_position -> cospan
     foreign_keys
-      has_cot_event -> cospan
+      cot_event_fk -> cospan
     attributes
       tiley -> tiley
       point_ce -> point_ce
@@ -101,10 +101,10 @@ schema T = literal : sql1 {
     source
     cot_detail
   foreign_keys
-    has_cot_action : source -> cot_action
-    has_source : cot_action -> source
-    has_source : cot_detail -> source
-    has_cot_detail : source -> cot_detail
+    cot_action_fk : source -> cot_action
+    source_fk : cot_action -> source
+    source_fk : cot_detail -> source
+    cot_detail_fk : source -> cot_detail
   attributes
     cot_event_id : cot_action -> Varchar
     how : cot_action -> Varchar
@@ -129,7 +129,7 @@ schema T = literal : sql1 {
 mapping G = literal : T -> X {
   entity cot_action -> cospan
     foreign_keys
-      has_source -> cospan
+      source_fk -> cospan
     attributes
       cot_event_id -> cot_event_id
       how -> how
@@ -142,7 +142,7 @@ mapping G = literal : T -> X {
       tilex -> tilex
   entity cot_detail -> cospan
     foreign_keys
-      has_source -> cospan
+      source_fk -> cospan
     attributes
       cot_event_id -> cot_event_id
       cot_position_id -> cot_position_id
@@ -152,8 +152,8 @@ mapping G = literal : T -> X {
       tiley -> tiley
   entity source -> cospan
     foreign_keys
-      has_cot_action -> cospan
-      has_cot_detail -> cospan
+      cot_action_fk -> cospan
+      cot_detail_fk -> cospan
     attributes
       channel -> channel
       name -> name
@@ -211,7 +211,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
         ce : cot_event
         s : source
       where
-        s = ce.has_source
+        s = ce.source_fk
         s.channel = "7"
       attributes
         name -> s.name
@@ -246,7 +246,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
              s : source
              ce : cot_event
            where
-             s = ce.has_source
+             s = ce.source_fk
              s.channel = "3"
            attributes
              name -> s.name
@@ -260,7 +260,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
             s : source
             ce : cot_event
           where
-            s = ce.has_source
+            s = ce.source_fk
             ce.cot_type = "a-n-A-C-F-m"
           attributes
           name -> s.name
@@ -279,7 +279,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
          s : source
          ce : cot_event
        where
-          s = ce.has_source
+          s = ce.source_fk
           OrBool(EqualVc(s.channel,"3"),
                  EqualVc(ce.cot_type,"a-n-A-C-F-m")) = true
        attributes
@@ -298,7 +298,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
        ce : cot_event
        s : source
      where
-       s = ce.has_source
+       s = ce.source_fk
        OrBool(EqualVc(s.channel,"3"),
               EqualVc(ce.cot_type,"a-n-A-C-F-m")) = true
      attributes
@@ -317,8 +317,8 @@ query Qx = [ toCoQuery G ; toQuery F ]
        cep : cot_event_position
        s : source
      where
-       s = ce.has_source
-       ce = cep.has_cot_event
+       s = ce.source_fk
+       ce = cep.cot_event_fk
        s.channel = 3
        cep.tilex = 18830
        cep.tiley = 25704
@@ -354,8 +354,8 @@ query Qx = [ toCoQuery G ; toQuery F ]
             ce : cot_event
             cep : cot_event_position
           where
-            s = ce.has_source
-            ce = cep.has_cot_event
+            s = ce.source_fk
+            ce = cep.cot_event_fk
             s.name = name_parm
             ce.servertime = servertime_parm
           attributes
@@ -402,8 +402,8 @@ query Qx = [ toCoQuery G ; toQuery F ]
             ce : cot_event
             cep : cot_event_position
           where
-            s = ce.has_source
-            ce = cep.has_cot_event
+            s = ce.source_fk
+            ce = cep.cot_event_fk
             s.name = name_param
             ce.servertime = servertime_param
           attributes

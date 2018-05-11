@@ -123,7 +123,7 @@
         ce : cot_event
         s : source
       where
-        s = ce.has_source
+        s = ce.source_fk
         s.channel = \"7\"
       attributes
         name -> s.name
@@ -156,7 +156,7 @@
               s : source
               ce : cot_event
             where
-              s = ce.has_source
+              s = ce.source_fk
               s.channel = \"7\"
             attributes
               event_id -> ce.id
@@ -189,7 +189,7 @@
        ce : cot_event
        s : source
      where
-       s = ce.has_source
+       s = ce.source_fk
        OrBool(EqualVc(s.channel,\"5\"),
               EqualVc(ce.cot_type,\"a-n-A-C-F-s\")) = true
      attributes
@@ -215,7 +215,7 @@
    select s.name, ce.id, ce.cot_type, ce.servertime
    from source as s
      join cot_event as ce on s.source_id = ce.source_id
-     join cot_event_position cep on ce.id = cep.has_cot_event
+     join cot_event_position cep on ce.id = cep.cot_event_fk
    where  s.channel = '6' and cep.tilex = '18830' and cep.tiley = '25704'
    "
    ::source "
@@ -225,8 +225,8 @@
        cep : cot_event_position
        s : source
      where
-       s = ce.has_source
-       ce = cep.has_cot_event
+       s = ce.source_fk
+       ce = cep.cot_event_fk
        s.channel = \"6\"
        cep.tilex = \"18830\"
        cep.tiley = \"25704\"
@@ -284,8 +284,8 @@
             ce : cot_event
             cep : cot_event_position
           where
-            s = ce.has_source
-            ce = cep.has_cot_event
+            s = ce.source_fk
+            ce = cep.cot_event_fk
             s.name = name_parm
             ce.servertime = servertime_parm
           attributes
@@ -358,8 +358,8 @@
             ce : cot_event
             cep : cot_event_position
           where
-            s = ce.has_source
-            ce = cep.has_cot_event
+            s = ce.source_fk
+            ce = cep.cot_event_fk
             s.name = name_param
             ce.servertime = servertime_param
           attributes

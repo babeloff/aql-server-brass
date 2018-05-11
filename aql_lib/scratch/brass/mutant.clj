@@ -62,7 +62,6 @@
 
 (->> factory
      ::brass-cospan/g
-     aql-util/pp-echo
      aql-serial/to-aql
      print)
 

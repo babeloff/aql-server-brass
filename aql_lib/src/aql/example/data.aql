@@ -80,10 +80,10 @@ instance Jt_goal = literal : T {
 		d1 d2 : d
 	equations 
 	 	c1.i = "a1i" c1.k = "b1k" 
-	 	d1.has_c = c1 d1.j = "a1j" d1.m = "d1m"
+	 	d1.c_fk = c1 d1.j = "a1j" d1.m = "d1m"
 	 	
 	 	c2.i = "a2i" 
-	 	d2.has_c = c2 d2.j = "a2j" 
+	 	d2.c_fk = c2 d2.j = "a2j" 
 }
 
 

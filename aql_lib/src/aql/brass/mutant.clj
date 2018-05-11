@@ -50,7 +50,7 @@
                           is-source?]
                          event-tables)
 
-        source-ref ["has_source" (first having-source) "source"]
+        source-ref ["source_fk" (first having-source) "source"]
 
         tabv (into []
                    (map (fn [{tab "table"}] tab))
@@ -60,7 +60,7 @@
         references
         (into [source-ref]
               (map (fn [[lhs rhs]]
-                     [(str "has_" lhs) rhs lhs]))
+                     [(str lhs "_fk") rhs lhs]))
               pairs)]
 
     {::brass-spec/tables (into [] (concat source-table event-tables))

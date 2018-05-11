@@ -2,7 +2,7 @@ schema S = literal : sql {
  entities 
     a b
  foreign_keys 
-    has_a : b -> a
+    a_fk : b -> a
  attributes 
     i : a -> Varchar
     j : a -> Varchar
@@ -15,7 +15,7 @@ schema T = literal : sql {
  entities 
     c d
  foreign_keys 
-    has_c : d -> c
+    c_fk : d -> c
  attributes 
     i : c -> Varchar
     j : d -> Varchar
@@ -28,10 +28,10 @@ schema X = literal : sql {
  entities 
     ac ad bc bd
  foreign_keys 
- 	a_has_c : ad -> ac
- 	b_has_c : bd -> bc
- 	has_a_c : bc -> ac
- 	has_a_d : bd -> ad
+ 	a_c_fk : ad -> ac
+ 	b_c_fk : bd -> bc
+ 	a_c_fk : bc -> ac
+ 	a_d_fk : bd -> ad
  attributes 
     i : ac -> Varchar
     j : ad -> Varchar
@@ -44,14 +44,14 @@ mapping F = literal : X -> S {
  entity ac -> a
     attributes i -> i
  entity ad -> a
- 	foreign_keys a_has_c -> b
+ 	foreign_keys a_c_fk -> b
     attributes j -> j
  entity bc -> b
-  	foreign_keys has_a_c -> has_a
+  	foreign_keys a_c_fk -> a_fk
     attributes k -> k
  entity bd -> b
- 	foreign_keys has_a_d -> has_a
- 	             b_has_c -> b
+ 	foreign_keys a_d_fk -> a_fk
+ 	             b_c_fk -> b
     attributes m -> m
 }
 
@@ -60,14 +60,14 @@ mapping G = literal : X -> T {
  entity ac -> c
     attributes i -> i
  entity ad -> d
- 	foreign_keys a_has_c -> has_c 
+ 	foreign_keys a_c_fk -> c_fk 
     attributes j -> j
  entity bc -> c
-  	foreign_keys has_a_c -> c
+  	foreign_keys a_c_fk -> c
     attributes k -> k
  entity bd -> d
- 	foreign_keys has_a_d -> c
- 	             b_has_c -> has_c
+ 	foreign_keys a_d_fk -> c
+ 	             b_c_fk -> c_fk
     attributes m -> m
 }
 
@@ -78,7 +78,7 @@ instance Js = literal : S {
     b1 : b
  equations 
     a1.i = "a1i" a1.j = "a1j" 
-    b1.has_a = a1 b1.k = "b1k" b1.m = "b1m"
+    b1.a_fk = a1 b1.k = "b1k" b1.m = "b1m"
     a2.i = "a2i" a2.j = "a2j" 
 }
 
@@ -95,10 +95,10 @@ instance Jt_goal = literal : T {
     d1 d2 : d
  equations 
     c1.i = "a1i" c1.k = "b1k" 
-    d1.has_c = c1 d1.j = "a1j" d1.m = "d1m"
+    d1.c_fk = c1 d1.j = "a1j" d1.m = "d1m"
  
     c2.i = "a2i" // c2.k = "null" 
-    d2.has_c = c2 d2.j = "a2j"// d2.m = "null"
+    d2.c_fk = c2 d2.j = "a2j"// d2.m = "null"
 }
 
 

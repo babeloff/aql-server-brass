@@ -65,16 +65,16 @@
      {::aw/pk "source_id"}
      "cot_event"
      {::aw/pk "id"
-      ::aw/fk {"has_source" "source_id"}}
+      ::aw/fk {"source_fk" "source_id"}}
      "cot_event_position"
      {::aw/pk "id"
-      ::aw/fk {"has_cot_event" "cont_event_id"}}
+      ::aw/fk {"cot_event_fk" "cont_event_id"}}
      "cot_action"
      {::aw/pk "id"
-      ::aw/fk {"has_source" "source_id"
-               "has_cot_detail" "id"}}
+      ::aw/fk {"source_fk" "source_id"
+               "cot_detail_fk" "id"}}
      "cot_detail"
      {::aw/pk "id"
-      ::aw/fk {"has_cot_action" "id"}}}
+      ::aw/fk {"cot_action_fk" "id"}}}
    ::aw/sort-select-fn sort-select-fn
    ::aw/tweek-output-xf tweek-query-output})

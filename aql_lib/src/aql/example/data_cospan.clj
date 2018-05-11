@@ -35,8 +35,8 @@
     "k"  ["c" "Varchar"]
     "m"  ["d" "Varchar"]}
    :references
-   {"has_c" ["d" "c"]
-    "has_d" ["c" "d"]}})
+   {"c_fk" ["d" "c"]
+    "d_fk" ["c" "d"]}})
 
 (def schema-r "schema R = T")
 
@@ -81,14 +81,14 @@
    :entity-map
    {[["c"] ["n"]]
     #::asp
-    {:reference-map {"has_d" nil}
+    {:reference-map {"d_fk" nil}
      :attribute-map
      {"i" "i"
       "k" "k"}}
 
     [["d"] ["n"]]
     #::asp
-    {:reference-map {"has_c" nil}
+    {:reference-map {"c_fk" nil}
      :attribute-map
      {"j" "j"
       "m" "m"}}}})
@@ -144,15 +144,15 @@
     c1 c2 c3 c4 : c
     d1 d2 d3 d4 : d
   equations
-    c1.i = \"a1i\" c1.k = \"b1k\" c1.has_d = d1
-    c2.i = \"a2i\"              c2.has_d = d2
-    c3.i = \"a3i\" c3.k = \"b2k\" c3.has_d = d3
-    c4.i = \"a4i\"              c4.has_d = d4
+    c1.i = \"a1i\" c1.k = \"b1k\" c1.d_fk = d1
+    c2.i = \"a2i\"              c2.d_fk = d2
+    c3.i = \"a3i\" c3.k = \"b2k\" c3.d_fk = d3
+    c4.i = \"a4i\"              c4.d_fk = d4
 
-    d1.j = \"a1j\" d1.m = \"b1m\" d1.has_c = c1
-    d2.j = \"a2j\"              d2.has_c = c2
-    d3.j = \"a3j\" d3.m = \"b2m\" d3.has_c = c3
-    d4.j = \"a4j\"              d4.has_c = c4
+    d1.j = \"a1j\" d1.m = \"b1m\" d1.c_fk = c1
+    d2.j = \"a2j\"              d2.c_fk = c2
+    d3.j = \"a3j\" d3.m = \"b2m\" d3.c_fk = c3
+    d4.j = \"a4j\"              d4.c_fk = c4
   }")
 
 (def query-qf "query QF = toQuery F")
@@ -171,7 +171,7 @@
   	  k -> B1.k
 
     foreign_keys
-  	  has_d -> {
+  	  d_fk -> {
   	    B2 -> B1
   	  }
   }
@@ -182,7 +182,7 @@
   	  j -> B2.has.j
   	  m -> B2.m
     foreign_keys
-  	  has_c -> {
+  	  c_fk -> {
   	    B1 -> B2
   	  }
   }
@@ -200,8 +200,8 @@
      i -> i(ca)
      k -> k(cb)
    foreign_keys
-     // has_d : c -> d
-     has_d -> {da -> ca   db -> cb}
+     // d_fk : c -> d
+     d_fk -> {da -> ca   db -> cb}
     }
  entity d -> {
    from da:a db:b
@@ -209,8 +209,8 @@
      j -> j(da)
      m -> m(db)
    foreign_keys
-     // has_c : d -> c
-     has_c -> {ca -> da   cb -> db}
+     // c_fk : d -> c
+     c_fk -> {ca -> da   cb -> db}
  }
 }")
 

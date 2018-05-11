@@ -50,17 +50,17 @@
      ["latitude" "cot_event_position" "Varchar"]
      ["longitude" "cot_event_position" "Varchar"]]
     :references
-    [["has_source" "cot_event" "source"]
-     ["has_cot_event" "cot_event_position" "cot_event"]]
+    [["source_fk" "cot_event" "source"]
+     ["cot_event_fk" "cot_event_position" "cot_event"]]
     :observations
     [[["x" "cot_event"]
       [::s/equal
        ["source_id" "x"]
-       ["source_id" ["has_source" "x"]]]]
+       ["source_id" ["source_fk" "x"]]]]
      [["y" "cot_event_position"]
       [::s/equal
        ["cot_event_id" "y"]
-       ["id" ["has_cot_event" "y"]]]]]})
+       ["id" ["cot_event_fk" "y"]]]]]})
 
 (def schema-x
   #::s
@@ -75,19 +75,26 @@
      ["channel" "source" "Varchar"]
 
      ["cot_event_id" "cospan" "Varchar"]
+     ["source_id" "cospan" "Varchar"]
      ["cot_type" "cospan" "Varchar"]
      ["how" "cospan" "Varchar"]
      ["detail" "cospan" "Varchar"]
      ["servertime" "cospan" "Varchar"]
 
-     ["cot_position_id" "cospan" "Varchar"]
      ["point_hae" "cospan" "Varchar"]
      ["point_ce" "cospan" "Varchar"]
      ["point_le" "cospan" "Varchar"]
      ["tilex" "cospan" "Varchar"]
      ["tiley" "cospan" "Varchar"]
      ["latitude" "cospan" "Varchar"]
-     ["longitude" "cospan" "Varchar"]]})
+     ["longitude" "cospan" "Varchar"]]
+    :references
+    [["source_fk" "cospan" "source"]]
+    :observations
+    [[["x" "cospan"]
+      [::s/equal
+       ["source_id" "x"]
+       ["source_id" ["source_fk" "x"]]]]]})
 
 (def mapping-f
   "A mapping between schema"
@@ -105,7 +112,7 @@
 
      [["cot_event"] ["cospan"]]
      #::s
-     {:reference-map {"has_source" nil}
+     {:reference-map {"source_fk" nil}
       :attribute-map
       {"id" "cot_event_id"
        "source_id" "source_id"
@@ -116,10 +123,9 @@
 
      [["cot_event_position"] ["cospan"]]
      #::s
-     {:reference-map {"has_cot_event" nil}
+     {:reference-map {"cot_event_fk" nil}
       :attribute-map
-      {"id" "cot_position_id"
-       "cot_event_id" "cot_event_id"
+      {"id" "cot_event_id"
        "point_hae" "point_hae"
        "point_ce" "point_ce"
        "point_le" "point_le"
@@ -127,86 +133,6 @@
        "tiley" "tiley"
        "latitude" "latitude"
        "longitude" "longitude"}}}})
-
-(def schema-t
-  #::s
-   {:name "T"
-    :type ::s/schema
-    :extend "sql1"
-    :entities
-    #{"source" "cot_action" "cot_detail"}
-    :attributes
-    [["id" "source" "Varchar"]
-     ["name" "source" "Varchar"]
-     ["channel" "source" "Varchar"]
-
-     ["id" "cot_action" "Varchar"]
-     ["how" "cot_action" "Varchar"]
-     ["servertime" "cot_action" "Varchar"]
-     ["point_ce" "cot_action" "Varchar"]
-     ["point_le" "cot_action" "Varchar"]
-     ["tilex" "cot_action" "Varchar"]
-     ["latitude" "cot_action" "Varchar"]
-     ["longitude" "cot_action" "Varchar"]
-
-     ["id" "cot_detail" "Varchar"]
-     ["detail" "cot_detail" "Varchar"]
-     ["cot_type" "cot_detail" "Varchar"]
-     ["tiley" "cot_detail" "Varchar"]
-     ["point_hae" "cot_detail" "Varchar"]]
-    :references
-    [["has_source" "cot_action" "source"]
-     ["has_cot_action" "cot_detail" "cot_action"]
-     ["has_cot_detail" "cot_action" "cot_detail"]]
-    :observations
-    [[["x" "cot_action"]
-      [::s/equal
-       ["source_id" "x"]
-       ["id" ["has_source" "x"]]]]
-     [["y" "cot_detail"]
-      [::s/equal
-       ["cot_event_id" "y"]
-       ["id" ["has_cot_event" "y"]]]]]})
-
-(def mapping-g
-  "A mapping between schema"
-  #::s
-   {:name "G"
-    :type ::s/mapping
-    :schema-map ["T" "X"]
-    :entity-map
-    {[["source"] ["source"]]
-     #::s
-     {:attribute-map
-      {"id" "source_id"
-       "name" "name"
-       "channel" "channel"}}
-     [["cot_action"] ["cospan"]]
-     #::s
-     {:reference-map
-      {"has_cot_detail" nil
-       "has_source" nil}
-      :attribute-map
-      {"id" "cot_event_id"
-       "source_id" "source_id"
-       "how" "how"
-       "servertime" "servertime"
-       "point_ce" "point_ce"
-       "point_le" "point_le"
-       "tilex" "tilex"
-       "longitude" "longitude"
-       "latitude" "latitude"}}
-     [["cot_detail"] ["cospan"]]
-     #::s
-     {:reference-map
-      {"has_cot_action" nil}
-      :attribute-map
-      {"id" "id"
-       "cot_event_id" "cot_event_id"
-       "point_hae" "point_hae"
-       "detail" "detail"
-       "tiley" "tiley"
-       "cot_type" "cot_type"}}}})
 
 (def ts-sql1
   "typeside sql1 = literal {
