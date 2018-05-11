@@ -1,18 +1,18 @@
 (ns aql.brass.mutant
   (:require
-   (aql [spec :as as])
-   (aql.brass.spec [mutant :as ms])
+   (aql [spec :as aql-spec])
+   (aql.brass.spec [mutant :as brass-spec])
    (clojure [pprint :as pp]
             [string :as st])
    (com.rpl [specter :as sr])))
 
 (defn normalize-helper [addendum]
   (fn [{table "table" columns "columns"}]
-    {::as/name table
-     ::ms/columns
+    {::aql-spec/name table
+     ::brass-spec/columns
      (into
       addendum
-      (map #(sr/select-one [%] ms/lookup))
+      (map #(sr/select-one [%] brass-spec/lookup))
       columns)}))
 
 (defn normalize
@@ -28,21 +28,40 @@
           "postgresqlPerturbation"
           "tables"]
          permutation-json)
-        event-id (sr/select-one ["Event_Id"] ms/lookup)]
-    {::ms/tables
-     (into
-      (into
-       []
-       (map (normalize-helper []))
-       [ms/source])
-      (map (normalize-helper [event-id]))
-      mutant-tables)
-     ::ms/references
-     (let [tabv (into []
-                      (map (fn [{tab "table"}] tab))
-                      mutant-tables)
-           pairs (partition 2 1 tabv tabv)]
-       (into []
-             (map (fn [[lhs rhs]]
-                    [(str "has_" lhs) rhs lhs]))
-             pairs))}))
+
+        event-id (sr/select-one ["Event_Id"] brass-spec/lookup)
+
+        source-table
+        (into []
+              (map (normalize-helper []))
+              [brass-spec/source])
+
+        event-tables
+        (into []
+              (map (normalize-helper [event-id]))
+              mutant-tables)
+
+        is-source? #(= % (sr/select-one ["Event_SourceId"] brass-spec/base-lookup))
+
+        having-source
+          (sr/select-one [sr/ALL
+                          (sr/collect-one ::aql-spec/name)
+                          ::brass-spec/columns sr/ALL
+                          is-source?]
+                         event-tables)
+
+        source-ref ["has_source" (first having-source) "source"]
+
+        tabv (into []
+                   (map (fn [{tab "table"}] tab))
+                   mutant-tables)
+        pairs (partition 2 1 tabv tabv)
+
+        references
+        (into [source-ref]
+              (map (fn [[lhs rhs]]
+                     [(str "has_" lhs) rhs lhs]))
+              pairs)]
+
+    {::brass-spec/tables (into [] (concat source-table event-tables))
+     ::brass-spec/references references}))

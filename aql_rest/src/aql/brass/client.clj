@@ -38,10 +38,10 @@
      {"requirements"
       {"postgresqlPerturbation"
        {"tables"
-        [{"table" "ab9254b78c81c4303a2bac778a67343d8"
+        [{"table" "ab67343"
           "columns"
           ["source_id" "cot_type" "how" "detail" "servertime"]}
-         {"table" "ae3962ebf18084c0f95329137329b88d8",
+         {"table" "aeb88d8",
           "columns"
           ["point_hae" "point_ce" "point_le"
            "tileX" "tileY" "longitude" "latitude"]}]}}}})

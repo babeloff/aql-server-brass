@@ -18,12 +18,12 @@
 (def mutant mutant1)
 (pp/pprint mutant)
 (pp/pprint (s/conform ::brass-spec/mutant mutant))
-(into [] brass-cospan/entity-names-xform [mutant])
+(def entity-names (into [] brass-cospan/entity-names-xform [mutant]))
 
-(def entity-name "cot_action")
+(def entity-name (first entity-names))
 ; (into (sorted-map) (brass-cospan/entity-map-attr-xform entity-name) [mutant])
 ; (into (sorted-map) (brass-cospan/entity-map-ref-xform entity-name) [mutant])
-(pp/pprint (brass-cospan/entity-map-xform mutant entity-name))
+(pp/pprint (brass-cospan/entity-map mutant entity-name))
 
 (s/explain ::aql-spec/schema brass-data/schema-s)
 (s/explain ::aql-spec/schema brass-data/schema-x)
@@ -42,25 +42,21 @@
 
 (->> factory
      ::brass-cospan/s
-     aql-util/pp-echo
      aql-serial/to-aql
      print)
 
 (->> factory
      ::brass-cospan/x
-     aql-util/pp-echo
      aql-serial/to-aql
      print)
 
 (->> factory
      ::brass-cospan/f
-     aql-util/pp-echo
      aql-serial/to-aql
      print)
 
 (->> factory
      ::brass-cospan/t
-     aql-util/pp-echo
      aql-serial/to-aql
      print)
 

@@ -1,4 +1,5 @@
-(ns aql.util)
+(ns aql.util
+  (:require (clojure.spec [alpha :as s])))
 
 (def echo-doc
     "For use in the ->> operator to produce
@@ -9,3 +10,30 @@
 
 (defmacro echo [action & args]
   `(fn [tru#] (do (~action ~@args tru#) tru#)))
+
+(defmacro def+
+  "binding => binding-form
+  internalizes binding-forms as if by def."
+  {:added "1.9", :special-form true, :forms '[(def+ [bindings*])]}
+  [& bindings]
+  (let [bings (partition 2 (destructure bindings))]
+    (sequence cat
+      ['(do)
+       (map (fn [[var value]] `(def ~var ~value)) bings)
+       [(mapv (fn [[var _]] (str var)) bings)]])))
+
+(s/fdef def+
+        :args (s/and vector? (comp even? count))
+        :ret nil?)
+
+(defn spiral
+  ([n step coll]
+   (spiral n step coll coll))
+  ([n step pad coll]
+   (lazy-seq
+     (when-let [s (seq coll)]
+       (let [p (doall (take n s))
+             item (take n (apply concat p (repeat pad)))]
+         (if (< 1 (count p))
+           (cons item (spiral n step pad (nthrest s step)))
+           (list item)))))))
