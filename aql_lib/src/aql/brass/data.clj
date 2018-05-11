@@ -40,15 +40,14 @@
      ["detail" "cot_event" "Varchar"]
      ["servertime" "cot_event" "Varchar"]
 
-     ["id" "cot_event_position" "Varchar"]
      ["cot_event_id" "cot_event_position" "Varchar"]
      ["point_hae" "cot_event_position" "Varchar"]
      ["point_ce" "cot_event_position" "Varchar"]
      ["point_le" "cot_event_position" "Varchar"]
      ["tilex" "cot_event_position" "Varchar"]
      ["tiley" "cot_event_position" "Varchar"]
-     ["latitude" "cot_event_position" "Varchar"]
-     ["longitude" "cot_event_position" "Varchar"]]
+     ["longitude" "cot_event_position" "Varchar"]
+     ["latitude" "cot_event_position" "Varchar"]]
     :references
     [["source_fk" "cot_event" "source"]
      ["cot_event_fk" "cot_event_position" "cot_event"]]
@@ -125,7 +124,7 @@
      #::s
      {:reference-map {"cot_event_fk" nil}
       :attribute-map
-      {"id" "cot_event_id"
+      {"cot_event_id" "cot_event_id"
        "point_hae" "point_hae"
        "point_ce" "point_ce"
        "point_le" "point_le"

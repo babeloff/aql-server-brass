@@ -11,14 +11,14 @@ typeside sql1 = literal {
           OrBool : Bool, Bool -> Bool = "return input[0] || input[1]"
         }
 schema S = literal : sql1 {
-  entities
+  entities 
     cot_event_position
     cot_event
     source
-  foreign_keys
+  foreign_keys 
     source_fk : cot_event -> source
     cot_event_fk : cot_event_position -> cot_event
-  attributes
+  attributes 
     source_id : source -> Varchar
     name : source -> Varchar
     channel : source -> Varchar
@@ -28,27 +28,26 @@ schema S = literal : sql1 {
     how : cot_event -> Varchar
     detail : cot_event -> Varchar
     servertime : cot_event -> Varchar
-    id : cot_event_position -> Varchar
     cot_event_id : cot_event_position -> Varchar
     point_hae : cot_event_position -> Varchar
     point_ce : cot_event_position -> Varchar
     point_le : cot_event_position -> Varchar
     tilex : cot_event_position -> Varchar
     tiley : cot_event_position -> Varchar
-    latitude : cot_event_position -> Varchar
     longitude : cot_event_position -> Varchar
-    observation_equations
+    latitude : cot_event_position -> Varchar
+    observation_equations 
       forall x:cot_event . source_id(x) = source_id(source_fk(x))
       forall y:cot_event_position . cot_event_id(y) = id(cot_event_fk(y))
 }
 
 schema X = literal : sql1 {
-  entities
+  entities 
     source
     cospan
-  foreign_keys
+  foreign_keys 
     source_fk : cospan -> source
-  attributes
+  attributes 
     source_id : source -> Varchar
     name : source -> Varchar
     channel : source -> Varchar
@@ -65,20 +64,20 @@ schema X = literal : sql1 {
     tiley : cospan -> Varchar
     latitude : cospan -> Varchar
     longitude : cospan -> Varchar
-    observation_equations
+    observation_equations 
       forall x:cospan . source_id(x) = source_id(source_fk(x))
 }
 
 mapping F = literal : S -> X {
   entity source -> source
-    attributes
+    attributes 
       source_id -> source_id
       name -> name
       channel -> channel
   entity cot_event -> cospan
-    foreign_keys
+    foreign_keys 
       source_fk -> cospan
-    attributes
+    attributes 
       id -> cot_event_id
       source_id -> source_id
       cot_type -> cot_type
@@ -86,10 +85,10 @@ mapping F = literal : S -> X {
       detail -> detail
       servertime -> servertime
   entity cot_event_position -> cospan
-    foreign_keys
+    foreign_keys 
       cot_event_fk -> cospan
-    attributes
-      id -> cot_event_id
+    attributes 
+      cot_event_id -> cot_event_id
       point_hae -> point_hae
       point_ce -> point_ce
       point_le -> point_le
@@ -100,15 +99,15 @@ mapping F = literal : S -> X {
 }
 
 schema T = literal : sql1 {
-  entities
+  entities 
     aeb88d8
     ab67343
     source
-  foreign_keys
+  foreign_keys 
     source_fk : ab67343 -> source
-    a_fkb67343 : aeb88d8 -> ab67343
-    a_fkeb88d8 : ab67343 -> aeb88d8
-  attributes
+    ab67343_fk : aeb88d8 -> ab67343
+    aeb88d8_fk : ab67343 -> aeb88d8
+  attributes 
     cot_event_id : ab67343 -> Varchar
     cot_type : ab67343 -> Varchar
     detail : ab67343 -> Varchar
@@ -130,10 +129,10 @@ schema T = literal : sql1 {
 
 mapping G = literal : T -> X {
   entity ab67343 -> cospan
-    foreign_keys
-      a_fkeb88d8 -> cospan
+    foreign_keys 
+      aeb88d8_fk -> cospan
       source_fk -> cospan
-    attributes
+    attributes 
       cot_event_id -> cot_event_id
       cot_type -> cot_type
       detail -> detail
@@ -141,9 +140,9 @@ mapping G = literal : T -> X {
       servertime -> servertime
       source_id -> source_id
   entity aeb88d8 -> cospan
-    foreign_keys
-      a_fkb67343 -> cospan
-    attributes
+    foreign_keys 
+      ab67343_fk -> cospan
+    attributes 
       cot_event_id -> cot_event_id
       latitude -> latitude
       longitude -> longitude
@@ -153,7 +152,7 @@ mapping G = literal : T -> X {
       tilex -> tilex
       tiley -> tiley
   entity source -> cospan
-    attributes
+    attributes 
       channel -> channel
       name -> name
       source_id -> source_id
@@ -171,10 +170,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
       source_id -> ce.source_id
       cot_type -> ce.cot_type
      }
-
+   
 
    query Qt_01 = [ Qx ; Qs_01 ]
-
+   
 
    query Qs_02 = simple : S  {
      from
@@ -187,10 +186,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
       cot_type -> ce.cot_type
       how -> ce.how
      }
-
+   
 
    query Qt_02 = [ Qx ; Qs_02 ]
-
+   
 
    query Qs_03 = simple : S {
       from ce : cot_event
@@ -203,10 +202,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
         cot_type -> ce.cot_type
         how -> ce.how
       }
-
+   
 
    query Qt_03 = [ Qx ; Qs_03 ]
-
+   
 
    query Qs_04 = simple : S {
       from
@@ -221,10 +220,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
         cot_type -> ce.cot_type
         servertime -> ce.servertime
    }
-
+   
 
    query Qt_04 = [ Qx ; Qs_04 ]
-
+   
 
      query Qs_05 = simple : S {
             from
@@ -238,10 +237,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
               cot_type -> ce.cot_type
               servertime -> ce.servertime
      }
-
+   
 
    query Qt_05 = [ Qx ; Qs_05 ]
-
+   
 
    query Qs_06 = simple : S {
      from
@@ -257,10 +256,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
        cot_type -> ce.cot_type
        servertime -> ce.servertime
    }
-
+   
 
    query Qt_06 = [ Qx ; Qs_06 ]
-
+   
 
    query Qs_07 = simple : S {
      from
@@ -279,10 +278,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
        cot_type -> ce.cot_type
        servertime -> ce.servertime
      }
-
+   
 
    query Qt_07 = [ Qx ; Qs_07 ]
-
+   
 
   schema S8 = literal : sql1 {
      entities
@@ -295,7 +294,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
            tilex : Q -> Varchar
            tiley : Q -> Varchar
    }
-
+  
 
    query Qs_08pre = literal : S -> S8 {
       params
@@ -321,10 +320,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
             tiley -> cep.tiley
         }
      }
-
+   
 
    query Qt_08pre = [ Qx ; Qs_08pre ]
-
+   
 
    query Qs_08 = literal : S -> S8 {
       bindings
@@ -334,7 +333,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
    }
 
    query Qt_08 = [ Qx ; Qs_08 ]
-
+   
 
   schema S9 = literal : sql1 {
      entities
@@ -373,10 +372,10 @@ query Qx = [ toCoQuery G ; toQuery F ]
             tiley -> cep.tiley
         }
      }
-
+   
 
    query Qt_09pre = [ Qx ; Qs_09pre ]
-
+   
 
    query Qs_09 = literal : S -> S9 {
       bindings
@@ -385,6 +384,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
 
       imports Qs_09pre
    }
-
+   
 
    query Qt_09 = [ Qx ; Qs_09 ]
+   
