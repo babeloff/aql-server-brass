@@ -40,21 +40,37 @@
     [::brass-spec/references sr/ALL
      (sr/pred #(= (nth % 1) entity-name))
      sr/VAL])
-   (map (fn [[[a _ _]]] [a nil]))))
+   (map (fn [[[a _ _]]]
+          (case a
+            "source_fk" [a a]
+            [a nil])))))
 
 (defn entity-map
   [mutant]
   (fn [entity-name]
-    [[[entity-name] ["cospan"]]
-     #::aql-spec
-     {:attribute-map
-      (into (sorted-map)
-            (entity-map-attr-xform entity-name)
-            [mutant])
-      :reference-map
-      (into (sorted-map)
-            (entity-map-ref-xform entity-name)
-            [mutant])}]))
+    (case entity-name
+      "source"
+      [[[entity-name] ["source"]]
+       #::aql-spec
+       {:attribute-map
+        (into (sorted-map)
+              (entity-map-attr-xform entity-name)
+              [mutant])
+        :reference-map
+        (into (sorted-map)
+              (entity-map-ref-xform entity-name)
+              [mutant])}]
+
+      [[[entity-name] ["cospan"]]
+       #::aql-spec
+       {:attribute-map
+        (into (sorted-map)
+              (entity-map-attr-xform entity-name)
+              [mutant])
+        :reference-map
+        (into (sorted-map)
+              (entity-map-ref-xform entity-name)
+              [mutant])}])))
 
 ;; mutant example can be produced via
 ;; scratch/brass/mutant.clj
