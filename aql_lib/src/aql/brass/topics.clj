@@ -1,6 +1,7 @@
 (ns aql.brass.topics
   (:require
-   (clojure [string :as st])
+   (clojure [string :as st]
+            [pprint :as pp])
    (clojure.data [json :as json])
    (clojure.tools [logging :as log])
    (com.rpl [specter :as sr])
@@ -10,7 +11,7 @@
     [data :as brass-data]
     [cospan :as brass-cospan]
     [mutant :as brass-mutant]
-    [wrap :as wrap-helper])
+    [wrap :as brass-wrap])
    (aql.brass.spec [mutant :as brass-spec])))
 
 (defn brass-p2c1
@@ -45,11 +46,13 @@
     (log/info "see file 'brass_data.aql': ")
     (spit "brass_data.aql" (str cmd "\n"))
     (try
-      (let [gen (aql-wrap/generate cmd)]
-        (log/info "brass phase 2 results: " gen)
+      (let [gen (aql-wrap/generate cmd)
+            helpers (brass-wrap/update-helpers
+                     brass-wrap/permute-sample)]
+        (log/info "brass phase 2 results: " gen helpers)
         (->> gen
           (aql-wrap/xform-result
-            wrap-helper/helpers
+            helpers
             brass-data/demo-objects)
           json/write-str))
       (catch Exception ex

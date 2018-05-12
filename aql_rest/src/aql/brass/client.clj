@@ -93,16 +93,16 @@
         json/read-str
         pp/pprint)))
 
+(defn exit [exit-message ok?]
+  (println exit-message)
+  (System/exit (if ok? 0 1)))
+
 (defn run [args]
   (let [{:keys [options exit-message ok?]} (validate-args args)]
     (cond
-      exit-message
-      (do
-        (println exit-message)
-        (System/exit (if ok? 0 1)))
-
-      (get options :m1) (process mutant-json-live-1)
-      (get options :m2) (process mutant-json-def)
+      exit-message (exit exit-message ok?)
+      (contains? options :m1) (process mutant-json-def)
+      (contains? options :m2) (process mutant-json-live-1)
       :else (log/warn "options " options))))
 
 (defn -main [& args] (run args))

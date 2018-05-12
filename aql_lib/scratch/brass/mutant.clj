@@ -64,5 +64,3 @@
      ::brass-cospan/g
      aql-serial/to-aql
      print)
-
-(in-ns 'aql.serialize)

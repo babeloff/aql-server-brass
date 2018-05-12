@@ -3,6 +3,7 @@
    (clojure [string :as st])
    (clojure.data [json :as json])
    (clojure.tools [logging :as log])
+   (com.rpl [specter :as sr])
    (aql [wrap :as aw])
    (aql.brass [data :as bd]
               [data-query :as bdq])))
@@ -68,13 +69,20 @@
       ::aw/fk {"source_fk" "source_id"}}
      "cot_event_position"
      {::aw/pk "id"
-      ::aw/fk {"cot_event_fk" "cont_event_id"}}
-     "cot_action"
-     {::aw/pk "id"
-      ::aw/fk {"source_fk" "source_id"
-               "cot_detail_fk" "id"}}
-     "cot_detail"
-     {::aw/pk "id"
-      ::aw/fk {"cot_action_fk" "id"}}}
+      ::aw/fk {"cot_event_fk" "cont_event_id"}}}
    ::aw/sort-select-fn sort-select-fn
    ::aw/tweek-output-xf tweek-query-output})
+
+(def permute-sample
+  {"cot_action"
+   {::aw/pk "id"
+    ::aw/fk {"source_fk" "source_id"
+             "cot_detail_fk" "id"}}
+   "cot_detail"
+   {::aw/pk "id"
+    ::aw/fk {"cot_action_fk" "id"}}})
+
+(defn update-helpers [permute]
+  (sr/transform [::aw/ref-alias]
+                #(merge % permute)
+                helpers))
