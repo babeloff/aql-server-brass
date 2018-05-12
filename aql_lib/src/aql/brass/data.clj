@@ -109,10 +109,13 @@
        "name" "name"
        "channel" "channel"}}
 
+     [["cot_event"] ["source"]]
+     #::s
+     {:reference-map {"source_fk" "source_fk"}}
+
      [["cot_event"] ["cospan"]]
      #::s
-     {:reference-map {"source_fk" nil}
-      :attribute-map
+     {:attribute-map
       {"id" "cot_event_id"
        "source_id" "source_id"
        "cot_type" "cot_type"
