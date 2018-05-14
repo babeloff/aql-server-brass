@@ -47,8 +47,8 @@
     (spit "brass_data.aql" (str cmd "\n"))
     (try
       (let [gen (aql-wrap/generate cmd)
-            helpers (brass-wrap/update-helpers
-                     brass-wrap/permute-sample)]
+            helpers (brass-wrap/update-ref-alias-helper
+                     (get factory ::brass-cospan/key-alias))]
         (log/info "brass phase 2 results: " gen helpers)
         (->> gen
           (aql-wrap/xform-result

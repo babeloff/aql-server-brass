@@ -19,6 +19,10 @@
 (pp/pprint mutant)
 (pp/pprint (s/conform ::brass-spec/mutant mutant))
 (def entity-names (into [] brass-cospan/entity-names-xform [mutant]))
+(sequence brass-cospan/entity-names-xform [mutant])
+(brass-cospan/key-alias-fn ["source_fk" "ab67343" "source"])
+(merge-with into (map brass-cospan/key-alias-fn (::brass-spec/references mutant)))
+(into {} (map brass-cospan/key-alias-fn) (::brass-spec/references mutant))
 
 (def entity-name (first entity-names))
 ; (into (sorted-map) (brass-cospan/entity-map-attr-xform entity-name) [mutant])
@@ -40,27 +44,15 @@
                ::brass-spec/f brass-data/mapping-f
                ::brass-spec/mutant mutant}))
 
-(->> factory
-     ::brass-cospan/s
-     aql-serial/to-aql
-     print)
+(defn manufacture [product]
+  (->> factory
+       product
+       ;; aql-serial/to-aql print
+       pp/pprint))
 
-(->> factory
-     ::brass-cospan/x
-     aql-serial/to-aql
-     print)
-
-(->> factory
-     ::brass-cospan/f
-     aql-serial/to-aql
-     print)
-
-(->> factory
-     ::brass-cospan/t
-     aql-serial/to-aql
-     print)
-
-(->> factory
-     ::brass-cospan/g
-     aql-serial/to-aql
-     print)
+(manufacture ::brass-cospan/s)
+(manufacture ::brass-cospan/x)
+(manufacture ::brass-cospan/f)
+(manufacture ::brass-cospan/t)
+(manufacture ::brass-cospan/g)
+(manufacture ::brass-cospan/key-alias)

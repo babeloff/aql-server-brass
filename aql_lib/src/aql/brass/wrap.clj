@@ -82,7 +82,7 @@
    {::aw/pk "id"
     ::aw/fk {"cot_action_fk" "id"}}})
 
-(defn update-helpers [permute]
+(defn update-ref-alias-helper [permute]
   (sr/transform [::aw/ref-alias]
                 #(merge % permute)
                 helpers))
