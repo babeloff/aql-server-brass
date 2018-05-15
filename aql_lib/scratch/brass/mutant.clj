@@ -20,14 +20,10 @@
 (pp/pprint (s/conform ::brass-spec/mutant mutant))
 (def entity-names (into [] brass-cospan/entity-names-xform [mutant]))
 (sequence brass-cospan/entity-names-xform [mutant])
-(brass-cospan/key-alias-fn ["source_fk" "ab67343" "source"])
-(merge-with into (map brass-cospan/key-alias-fn (::brass-spec/references mutant)))
-(into {} (map brass-cospan/key-alias-fn) (::brass-spec/references mutant))
-
+(def key-alias (apply aql-util/deep-merge (map brass-cospan/key-alias-fn (::brass-spec/references mutant))))
 (def entity-name (first entity-names))
-; (into (sorted-map) (brass-cospan/entity-map-attr-xform entity-name) [mutant])
-; (into (sorted-map) (brass-cospan/entity-map-ref-xform entity-name) [mutant])
 (pp/pprint (brass-cospan/entity-map mutant entity-name))
+(into [] (map brass-cospan/observe-fk) key-alias)
 
 (s/explain ::aql-spec/schema brass-data/schema-s)
 (s/explain ::aql-spec/schema brass-data/schema-x)

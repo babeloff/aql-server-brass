@@ -32,5 +32,5 @@
   (sr/select [sr/ALL
               (sr/collect-one ::aql-spec/name)
               ::brass-spec/columns sr/ALL
-              is-source?] 
+              is-source?]
              event-tables))

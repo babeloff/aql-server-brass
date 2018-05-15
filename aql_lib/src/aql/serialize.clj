@@ -92,7 +92,9 @@
   [schema literal]
   (str "schema " (::aql-spec/name schema)
        " = literal : " (::aql-spec/extend schema)
-       " {" literal "\n}\n"))
+       " {" literal "\n"
+       " options allow_java_eqs_unsafe=true"
+       " }\n"))
 
 (defmethod to-aql
   ::aql-spec/schema
@@ -184,7 +186,8 @@
   [mapping literal]
   (str "mapping " (::aql-spec/name mapping)
        " = literal : " (st/join " -> " (::aql-spec/schema-map mapping))
-       " {" literal "\n}\n"))
+       " {" literal "\n"
+       "\n}\n"))
 
 (defn to-literal-mapping-entity
   [[entity-key entity-value]]

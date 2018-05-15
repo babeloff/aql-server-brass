@@ -58,17 +58,19 @@
    {::origin "source"
     ::coent "source"
     ::coname "source_id"
-    ::nuname "id"
+    ::nuname "source_id"
     ::type "Varchar"}
    "Source_Name"
    {::origin "source"
     ::coent "source"
     ::coname "name"
+    ::nuname "name"
     ::type "Varchar"}
    "Source_Channel"
    {::origin "source"
     ::coent "source"
     ::coname "channel"
+    ::nuname "channel"
     ::type "Varchar"}
 
    "Event_Id"
@@ -81,6 +83,7 @@
    {::origin "cot_event"
     ::coent "cospan"
     ::coname "source_id"
+    ::nuname "source_id"
     ::ref "Source_Id"
     ::ref-name "source_fk"
     ::type "Varchar"}
@@ -88,21 +91,25 @@
    {::origin "cot_event"
     ::coent "cospan"
     ::coname "cot_type"
+    ::nuname "cot_type"
     ::type "Varchar"}
    "Event_How"
    {::origin "cot_event"
     ::coent "cospan"
     ::coname "how"
+    ::nuname "how"
     ::type "Varchar"}
    "Event_Detail"
    {::origin "cot_event"
     ::coent "cospan"
     ::coname "detail"
+    ::nuname "detail"
     ::type "Varchar"}
    "Event_ServerTime"
    {::origin "cot_event"
     ::coent "cospan"
     ::coname "servertime"
+    ::nuname "servertime"
     ::type "Varchar"}
 
    "Position_Id"
@@ -115,6 +122,7 @@
    {::origin "cot_event_position"
     ::coent "cospan"
     ::coname "cot_event_id"
+    ::nuname "id"
     ::ref "Event_Id"
     ::ref-name "cot_event_fk"
     ::type "Varchar"}
@@ -122,36 +130,43 @@
    {::origin "cot_event_position"
     ::coent "cospan"
     ::coname "point_hae"
+    ::nuname "point_hae"
     ::type "Varchar"}
    "Position_PointCE"
    {::origin "cot_event_position"
     ::coent "cospan"
     ::coname "point_ce"
+    ::nuname "point_ce"
     ::type "Varchar"}
    "Position_PointLE"
    {::origin "cot_event_position"
     ::coent "cospan"
     ::coname "point_le"
+    ::nuname "point_le"
     ::type "Varchar"}
    "Position_TileX"
    {::origin "cot_event_position"
     ::coent "cospan"
     ::coname "tilex"
+    ::nuname "tilex"
     ::type "Varchar"}
    "Position_TileY"
    {::origin "cot_event_position"
     ::coent "cospan"
     ::coname "tiley"
+    ::nuname "tiley"
     ::type "Varchar"}
    "Position_Longitude"
    {::origin "cot_event_position"
     ::coent "cospan"
     ::coname "longitude"
+    ::nuname "longitude"
     ::type "Varchar"}
    "Position_Latitude"
    {::origin "cot_event_position"
     ::coent "cospan"
     ::coname "latitude"
+    ::nuname "latitude"
     ::type "Varchar"}})
 
 (def lookup

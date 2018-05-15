@@ -39,7 +39,7 @@ schema S = literal : sql1 {
     observation_equations 
       forall x:cot_event . source_id(x) = source_id(source_fk(x))
       forall y:cot_event_position . cot_event_id(y) = id(cot_event_fk(y))
-}
+ options allow_java_eqs_unsafe=true }
 
 schema X = literal : sql1 {
   entities 
@@ -66,7 +66,7 @@ schema X = literal : sql1 {
     longitude : cospan -> Varchar
     observation_equations 
       forall x:cospan . source_id(x) = source_id(source_fk(x))
-}
+ options allow_java_eqs_unsafe=true }
 
 mapping F = literal : S -> X {
   entity source -> source
@@ -96,6 +96,7 @@ mapping F = literal : S -> X {
       tiley -> tiley
       latitude -> latitude
       longitude -> longitude
+
 }
 
 schema T = literal : sql1 {
@@ -108,13 +109,13 @@ schema T = literal : sql1 {
     ab67343_fk : aeb88d8 -> ab67343
     aeb88d8_fk : ab67343 -> aeb88d8
   attributes 
-    cot_event_id : ab67343 -> Varchar
     cot_type : ab67343 -> Varchar
     detail : ab67343 -> Varchar
     how : ab67343 -> Varchar
+    id : ab67343 -> Varchar
     servertime : ab67343 -> Varchar
     source_id : ab67343 -> Varchar
-    cot_event_id : aeb88d8 -> Varchar
+    id : aeb88d8 -> Varchar
     latitude : aeb88d8 -> Varchar
     longitude : aeb88d8 -> Varchar
     point_ce : aeb88d8 -> Varchar
@@ -125,7 +126,11 @@ schema T = literal : sql1 {
     channel : source -> Varchar
     name : source -> Varchar
     source_id : source -> Varchar
-}
+    observation_equations 
+      forall x:ab67343 . source_id(x) = source_id(source_fk(x))
+      forall x:ab67343 . id(x) = id(aeb88d8_fk(x))
+      forall x:aeb88d8 . id(x) = id(ab67343_fk(x))
+ options allow_java_eqs_unsafe=true }
 
 mapping G = literal : T -> X {
   entity ab67343 -> cospan
@@ -133,17 +138,17 @@ mapping G = literal : T -> X {
       aeb88d8_fk -> cospan
       source_fk -> source_fk
     attributes 
-      cot_event_id -> cot_event_id
       cot_type -> cot_type
       detail -> detail
       how -> how
+      id -> cot_event_id
       servertime -> servertime
       source_id -> source_id
   entity aeb88d8 -> cospan
     foreign_keys 
       ab67343_fk -> cospan
     attributes 
-      cot_event_id -> cot_event_id
+      id -> cot_event_id
       latitude -> latitude
       longitude -> longitude
       point_ce -> point_ce
@@ -156,6 +161,7 @@ mapping G = literal : T -> X {
       channel -> channel
       name -> name
       source_id -> source_id
+
 }
 
 query Qx = [ toCoQuery G ; toQuery F ]

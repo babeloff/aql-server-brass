@@ -32,8 +32,9 @@
       (sr/pred #(= (:aql.spec/name %) entity-name))
       ::brass-spec/columns sr/ALL])
    ; (gxf/sort-by (fn [[name _]] name))
-   (map (fn [{col-name ::brass-spec/coname}]
-          (vector col-name col-name)))))
+   (map (fn [{col-name ::brass-spec/coname
+              nu-name ::brass-spec/nuname}]
+          (vector nu-name col-name)))))
 
 (defn entity-map-ref-xform
   [entity-name]
@@ -85,6 +86,32 @@
      {::aql-wrap/pk pk
       ::aql-wrap/fk {fk retip}}}))
 
+;;
+; "cot_action"
+;   #:aql.wrap
+;   {:pk "id",
+;    :fk {"source_fk" "source_id",
+;         "cot_action_fk" "id"}}
+;
+;[[["x" "cot_action"]
+;  [::aql-spec/equal
+;   ["source_id" "x"]
+;   ["source_id" ["source_fk" "x"]]
+;  [::aql-spec/equal
+;   ["id" "x"]
+;   ["id" ["cot_action_fk" "x"]]}
+;
+(defn observe-fk* [tail vn pk fk]
+  (let [[fref fkey] fk]
+    [["x" tail]
+     [::aql-spec/equal
+      [fkey vn]
+      [fkey [fref vn]]]]))
+
+(defn observe-fk [[tail {pk ::aql-wrap/pk
+                         fk ::aql-wrap/fk}]]
+  (mapv #(observe-fk* tail "x" pk %) fk))
+
 ;; mutant example can be produced via
 ;; scratch/brass/mutant.clj
 (defn factory
@@ -92,7 +119,9 @@
     cospan ::brass-spec/x
     ftor-f ::brass-spec/f
     mutant ::brass-spec/mutant}]
-  (let [entity-names (sequence entity-names-xform [mutant])]
+  (let [entity-names (sequence entity-names-xform [mutant])
+        key-alias (apply aql-util/deep-merge
+                    (map key-alias-fn (::brass-spec/references mutant)))]
     {::s base
      ::x cospan
      ::f ftor-f
@@ -115,23 +144,19 @@
            (sr/collect-one :aql.spec/name)
            ::brass-spec/columns sr/ALL
            (sr/collect-one ::brass-spec/coname)
+           (sr/collect-one ::brass-spec/nuname)
            ::brass-spec/type])
-         (gxf/sort-by (fn [[new-ent col-name _]] [new-ent col-name]))
-         (map (fn [[new-ent col-name col-type]] [col-name new-ent col-type])))
+         (gxf/sort-by (fn [[new-ent _ nu-name _]]
+                        [new-ent nu-name]))
+         (map (fn [[new-ent _ nu-name col-type]]
+                [nu-name new-ent col-type])))
         [mutant])
 
       :references
       (::brass-spec/references mutant)
 
-      :observations nil}
-      ;[[["x" "cot_action"]
-      ;  [::aql-spec/equal
-      ;   ["source_id" "x"]
-      ;   ["id" ["source_fk" "x"]]
-      ; [["y" "cot_detail"]
-      ;  [::aql-spec/equal
-      ;   ["cot_event_id" "y"]
-      ;   ["id" ["cot_action_fk" "y"]]}
+      :observations
+      (into [] (mapcat observe-fk) key-alias)}
 
      ::g
      #::aql-spec
@@ -143,7 +168,4 @@
             (map (entity-map mutant))
             entity-names)}
 
-     ::key-alias
-     (apply aql-util/deep-merge
-       (map key-alias-fn
-         (::brass-spec/references mutant)))}))
+     ::key-alias key-alias}))
