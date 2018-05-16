@@ -37,8 +37,7 @@
   {:query (into []
                 (comp
                  (sr/traverse-all ["query"])
-                 (mapcat #(vector % (query-fn %)))
-                 identity)
+                 (mapcat #(vector % (query-fn %))))
                 [return-objs])
    :schema (into []
                  (comp
@@ -47,4 +46,4 @@
                  [return-objs])})
 
 (def helpers brass-wrap/helpers)
-(aql-wrap/xform-result helpers return-objs identity gen)
+(aql-wrap/xform-result helpers return-objs gen)

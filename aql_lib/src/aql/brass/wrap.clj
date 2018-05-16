@@ -75,28 +75,38 @@
                 #(merge % permute)
                 helpers))
 
+(defn to-aql-string [aql-query]
+  (st/replace
+        (.toString aql-query)
+        #"\W+"
+        " "))
+
 (defn xform-result
   [helpers reqs gen]
   (log/debug "transform-result" reqs)
   (let [env-map (aql-wrap/env->maps (sr/select-one [:env] gen))
 
+        query-map (::aql-wrap/query env-map)
         query-fn
         (fn [name]
           (aql-wrap/query->sql
-           name helpers (get (::aql-wrap/query env-map) name)))
+           name helpers (get query-map name)))
 
+        schema-map (::aql-wrap/schema env-map)
         schema-fn
         (fn [name]
           (aql-wrap/schema->sql
-           name (get (::aql-wrap/schema env-map) name)))]
+           name (get schema-map name)))]
     {:query
      (into {}
            (map (fn [[cname q0 q1]]
                   (vector cname
                           {:t0 {:sql (query-fn q0)
-                                :alias q0}
+                                :alias q0
+                                :aql (to-aql-string (get query-map q0))}
                            :t1 {:sql (query-fn q1)
-                                :alias q1}})))
+                                :alias q1
+                                :aql (to-aql-string (get query-map q1))}})))
            (sr/select-one [aql-wrap/IS-QUERY] reqs))
      :schema
      (into []
