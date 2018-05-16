@@ -68,8 +68,7 @@
     "cot_event_position"
     {::aql-wrap/pk "id"
      ::aql-wrap/fk {"cot_event_fk" "cont_event_id"}}}
-   ::aql-wrap/sort-select-fn sort-select-fn
-   ::aql-wrap/tweek-output-xf tweek-query-output})
+   ::aql-wrap/sort-select-fn sort-select-fn})
 
 (defn update-ref-alias-helper [permute]
   (sr/transform [::aql-wrap/ref-alias]

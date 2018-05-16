@@ -259,9 +259,7 @@
           (schema->sql name (get (::schema env-map) name)))]
     {:query
      (into {}
-           (comp
-            (map #(vector % (query-fn %)))
-            (get-in helpers [::tweek-output-xf] identity))
+           (map #(vector % (query-fn %)))
            (sr/select-one [IS-QUERY] reqs))
      :schema
      (into []
