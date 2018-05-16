@@ -1,14 +1,11 @@
 
-(require '(clojure
-           [pprint :as pp]
-           [string :as st]))
+(require '(clojure [pprint :as pp] [string :as st]))
 (require '(com.rpl [specter :as sr]))
 
-(require '(aql [data :as aql-data]
-               [serialize :as serialize]
-               [wrap :as aql-wrap]) :relaod)
+(require '(aql [data :as aql-data]) :reload)
+(require '(aql [serialize :as serialize]) :reload)
+(require '(aql [wrap :as aql-wrap]) :reload)
 (require '(aql.demo [data :as data]) :reload)
-(require '[aql.responder :as resp] :reload)
 (require '(aql.brass [data :as brass-data]) :reload)
 (require '(aql.brass [wrap :as brass-wrap]) :reload)
 (require '(aql.brass [data_query :as brass-data-query]) :reload)
@@ -23,7 +20,6 @@
              "schema" ["S"]}})
 (def request schema-mapping)
 (get request "topic")
-(resp/aql-handler schema-mapping)
 
 (def model (sr/select-one ["model"] request))
 (def gen (aql-wrap/generate (str model)))

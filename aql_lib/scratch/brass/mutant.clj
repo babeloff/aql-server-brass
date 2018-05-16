@@ -27,12 +27,7 @@
 
 (s/explain ::aql-spec/schema brass-data/schema-s)
 (s/explain ::aql-spec/schema brass-data/schema-x)
-(s/explain ::aql-spec/schema brass-data/schema-t)
-;; (pp/pprint brass-data/schema-x)
-
 (s/explain ::aql-spec/mapping brass-data/mapping-f)
-(s/explain ::aql-spec/mapping brass-data/mapping-g)
-;; (pp/pprint brass-data/mapping-f)
 
 (def factory (brass-cospan/factory
               {::brass-spec/s brass-data/schema-s

@@ -7,6 +7,7 @@
 (require '(aql [util :as aql-util]))
 
 (require '(aql [wrap :as aql-wrap]) :reload)
+(require '(aql.brass [wrap :as brass-wrap]) :reload)
 
 ;; working with the p2 cp1 brass demo
 ;; (require '[aql.serialize :as ser] :reload)
@@ -70,6 +71,7 @@
 (into [] (comp (map #(.getMessage %))) (sr/traverse [:err sr/ALL] gen))
 (defn pk-alias-lup [ks] "AID")
 (def result (aql-wrap/xform-result {:pk-alias-lup pk-alias-lup} reqs identity gen))
+(def result (brass-wrap/xform-result {:pk-alias-lup pk-alias-lup} reqs identity gen))
 ((aql-util/echo log/info "result ") result)
 
 (def env-map (aql-wrap/env->maps (sr/select-one [:env] gen)))

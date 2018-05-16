@@ -249,11 +249,14 @@
   [helpers reqs gen]
   (log/debug "extract-result" reqs)
   (let [env-map (env->maps (sr/select-one [:env] gen))
+
         query-fn
-        (fn [name] (query->sql name helpers (get (::query env-map) name)))
+        (fn [name]
+          (query->sql name helpers (get (::query env-map) name)))
 
         schema-fn
-        (fn [name] (schema->sql name (get (::schema env-map) name)))]
+        (fn [name]
+          (schema->sql name (get (::schema env-map) name)))]
     {:query
      (into {}
            (comp

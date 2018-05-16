@@ -167,20 +167,6 @@
    (::dq/source-pre dq/qs-09) (::dq/target-pre dq/qs-09)
    (::dq/source dq/qs-09) (::dq/target dq/qs-09)])
 
-(defn qname [query]
-  (str (::dq/nspace query) "." (::dq/name query)))
-
-(def query-class-names
-  {"Qt_01" (qname dq/qs-01)
-   "Qt_02" (qname dq/qs-02)
-   "Qt_03" (qname dq/qs-03)
-   "Qt_04" (qname dq/qs-04)
-   "Qt_05" (qname dq/qs-05)
-   "Qt_06" (qname dq/qs-06)
-   "Qt_07" (qname dq/qs-07)
-   "Qt_08pre" (qname dq/qs-08)
-   "Qt_09pre" (qname dq/qs-09)})
-
 (def query-dict
   {"Qs_01" dq/qs-01
    "Qs_02" dq/qs-02
@@ -201,6 +187,16 @@
    "Qt_08pre" dq/qs-08
    "Qt_09pre" dq/qs-09})
 
+(defn qname [query]
+  (str (::dq/nspace query) "." (::dq/name query)))
+
+(def query-class-names
+  (into (sorted-map)
+        (map #(vector % (qname (get query-dict %))))
+        ["Qt_01" "Qt_02" "Qt_03"
+         "Qt_04" "Qt_05" "Qt_06"
+         "Qt_07" "Qt_08pre" "Qt_09pre"]))
+
 (def demo-objects
   "a list of the queries to return"
   {:query ["Qs_01" "Qt_01"
@@ -211,6 +207,16 @@
            "Qs_06" "Qt_06"
            "Qs_07" "Qt_07"
            "Qs_08pre" "Qt_08pre"
-           ;"Qs_08" "Qt_08"
            "Qs_09pre" "Qt_09pre"]})
-           ;"Qs_09" "Qt_09"]})
+
+(def demo-mutants
+  "a list of the queries to return"
+  {:query [[(qname dq/qs-01) "Qs_01" "Qt_01"]
+           [(qname dq/qs-02) "Qs_02" "Qt_02"]
+           [(qname dq/qs-03) "Qs_03" "Qt_03"]
+           [(qname dq/qs-04) "Qs_04" "Qt_04"]
+           [(qname dq/qs-05) "Qs_05" "Qt_05"]
+           [(qname dq/qs-06) "Qs_06" "Qt_06"]
+           [(qname dq/qs-07) "Qs_07" "Qt_07"]
+           [(qname dq/qs-08) "Qs_08pre" "Qt_08pre"]
+           [(qname dq/qs-09) "Qs_09pre" "Qt_09pre"]]})

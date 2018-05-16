@@ -51,13 +51,13 @@
                      (get factory ::brass-cospan/key-alias))]
         (log/info "brass phase 2 results: " gen helpers)
         (->> gen
-          (aql-wrap/xform-result
+          (brass-wrap/xform-result
             helpers
-            brass-data/demo-objects)
+            brass-data/demo-mutants)
           json/write-str))
       (catch Exception ex
-        (log/error "aql fault " ex)
+        (log/error "brass aql fault " ex)
         (->>
-         {:status "aql-error"
+         {:status "aql-brass-error"
           :msg (.getMessage ex)}
          json/write-str)))))
