@@ -22,8 +22,7 @@
     "cot_event_position"
     {::aql-wrap/pk "id"
      ::aql-wrap/fk {"cot_event_fk" "cont_event_id"}}}
-   ::aql-wrap/sort-select-fn :sort-select-junk
-   ::aql-wrap/tweek-output-xf :tweek-query-output})
+   ::aql-wrap/sort-select-fn :sort-select-junk})
 
 (def helper-zip (zip/seq-zip helpers))
 

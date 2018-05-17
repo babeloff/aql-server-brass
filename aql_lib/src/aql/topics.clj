@@ -7,9 +7,7 @@
 
 (def helpers
   {::aql-wrap/pk-alias-lup (fn [ks] "A0ID")
-   ::aql-wrap/sort-select-fn identity
-   ::aql-wrap/tweek-query-output identity})
-;; TODO fix for the general case
+   ::aql-wrap/sort-select-fn identity})
 
 (defn aql-eval [request]
   (if-let [model (sr/select-one ["model"] request)]

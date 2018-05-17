@@ -304,8 +304,8 @@ query Qx = [ toCoQuery G ; toQuery F ]
 
    query Qs_08pre = literal : S -> S8 {
       params
-         name_parm : Varchar
-         servertime_parm : Varchar
+        name_param : Varchar
+        servertime_param : Varchar
       entity
         Q -> {
           from
@@ -315,8 +315,8 @@ query Qx = [ toCoQuery G ; toQuery F ]
           where
             s = ce.source_fk
             ce = cep.cot_event_fk
-            s.name = name_parm
-            ce.servertime = servertime_parm
+            s.name = name_param
+            ce.servertime = servertime_param
           attributes
             source_id -> s.source_id
             name -> s.name
@@ -333,10 +333,12 @@ query Qx = [ toCoQuery G ; toQuery F ]
 
    query Qs_08 = literal : S -> S8 {
       bindings
-         name_parm = "A6A7DC"
-         servertime_parm = "1494174900"
+         name_param = "A6A7DC"
+         servertime_param = "1494174900"
+
       imports Qs_08pre
    }
+   
 
    query Qt_08 = [ Qx ; Qs_08 ]
    

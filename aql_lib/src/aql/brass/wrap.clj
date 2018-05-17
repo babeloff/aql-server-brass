@@ -10,26 +10,6 @@
 
 ;; gets used in aql.wrap
 
-
-;; ::aql-wrap/tweek-output-xf : usage in xform-result
-
-(defn tweek-query-output
-  "a transducer that 'tweeks' the key value
-  to be the qname for the class if one has
-  been supplied."
-  [xf]
-  (fn
-    ([] (xf))
-    ([res] (xf res))
-    ([res [key value]]
-     (xf res
-         (let [qkey (get bd/query-class-names key key)]
-           (vector qkey
-                   {"class" qkey
-                    "sql" value
-                    "aid" key}))))))
-;; TODO add the original sql and the aql
-
 ;; ::aql-wrap/sort-select-fn : usage query->sql-ent-helper
 
 (let [q-lup
