@@ -9,7 +9,7 @@
        attributes
            source_id : Q -> Varchar
            name : Q -> Varchar
-           event_id : Q -> Varchar
+           id : Q -> Varchar
            time : Q -> Varchar
            tilex : Q -> Varchar
            tiley : Q -> Varchar
@@ -28,7 +28,7 @@
    from source as s
      join cot_event as ce on s.source_id = ce.source_id
      join cot_event_position cep on ce.id = cep.cot_event_id
-   where s.name = ? and ce.servertime = ?
+   where s.name = ? and ce.servertime = ? ;
    "
    ::s/sql "
    where s.name = 'ABD19E' and servertime = 1494174900
@@ -52,7 +52,7 @@
           attributes
             source_id -> s.source_id
             name -> s.name
-            event_id -> ce.id
+            id -> ce.id
             time -> ce.servertime
             tilex -> cep.tilex
             tiley -> cep.tiley
@@ -68,7 +68,7 @@
       imports Qs_08pre
    }
    "
-   ::s/select-order ["source_id" "name" "event_id" "time" "tilex" "tiley"]
+   ::s/select-order ["source_id" "name" "id" "time" "tilex" "tiley"]
    ::s/target-pre "
    query Qt_08pre = [ Qx ; Qs_08pre ]
    "

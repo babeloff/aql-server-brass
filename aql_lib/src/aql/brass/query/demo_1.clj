@@ -18,7 +18,7 @@
    :sql "
    	select ce.id, ce.source_id, ce.cot_type
    	from cot_event as ce
-   	where ce.cot_type = 'a-n-A-C-F-s'
+   	where ce.cot_type = 'a-n-A-C-F-s' ;
    "
    :source "
    query Qs_01 = simple : S  {
@@ -27,12 +27,12 @@
      where
       ce.cot_type = \"a-n-A-C-F-s\"
      attributes
-      event_id -> ce.id
+      id -> ce.id
       source_id -> ce.source_id
       cot_type -> ce.cot_type
      }
    "
-   :select-order ["event_id" "source_id" "cot_type"]
+   :select-order ["id" "source_id" "cot_type"]
    :target "
    query Qt_01 = [ Qx ; Qs_01 ]
    "})

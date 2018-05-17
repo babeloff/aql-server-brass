@@ -14,7 +14,7 @@
    from source as s
      join cot_event as ce on s.source_id = ce.source_id
    where  s.channel = '5'
-     or ce.cot_type = 'a-n-A-C-F-s'
+     or ce.cot_type = 'a-n-A-C-F-s' ;
    "
    ::s/source "
    query Qs_06 = simple : S {
@@ -27,12 +27,12 @@
               EqualVc(ce.cot_type,\"a-n-A-C-F-s\")) = true
      attributes
        name -> s.name
-       event_id -> ce.id
+       id -> ce.id
        cot_type -> ce.cot_type
        servertime -> ce.servertime
    }
    "
-   ::s/select-order ["name" "event_id" "cot_type" "servertime"]
+   ::s/select-order ["name" "id" "cot_type" "servertime"]
    ::s/target "
    query Qt_06 = [ Qx ; Qs_06 ]
    "})

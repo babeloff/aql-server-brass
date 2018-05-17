@@ -172,7 +172,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
      where
       ce.cot_type = "a-n-A-C-F-s"
      attributes
-      event_id -> ce.id
+      id -> ce.id
       source_id -> ce.source_id
       cot_type -> ce.cot_type
      }
@@ -187,7 +187,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
      where
       ce.servertime = "201705071635"
      attributes
-      event_id -> ce.id
+      id -> ce.id
       source_id -> ce.source_id
       cot_type -> ce.cot_type
       how -> ce.how
@@ -203,7 +203,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
         ce.servertime = "201705071635"
         ce.cot_type = "a-n-A-C-F-m"
       attributes
-        event_id -> ce.id
+        id -> ce.id
         source_id -> ce.source_id
         cot_type -> ce.cot_type
         how -> ce.how
@@ -222,7 +222,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
         s.channel = "7"
       attributes
         name -> s.name
-        event_id -> ce.id
+        id -> ce.id
         cot_type -> ce.cot_type
         servertime -> ce.servertime
    }
@@ -239,7 +239,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
               s = ce.source_fk
               s.channel = "7"
             attributes
-              event_id -> ce.id
+              id -> ce.id
               cot_type -> ce.cot_type
               servertime -> ce.servertime
      }
@@ -258,7 +258,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
               EqualVc(ce.cot_type,"a-n-A-C-F-s")) = true
      attributes
        name -> s.name
-       event_id -> ce.id
+       id -> ce.id
        cot_type -> ce.cot_type
        servertime -> ce.servertime
    }
@@ -280,7 +280,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
        cep.tiley = "25704"
      attributes
        name -> s.name
-       event_id -> ce.id
+       id -> ce.id
        cot_type -> ce.cot_type
        servertime -> ce.servertime
      }
@@ -295,7 +295,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
        attributes
            source_id : Q -> Varchar
            name : Q -> Varchar
-           event_id : Q -> Varchar
+           id : Q -> Varchar
            time : Q -> Varchar
            tilex : Q -> Varchar
            tiley : Q -> Varchar
@@ -320,7 +320,7 @@ query Qx = [ toCoQuery G ; toQuery F ]
           attributes
             source_id -> s.source_id
             name -> s.name
-            event_id -> ce.id
+            id -> ce.id
             time -> ce.servertime
             tilex -> cep.tilex
             tiley -> cep.tiley

@@ -14,7 +14,7 @@
    select ce.id, ce.source_id, ce.cot_type, ce.how
   	from cot_event as ce
   	where ce.servertime = '201705071635'
-  	and ce.cot_type = 'a-n-A-C-F-m'
+  	and ce.cot_type = 'a-n-A-C-F-m' ;
    "
    :source "
    query Qs_03 = simple : S {
@@ -23,13 +23,13 @@
         ce.servertime = \"201705071635\"
         ce.cot_type = \"a-n-A-C-F-m\"
       attributes
-        event_id -> ce.id
+        id -> ce.id
         source_id -> ce.source_id
         cot_type -> ce.cot_type
         how -> ce.how
       }
    "
-   :select-order ["event_id" "source_id" "cot_type" "how"]
+   :select-order ["id" "source_id" "cot_type" "how"]
    :target "
    query Qt_03 = [ Qx ; Qs_03 ]
    "})

@@ -12,8 +12,8 @@
    ::s/sql "
    select s.name, ce.id, ce.cot_type, ce.servertime
    from source as s
-   join cot_event as ce on s.source_id = ce.source_id
-   where s.channel = '7'
+     join cot_event as ce on s.source_id = ce.source_id
+   where s.channel = '7' ;
    "
    ::s/source "
    query Qs_04 = simple : S {
@@ -25,12 +25,12 @@
         s.channel = \"7\"
       attributes
         name -> s.name
-        event_id -> ce.id
+        id -> ce.id
         cot_type -> ce.cot_type
         servertime -> ce.servertime
    }
    "
-   ::s/select-order ["name" "event_id" "cot_type" "servertime"]
+   ::s/select-order ["name" "id" "cot_type" "servertime"]
    ::s/target "
    query Qt_04 = [ Qx ; Qs_04 ]
    "})

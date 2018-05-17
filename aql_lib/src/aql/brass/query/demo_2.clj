@@ -13,7 +13,7 @@
    :sql "
    select ce.id, ce.source_id, ce.cot_type, ce.how
    from cot_event as ce
-   where ce.servertime = '201705071635'
+   where ce.servertime = '201705071635' ;
    "
    :source "
    query Qs_02 = simple : S  {
@@ -22,13 +22,13 @@
      where
       ce.servertime = \"201705071635\"
      attributes
-      event_id -> ce.id
+      id -> ce.id
       source_id -> ce.source_id
       cot_type -> ce.cot_type
       how -> ce.how
      }
    "
-   :select-order ["event_id" "source_id" "cot_type" "how"]
+   :select-order ["id" "source_id" "cot_type" "how"]
    :target "
    query Qt_02 = [ Qx ; Qs_02 ]
    "})
