@@ -47,3 +47,5 @@
 
 (def helpers brass-wrap/helpers)
 (aql-wrap/xform-result helpers return-objs gen)
+
+(def query-map (::aql-wrap/query env-map))
