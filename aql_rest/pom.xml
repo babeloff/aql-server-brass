@@ -3,7 +3,7 @@
   <groupId>aql-brass-server</groupId>
   <artifactId>aql-brass-server</artifactId>
   <packaging>jar</packaging>
-  <version>2018.04.25-SNAPSHOT</version>
+  <version>2018.04.25</version>
   <name>aql-brass-server</name>
   <description>A building the aql-brass-server.</description>
   <url>https://github.com/</url>
@@ -73,10 +73,10 @@
       </releases>
     </repository>
     <repository>
-      <id>nexus</id>
+      <id>release</id>
       <url>https://nexus.isis.vanderbilt.edu/repository/maven-releases</url>
       <snapshots>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
       </snapshots>
       <releases>
         <enabled>true</enabled>
@@ -177,7 +177,7 @@
     <dependency>
       <groupId>net.catdata</groupId>
       <artifactId>fql</artifactId>
-      <version>0.9-SNAPSHOT</version>
+      <version>0.9.1</version>
       <classifier>jar-with-deps</classifier>
       <exclusions>
         <exclusion>

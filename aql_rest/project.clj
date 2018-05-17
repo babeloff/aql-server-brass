@@ -3,7 +3,7 @@
 ;  "http" #(org.apache.maven.wagon.providers.http.HttpWagon.)
 
 (defproject
- aql-brass-server "2018.04.25-SNAPSHOT"
+ aql-brass-server "2018.04.25"
  :description "A building the aql-brass-server."
  :url "https://github.com/"
  :license {:name "Eclipse Public License"
@@ -18,7 +18,7 @@
   [http-kit "2.2.0"]
   [javax.xml.bind/jaxb-api "2.3.0"]
   [com.rpl/specter  "1.1.0"]
-  [net.catdata/fql  "0.9-SNAPSHOT"
+  [net.catdata/fql  "0.9.1"
    :classifier "jar-with-deps"]
   [org.clojure/data.json  "0.2.6"]
   [com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider  "2.9.5"]
@@ -35,8 +35,8 @@
  :exclusions [org.slf4j/slf4j-nop]
  :repositories [["central" {:url "https://repo1.maven.org/maven2/"}]
                 ["clojars" {:url "https://clojars.org/repo/"}]
-                ["nexus" {:url "https://nexus.isis.vanderbilt.edu/repository/maven-releases"
-                          :snapshots false}]
+                ["release" {:url "https://nexus.isis.vanderbilt.edu/repository/maven-releases"}
+                          :snapshots false]
                 ["snapshot" {:url "https://nexus.isis.vanderbilt.edu/repository/maven-snapshots/"
                              :snapshots true}]]
 
@@ -57,10 +57,14 @@
 
  ;; :classifiers { :standalone :foo}
  :deploy-repositories
- [["snapshot"
-   {:url "https://nexus.isis.vanderbilt.edu/repository/maven-snapshots"
-    :snapshots true
-    :sign-releases false}]]
+ [["release"
+   {:url "https://nexus.isis.vanderbilt.edu/repository/maven-releases"
+    :snapshots false
+    :sign-releases false}]
+  ["snapshot"
+    {:url "https://nexus.isis.vanderbilt.edu/repository/maven-snapshots"
+     :snapshots true
+     :sign-releases false}]]
 
  :main aql.brass.daemon
  :aot [aql.brass.daemon])
