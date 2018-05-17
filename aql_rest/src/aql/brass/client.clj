@@ -8,8 +8,7 @@
    (clojure.tools
      [logging :as log]
      [cli :as cli])
-   (clojure.data [json :as json])
-   (aql.brass [data :as brass-data])))
+   (clojure.data [json :as json])))
 
 (def mutant-json-def
   {"martiServerModel"

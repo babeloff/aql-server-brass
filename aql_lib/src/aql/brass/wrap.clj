@@ -5,8 +5,8 @@
    (clojure.tools [logging :as log])
    (com.rpl [specter :as sr])
    (aql [wrap :as aql-wrap])
-   (aql.brass [data :as bd]
-              [data-query :as bdq])))
+   (aql.brass [demo :as bd])
+   (aql.brass.query [spec :as bdq])))
 
 ;; gets used in aql.wrap
 

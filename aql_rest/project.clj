@@ -3,7 +3,7 @@
 ;  "http" #(org.apache.maven.wagon.providers.http.HttpWagon.)
 
 (defproject
- aql-brass-server "2018.04.25"
+ aql-brass-server "2018.05.18-SNAPSHOT"
  :description "A building the aql-brass-server."
  :url "https://github.com/"
  :license {:name "Eclipse Public License"

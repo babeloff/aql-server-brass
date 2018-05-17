@@ -5,7 +5,6 @@
  '(clojure [pprint :as pp]
            [string :as st])
  '(com.rpl [specter :as sr])
- '(aql.brass [data :as brass-data])
  '(aql [wrap :as aql-wrap]
        [util :as aql-util]))
 ;; working with the p2 cp1 brass demo

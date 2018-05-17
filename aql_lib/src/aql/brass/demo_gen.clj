@@ -1,4 +1,4 @@
-(ns aql.brass.data-gen
+(ns aql.brass.demo-gen
   (:require (aql [spec :as s])))
 
 

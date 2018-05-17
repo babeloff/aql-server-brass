@@ -3,7 +3,7 @@
 (require '(clojure.tools [logging :as log]))
 ;(require '[string :as st])
 (require '(com.rpl [specter :as sr]))
-(require '(aql.brass [data :as brass-data]))
+(require '(aql.brass [demo :as brass-data]))
 (require '(aql [util :as aql-util]))
 
 (require '(aql [wrap :as aql-wrap]) :reload)

@@ -7,7 +7,7 @@
 (require '[aql.spec :as aql-spec] :reload)
 (require '[aql.util :as aql-util] :reload)
 (require '[aql.brass.spec.mutant :as brass-spec] :reload)
-(require '[aql.brass.data :as brass-data] :reload)
+(require '[aql.brass.demo :as brass-data] :reload)
 (require '[aql.brass.cospan :as brass-cospan] :reload)
 (require '[aql.brass.mutant :as brass-mutant] :reload)
 (require '[aql.serialize :as aql-serial] :reload)

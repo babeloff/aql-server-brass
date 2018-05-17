@@ -3,7 +3,7 @@
   <groupId>aql-brass-server</groupId>
   <artifactId>aql-brass-server</artifactId>
   <packaging>jar</packaging>
-  <version>2018.04.25</version>
+  <version>2018.05.18-SNAPSHOT</version>
   <name>aql-brass-server</name>
   <description>A building the aql-brass-server.</description>
   <url>https://github.com/</url>

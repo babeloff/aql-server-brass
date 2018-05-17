@@ -6,9 +6,9 @@
 (require '(aql [serialize :as serialize]) :reload)
 (require '(aql [wrap :as aql-wrap]) :reload)
 (require '(aql.demo [data :as data]) :reload)
-(require '(aql.brass [data :as brass-data]) :reload)
+(require '(aql.brass [demo :as brass-data]) :reload)
 (require '(aql.brass [wrap :as brass-wrap]) :reload)
-(require '(aql.brass [data_query :as brass-data-query]) :reload)
+(require '(aql.brass [demo_query :as brass-data-query]) :reload)
 
 (def schema-mapping
   {"topic" "aql/program/eval"

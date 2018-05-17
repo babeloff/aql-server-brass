@@ -2,9 +2,17 @@
 ;; Schema for demonstrating the BRASS approach
 ;;
 
-(ns aql.brass.data
+(ns aql.brass.demo
   (:require (aql [spec :as s])
-            (aql.brass [data-query :as dq])))
+            (aql.brass.query [spec :as dq]
+                             [demo-1 :as dq1]
+                             [demo-2 :as dq2]
+                             [demo-3 :as dq3]
+                             [demo-4 :as dq4]
+                             [demo-5 :as dq5]
+                             [demo-6 :as dq6]
+                             [demo-7 :as dq7]
+                             [demo-8 :as dq8])))
 
 ;; https://dsl-external.bbn.com/tracsvr/immortals/browser/trunk/
 ;;   database/server/baseline_schema_ddl.sql
@@ -152,40 +160,35 @@
 (def query-demo
   "all the queries for the demo
     Includes all the initial queries as well as the targets"
-  [(::dq/source dq/qs-01) (::dq/target dq/qs-01)
-   (::dq/source dq/qs-02) (::dq/target dq/qs-02)
-   (::dq/source dq/qs-03) (::dq/target dq/qs-03)
-   (::dq/source dq/qs-04) (::dq/target dq/qs-04)
+  [(::dq/source dq1/qs) (::dq/target dq1/qs)
+   (::dq/source dq2/qs) (::dq/target dq2/qs)
+   (::dq/source dq3/qs) (::dq/target dq3/qs)
+   (::dq/source dq4/qs) (::dq/target dq4/qs)
    ; (::dq/source-alt dq/qs-05) (::dq/target-alt dq/qs-05)
-   (::dq/source dq/qs-05) (::dq/target dq/qs-05)
-   (::dq/source dq/qs-06) (::dq/target dq/qs-06)
-   (::dq/source dq/qs-07) (::dq/target dq/qs-07)
-   dq/sc-08
-   (::dq/source-pre dq/qs-08) (::dq/target-pre dq/qs-08)
-   (::dq/source dq/qs-08) (::dq/target dq/qs-08)
-   dq/sc-09
-   (::dq/source-pre dq/qs-09) (::dq/target-pre dq/qs-09)
-   (::dq/source dq/qs-09) (::dq/target dq/qs-09)])
+   (::dq/source dq5/qs) (::dq/target dq5/qs)
+   (::dq/source dq6/qs) (::dq/target dq6/qs)
+   (::dq/source dq7/qs) (::dq/target dq7/qs)
+   dq8/sc
+   (::dq/source-pre dq8/qs) (::dq/target-pre dq8/qs)
+   (::dq/source dq8/qs) (::dq/target dq8/qs)])
 
 (def query-dict
-  {"Qs_01" dq/qs-01
-   "Qs_02" dq/qs-02
-   "Qs_03" dq/qs-03
-   "Qs_04" dq/qs-04
-   "Qs_05" dq/qs-05
-   "Qs_06" dq/qs-06
-   "Qs_07" dq/qs-07
-   "Qs_08pre" dq/qs-08
-   "Qs_09pre" dq/qs-09
-   "Qt_01" dq/qs-01
-   "Qt_02" dq/qs-02
-   "Qt_03" dq/qs-03
-   "Qt_04" dq/qs-04
-   "Qt_05" dq/qs-05
-   "Qt_06" dq/qs-06
-   "Qt_07" dq/qs-07
-   "Qt_08pre" dq/qs-08
-   "Qt_09pre" dq/qs-09})
+  {"Qs_01" dq1/qs
+   "Qs_02" dq2/qs
+   "Qs_03" dq3/qs
+   "Qs_04" dq4/qs
+   "Qs_05" dq5/qs
+   "Qs_06" dq6/qs
+   "Qs_07" dq7/qs
+   "Qs_08pre" dq8/qs
+   "Qt_01" dq1/qs
+   "Qt_02" dq2/qs
+   "Qt_03" dq3/qs
+   "Qt_04" dq4/qs
+   "Qt_05" dq5/qs
+   "Qt_06" dq6/qs
+   "Qt_07" dq7/qs
+   "Qt_08pre" dq8/qs})
 
 (defn qname [query]
   (str (::dq/nspace query) "." (::dq/name query)))
@@ -195,16 +198,15 @@
         (map #(vector % (qname (get query-dict %))))
         ["Qt_01" "Qt_02" "Qt_03"
          "Qt_04" "Qt_05" "Qt_06"
-         "Qt_07" "Qt_08pre" "Qt_09pre"]))
+         "Qt_07" "Qt_08pre"]))
 
 (def demo-mutants
   "a list of the queries to return"
-  {:query [[(qname dq/qs-01) "Qs_01" "Qt_01"]
-           [(qname dq/qs-02) "Qs_02" "Qt_02"]
-           [(qname dq/qs-03) "Qs_03" "Qt_03"]
-           [(qname dq/qs-04) "Qs_04" "Qt_04"]
-           [(qname dq/qs-05) "Qs_05" "Qt_05"]
-           [(qname dq/qs-06) "Qs_06" "Qt_06"]
-           [(qname dq/qs-07) "Qs_07" "Qt_07"]
-           [(qname dq/qs-08) "Qs_08pre" "Qt_08pre"]
-           [(qname dq/qs-09) "Qs_09pre" "Qt_09pre"]]})
+  {:query [[(qname dq1/qs) "Qs_01" "Qt_01"]
+           [(qname dq2/qs) "Qs_02" "Qt_02"]
+           [(qname dq3/qs) "Qs_03" "Qt_03"]
+           [(qname dq4/qs) "Qs_04" "Qt_04"]
+           [(qname dq5/qs) "Qs_05" "Qt_05"]
+           [(qname dq6/qs) "Qs_06" "Qt_06"]
+           [(qname dq7/qs) "Qs_07" "Qt_07"]
+           [(qname dq8/qs) "Qs_08pre" "Qt_08pre"]]})

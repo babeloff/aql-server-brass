@@ -8,7 +8,7 @@
    (aql [wrap :as aql-wrap]
         [serialize :as aql-serial])
    (aql.brass
-    [data :as brass-data]
+    [demo :as brass-data]
     [cospan :as brass-cospan]
     [mutant :as brass-mutant]
     [wrap :as brass-wrap])

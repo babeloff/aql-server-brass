@@ -4,7 +4,7 @@
 (import '(catdata.aql AqlCmdLine))
 (import '(catdata.aql.exp AqlEnv AqlParser AqlMultiDriver))
 
-(require '[aql.brass.data :as brass-data] :reload)
+(require '[aql.brass.demo :as brass-data] :reload)
 (require '[aql.brass.cospan :as brass-cospan] :reload)
 (require '[aql.wrap :as util] :reload)
 (require '[clojure.string :as st])
