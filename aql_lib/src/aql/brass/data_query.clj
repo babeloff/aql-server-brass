@@ -259,7 +259,7 @@
 (def qs-08
   {::key "Qs_08"
    ::nspace "mil.darpa.immortals.dfus.TakServerDataManager.DFU"
-   ::name "CotEventsForUidAndInterval"
+   ::name "CotEventsForUidAndIntervalX"
    ::doc "
    Simple parameterized query.
    "

@@ -20,11 +20,9 @@
 ; (def drvr (aql-wrap/make-driver model)) (.start drvr)
 ; (def exn (aql-wrap/private-field "exn" drvr))
 (def env (sr/select-one [:env] gen))
-(def reqs (merge brass-data/demo-objects))
 (def env-map (aql-wrap/env->maps (sr/select-one [:env] gen)))
 (def query-fn (partial get (::aql-wrap/query env-map)))
 ; (def schema-fn (partial get (::aql-wrap/schema env-map)))
-(sr/select-one [:query] reqs)
 (def query (->> "Qt_01" query-fn))
 (def full-query (.unnest query))
 ; (def qs (.second (.toSQLViews full-query "" "" "ID" "char")))
@@ -70,8 +68,9 @@
 (into [] (comp (sr/traverse-all [:err])) [gen])
 (into [] (comp (map #(.getMessage %))) (sr/traverse [:err sr/ALL] gen))
 (defn pk-alias-lup [ks] "AID")
-(def result (aql-wrap/xform-result {:pk-alias-lup pk-alias-lup} reqs identity gen))
-(def result (brass-wrap/xform-result {:pk-alias-lup pk-alias-lup} reqs identity gen))
+(def result (brass-wrap/xform-result {:pk-alias-lup pk-alias-lup}
+                                     (sr/select-one [:query] reqs)
+                                     gen))
 ((aql-util/echo log/info "result ") result)
 
 (def env-map (aql-wrap/env->maps (sr/select-one [:env] gen)))

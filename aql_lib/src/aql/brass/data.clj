@@ -197,18 +197,6 @@
          "Qt_04" "Qt_05" "Qt_06"
          "Qt_07" "Qt_08pre" "Qt_09pre"]))
 
-(def demo-objects
-  "a list of the queries to return"
-  {:query ["Qs_01" "Qt_01"
-           "Qs_02" "Qt_02"
-           "Qs_03" "Qt_03"
-           "Qs_04" "Qt_04"
-           "Qs_05" "Qt_05"
-           "Qs_06" "Qt_06"
-           "Qs_07" "Qt_07"
-           "Qs_08pre" "Qt_08pre"
-           "Qs_09pre" "Qt_09pre"]})
-
 (def demo-mutants
   "a list of the queries to return"
   {:query [[(qname dq/qs-01) "Qs_01" "Qt_01"]
