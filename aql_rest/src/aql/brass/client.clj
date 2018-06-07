@@ -32,6 +32,7 @@
          "Position_TileY"
          "Event_CotType"]}]}}}})
 
+
 (def mutant-json-live-1
   {"martiServerModel"
      {"requirements"
@@ -45,6 +46,20 @@
           ["point_hae" "point_ce" "point_le"
            "tileX" "tileY" "longitude" "latitude"]}]}}}})
 
+(def mutant-json-live-2
+  {"martiServerModel"
+   {"requirements"
+    {"postgresqlPerturbation"
+     {"tables"
+      [{"table" "a89f0aa12e56c431a9486fc6ab178852e",
+        "columns"
+        ["source_id","how","servertime","point_ce",
+         "point_le","tileX","longitude","latitude"]},
+       {"table" "aeb7c4051442144a1a4bf2230bc7e87a6",
+        "columns"
+        ["point_hae","detail","tileY","cot_type"]}]}}}})
+
+
 (defn options [payload]
   {:method :post
    :headers {"content-type" "application/json; charset=UTF-8"}
@@ -55,7 +70,8 @@
 
 (def cli-options
   [["-1" "--message-1" :id :m1]
-   ["-2" "--message-2" :id :m2]])
+   ["-2" "--message-2" :id :m2]
+   ["-3" "--message-3" :id :m3]])
 
 (defn usage [options-summary]
   (->> ["Usage: program-name [options]"
@@ -102,6 +118,7 @@
       exit-message (exit exit-message ok?)
       (contains? options :m1) (process mutant-json-def)
       (contains? options :m2) (process mutant-json-live-1)
+      (contains? options :m3) (process mutant-json-live-2)
       :else (log/warn "options " options))))
 
 (defn -main [& args] (run args))

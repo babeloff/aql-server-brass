@@ -2,7 +2,7 @@
 
 # This does the same thing as client.clj but via curl
 ENDPOINT="http://localhost:9090/brass/p2/c1/json"
-HEADER="Content-Type: application/json; charset=UTF-8"
+HEADER="Content-Type: application/json; charset=utf8"
 
 cat << JSON  | curl -d @- -H "${HEADER}"  ${ENDPOINT}
 {"permutation":

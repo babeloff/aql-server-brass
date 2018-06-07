@@ -101,60 +101,63 @@ mapping F = literal : S -> X {
 
 schema T = literal : sql1 {
   entities 
-    aeb88d8
-    ab67343
+    cot_action
     source
+    cot_detail
   foreign_keys 
-    source_fk : ab67343 -> source
-    ab67343_fk : aeb88d8 -> ab67343
-    aeb88d8_fk : ab67343 -> aeb88d8
+    source_fk : cot_action -> source
+    cot_action_fk : cot_detail -> cot_action
+    cot_detail_fk : cot_action -> cot_detail
   attributes 
-    cot_type : ab67343 -> Varchar
-    detail : ab67343 -> Varchar
-    how : ab67343 -> Varchar
-    id : ab67343 -> Varchar
-    servertime : ab67343 -> Varchar
-    source_id : ab67343 -> Varchar
-    id : aeb88d8 -> Varchar
-    latitude : aeb88d8 -> Varchar
-    longitude : aeb88d8 -> Varchar
-    point_ce : aeb88d8 -> Varchar
-    point_hae : aeb88d8 -> Varchar
-    point_le : aeb88d8 -> Varchar
-    tilex : aeb88d8 -> Varchar
-    tiley : aeb88d8 -> Varchar
+    how : cot_action -> Varchar
+    id : cot_action -> Varchar
+    id : cot_action -> Varchar
+    latitude : cot_action -> Varchar
+    longitude : cot_action -> Varchar
+    point_ce : cot_action -> Varchar
+    point_le : cot_action -> Varchar
+    servertime : cot_action -> Varchar
+    source_id : cot_action -> Varchar
+    tilex : cot_action -> Varchar
+    cot_type : cot_detail -> Varchar
+    detail : cot_detail -> Varchar
+    id : cot_detail -> Varchar
+    id : cot_detail -> Varchar
+    id : cot_detail -> Varchar
+    point_hae : cot_detail -> Varchar
+    tiley : cot_detail -> Varchar
     channel : source -> Varchar
     name : source -> Varchar
     source_id : source -> Varchar
     observation_equations 
-      forall x:ab67343 . source_id(x) = source_id(source_fk(x))
-      forall x:ab67343 . id(x) = id(aeb88d8_fk(x))
-      forall x:aeb88d8 . id(x) = id(ab67343_fk(x))
+      forall x:cot_action . source_id(x) = source_id(source_fk(x))
+      forall x:cot_action . id(x) = id(cot_detail_fk(x))
+      forall x:cot_detail . id(x) = id(cot_action_fk(x))
  options allow_java_eqs_unsafe=true }
 
 mapping G = literal : T -> X {
-  entity ab67343 -> cospan
+  entity cot_action -> cospan
     foreign_keys 
-      aeb88d8_fk -> cospan
+      cot_detail_fk -> cospan
       source_fk -> source_fk
     attributes 
-      cot_type -> cot_type
-      detail -> detail
       how -> how
-      id -> cot_event_id
-      servertime -> servertime
-      source_id -> source_id
-  entity aeb88d8 -> cospan
-    foreign_keys 
-      ab67343_fk -> cospan
-    attributes 
       id -> cot_event_id
       latitude -> latitude
       longitude -> longitude
       point_ce -> point_ce
-      point_hae -> point_hae
       point_le -> point_le
+      servertime -> servertime
+      source_id -> source_id
       tilex -> tilex
+  entity cot_detail -> cospan
+    foreign_keys 
+      cot_action_fk -> cospan
+    attributes 
+      cot_type -> cot_type
+      detail -> detail
+      id -> cot_event_id
+      point_hae -> point_hae
       tiley -> tiley
   entity source -> source
     attributes 
